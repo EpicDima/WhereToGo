@@ -5,7 +5,7 @@
 
 <div class="space-y-5">
   <div>
-    <label class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-2">Город</label>
+    <span class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-2">Город</span>
     <div class="grid grid-cols-3 gap-2">
       {#each Object.entries(CITY_PRESETS) as [key, city]}
         <button
@@ -22,7 +22,7 @@
   </div>
 
   <div>
-    <label class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-2">Зона поиска</label>
+    <span class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-2">Зона поиска</span>
     <div class="space-y-2">
       {#each Object.entries(CITY_PRESETS[appState.selectedCity].zones) as [key, zone]}
         <button

@@ -6,9 +6,9 @@
 
 <div class="space-y-5">
   <div>
-    <label class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-3">
+    <span class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-3">
       Мин. расстояние: {appState.minDistance.toFixed(1)} км
-    </label>
+    </span>
     <input
       type="range"
       min="0"
@@ -24,9 +24,9 @@
   </div>
 
   <div>
-    <label class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-3">
+    <span class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-3">
       Макс. расстояние: {appState.maxDistance.toFixed(1)} км
-    </label>
+    </span>
     <input
       type="range"
       min="1"
