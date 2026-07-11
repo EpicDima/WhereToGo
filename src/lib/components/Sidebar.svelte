@@ -1,5 +1,5 @@
 <script>
-  import { appState, nextStep, restart, setCity } from '../stores/app.svelte.js';
+  import { appState, nextStep, restart, regenerate, setPresetCity, toggleDarkMode } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, createPolygonFeature } from '../utils/geo.js';
   import { getWalkingRoute } from '../utils/routing.js';
@@ -14,8 +14,7 @@
 
   async function handleGenerate() {
     appState.isGenerating = true;
-    appState.generatedPoint = null;
-    appState.routeData = null;
+    regenerate();
     errorMsg = '';
 
     const polygon = createPolygonFeature(
@@ -30,7 +29,7 @@
 
     const locations = appState.userLocations.length > 0
       ? appState.userLocations
-      : [{ lng: CITY_PRESETS[appState.selectedCity].center[0], lat: CITY_PRESETS[appState.selectedCity].center[1] }];
+      : [{ lng: appState.city.center[0], lat: appState.city.center[1] }];
 
     await new Promise(r => setTimeout(r, 300));
 
@@ -39,7 +38,7 @@
     );
 
     if (!point) {
-      errorMsg = 'Не удалось найти точку с такими ограничениями. Попробуйте изменить расстояния.';
+      errorMsg = 'Не удалось найти точку. Измените расстояния или зону.';
       appState.isGenerating = false;
       return;
     }
@@ -61,32 +60,32 @@
 <div class="
   fixed z-20 flex flex-col
   top-4 left-4 bottom-4 w-[360px]
-  glass rounded-2xl
-  border border-border
+  glass rounded-2xl border border-border
   shadow-xl shadow-black/8
   max-lg:top-auto max-lg:left-0 max-lg:right-0 max-lg:bottom-0
   max-lg:w-full max-lg:rounded-t-2xl max-lg:rounded-b-none
   max-lg:max-h-[75vh] max-lg:border-0 max-lg:border-t
 ">
   <!-- Header -->
-  <div class="px-5 pt-4 pb-3 max-lg:pt-2 shrink-0">
+  <div class="px-5 pt-4 pb-2 max-lg:pt-2 shrink-0">
     <div class="w-9 h-[3px] bg-ink-4/50 rounded-full mx-auto mb-2.5 lg:hidden"></div>
     <div class="flex items-center justify-between">
       <h1 class="font-heading text-lg font-bold text-ink tracking-tight">Куда пойти?</h1>
-      <select
-        class="text-[13px] text-ink-2 bg-transparent border-0 outline-none cursor-pointer font-medium"
-        bind:value={appState.selectedCity}
-        onchange={(e) => setCity(e.target.value)}
-      >
-        {#each Object.entries(CITY_PRESETS) as [key, city]}
-          <option value={key}>{city.name}</option>
-        {/each}
-      </select>
+      <div class="flex items-center gap-2">
+        <button
+          class="w-7 h-7 rounded-full flex items-center justify-center text-ink-3 hover:text-ink hover:bg-panel-hover transition-colors"
+          onclick={toggleDarkMode}
+          title={appState.darkMode ? 'Светлая тема' : 'Тёмная тема'}
+        >
+          {appState.darkMode ? '☀' : '☾'}
+        </button>
+      </div>
     </div>
+    <span class="text-[12px] text-ink-3">{appState.city.name}</span>
   </div>
 
   <!-- Progress -->
-  <div class="px-5 pb-3 shrink-0">
+  <div class="px-5 pb-2 shrink-0">
     <div class="flex gap-1.5">
       {#each [0, 1, 2, 3] as i}
         <div class="flex-1 h-[3px] rounded-full transition-colors {i <= appState.step ? 'bg-accent' : 'bg-ink-4/20'}"></div>
@@ -94,12 +93,9 @@
     </div>
     <div class="flex items-center justify-between mt-2">
       <span class="text-[12px] font-semibold text-ink-2">{stepTitles[appState.step]}</span>
-      {#if appState.step > 0}
-        <button
-          class="text-[11px] text-ink-3 hover:text-accent transition-colors font-medium"
-          onclick={restart}
-        >
-          Начать заново
+      {#if appState.step > 0 && appState.step < 3}
+        <button class="text-[11px] text-ink-3 hover:text-accent transition-colors font-medium" onclick={restart}>
+          Сначала
         </button>
       {/if}
     </div>

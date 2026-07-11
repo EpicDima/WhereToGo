@@ -14,12 +14,25 @@ function loadSaved() {
 
 const saved = loadSaved();
 
+function getInitialCity() {
+  if (saved?.customCity) return saved.customCity;
+  const key = saved?.selectedCity && CITY_PRESETS[saved.selectedCity] ? saved.selectedCity : DEFAULT_CITY;
+  return { name: CITY_PRESETS[key].name, center: CITY_PRESETS[key].center, zoom: CITY_PRESETS[key].zoom };
+}
+
+function getInitialZone() {
+  if (saved?.zoneCoordinates) return saved.zoneCoordinates;
+  return [...CITY_PRESETS[DEFAULT_CITY].zones.wide.coordinates];
+}
+
 export const appState = $state({
-  selectedCity: saved?.selectedCity && CITY_PRESETS[saved.selectedCity] ? saved.selectedCity : DEFAULT_CITY,
-  zoneCoordinates: saved?.zoneCoordinates ?? [...CITY_PRESETS[DEFAULT_CITY].zones.wide.coordinates],
+  city: getInitialCity(),
+  presetKey: saved?.presetKey ?? DEFAULT_CITY,
+  zoneCoordinates: getInitialZone(),
   zonePreset: saved?.zonePreset ?? 'wide',
 
   userLocations: saved?.userLocations ?? [],
+  savedFriends: saved?.savedFriends ?? [],
 
   minDistance: saved?.minDistance ?? 0.5,
   maxDistance: saved?.maxDistance ?? 10,
@@ -33,42 +46,52 @@ export const appState = $state({
   routeData: null,
 
   step: 0,
+  darkMode: saved?.darkMode ?? window.matchMedia('(prefers-color-scheme: dark)').matches,
 });
 
 export function saveSettings() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      selectedCity: appState.selectedCity,
+      customCity: appState.city,
+      presetKey: appState.presetKey,
       zoneCoordinates: appState.zoneCoordinates,
       zonePreset: appState.zonePreset,
       userLocations: appState.userLocations,
+      savedFriends: appState.savedFriends,
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
       showRouting: appState.showRouting,
+      darkMode: appState.darkMode,
     }));
   } catch {}
 }
 
-export function resetState() {
-  const city = CITY_PRESETS[appState.selectedCity];
+export function setPresetCity(key) {
+  const city = CITY_PRESETS[key];
+  if (!city) return;
+  appState.presetKey = key;
+  appState.city = { name: city.name, center: city.center, zoom: city.zoom };
   appState.zoneCoordinates = [...city.zones.wide.coordinates];
   appState.zonePreset = 'wide';
-  appState.userLocations = [];
   appState.generatedPoint = null;
   appState.routeData = null;
-  appState.step = 0;
   saveSettings();
 }
 
-export function setCity(cityKey) {
-  appState.selectedCity = cityKey;
-  resetState();
+export function setCustomCity(name, center, zoom) {
+  appState.presetKey = null;
+  appState.city = { name, center, zoom };
+  appState.zoneCoordinates = [];
+  appState.zonePreset = 'custom';
+  appState.generatedPoint = null;
+  appState.routeData = null;
+  saveSettings();
 }
 
 export function setZonePreset(presetKey) {
-  const city = CITY_PRESETS[appState.selectedCity];
-  if (city.zones[presetKey]) {
-    appState.zoneCoordinates = [...city.zones[presetKey].coordinates];
+  const preset = CITY_PRESETS[appState.presetKey];
+  if (preset?.zones[presetKey]) {
+    appState.zoneCoordinates = [...preset.zones[presetKey].coordinates];
     appState.zonePreset = presetKey;
     appState.generatedPoint = null;
     saveSettings();
@@ -92,6 +115,16 @@ export function updateUserLocationName(index, name) {
   saveSettings();
 }
 
+export function saveFriends() {
+  appState.savedFriends = [...appState.userLocations];
+  saveSettings();
+}
+
+export function loadFriends() {
+  appState.userLocations = [...appState.savedFriends];
+  saveSettings();
+}
+
 export function nextStep() {
   appState.step = Math.min(appState.step + 1, 3);
 }
@@ -100,4 +133,14 @@ export function restart() {
   appState.generatedPoint = null;
   appState.routeData = null;
   appState.step = 0;
+}
+
+export function regenerate() {
+  appState.generatedPoint = null;
+  appState.routeData = null;
+}
+
+export function toggleDarkMode() {
+  appState.darkMode = !appState.darkMode;
+  saveSettings();
 }
