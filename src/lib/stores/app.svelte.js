@@ -45,8 +45,12 @@ export const appState = $state({
   showRouting: saved?.showRouting ?? true,
   routeData: null,
 
+  poiCategories: saved?.poiCategories ?? ['parks', 'cafes', 'culture'],
+  poiWeight: saved?.poiWeight ?? 0.3,
+
   step: 0,
-  darkMode: saved?.darkMode ?? window.matchMedia('(prefers-color-scheme: dark)').matches,
+  themeMode: saved?.themeMode ?? 'system',
+  darkMode: saved?.themeMode === 'dark' || (saved?.themeMode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches),
 });
 
 export function saveSettings() {
@@ -61,7 +65,9 @@ export function saveSettings() {
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
       showRouting: appState.showRouting,
-      darkMode: appState.darkMode,
+      themeMode: appState.themeMode,
+      poiCategories: appState.poiCategories,
+      poiWeight: appState.poiWeight,
     }));
   } catch {}
 }
@@ -140,7 +146,12 @@ export function regenerate() {
   appState.routeData = null;
 }
 
-export function toggleDarkMode() {
-  appState.darkMode = !appState.darkMode;
+export function setThemeMode(mode) {
+  appState.themeMode = mode;
+  if (mode === 'system') {
+    appState.darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } else {
+    appState.darkMode = mode === 'dark';
+  }
   saveSettings();
 }

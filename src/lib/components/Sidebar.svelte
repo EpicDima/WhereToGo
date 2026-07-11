@@ -1,8 +1,9 @@
 <script>
-  import { appState, nextStep, restart, regenerate, setPresetCity, toggleDarkMode } from '../stores/app.svelte.js';
+  import { appState, nextStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, createPolygonFeature } from '../utils/geo.js';
   import { getWalkingRoute } from '../utils/routing.js';
+  import { getActivePOIs } from '../utils/poi.js';
   import StepZone from './StepZone.svelte';
   import StepPeople from './StepPeople.svelte';
   import StepSettings from './StepSettings.svelte';
@@ -33,8 +34,9 @@
 
     await new Promise(r => setTimeout(r, 300));
 
+    const pois = getActivePOIs(appState.poiCategories);
     const point = generateConstrainedPoint(
-      polygon, locations, appState.minDistance, appState.maxDistance
+      polygon, locations, appState.minDistance, appState.maxDistance, pois, appState.poiWeight
     );
 
     if (!point) {
@@ -71,15 +73,6 @@
     <div class="w-9 h-[3px] bg-ink-4/50 rounded-full mx-auto mb-2.5 lg:hidden"></div>
     <div class="flex items-center justify-between">
       <h1 class="font-heading text-lg font-bold text-ink tracking-tight">Куда пойти?</h1>
-      <div class="flex items-center gap-2">
-        <button
-          class="w-7 h-7 rounded-full flex items-center justify-center text-ink-3 hover:text-ink hover:bg-panel-hover transition-colors"
-          onclick={toggleDarkMode}
-          title={appState.darkMode ? 'Светлая тема' : 'Тёмная тема'}
-        >
-          {appState.darkMode ? '☀' : '☾'}
-        </button>
-      </div>
     </div>
     <span class="text-[12px] text-ink-3">{appState.city.name}</span>
   </div>

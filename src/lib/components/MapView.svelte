@@ -180,9 +180,9 @@
   function updateUserMarkers() {
     userMarkers.forEach(m => m.remove());
     userMarkers = [];
-    if (!map) return;
+    if (!map || appState.step === 0) return;
 
-    const draggable = appState.step <= 1;
+    const draggable = appState.step === 1;
 
     appState.userLocations.forEach((loc, i) => {
       const el = document.createElement('div');
