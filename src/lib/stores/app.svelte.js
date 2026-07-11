@@ -106,7 +106,8 @@ export function setZonePreset(presetKey) {
 }
 
 export function addUserLocation(lngLat) {
-  appState.userLocations = [...appState.userLocations, { lng: lngLat.lng, lat: lngLat.lat, name: `Друг ${appState.userLocations.length + 1}` }];
+  const name = appState.userLocations.length === 0 ? 'Я' : `Друг ${appState.userLocations.length}`;
+  appState.userLocations = [...appState.userLocations, { lng: lngLat.lng, lat: lngLat.lat, name }];
   saveSettings();
 }
 
