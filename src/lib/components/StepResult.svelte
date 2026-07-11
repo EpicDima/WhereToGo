@@ -53,7 +53,7 @@
                 target="_blank" rel="noreferrer"
                 class="flex-1 py-1.5 rounded-lg text-[11px] font-medium text-center text-ink-3 hover:bg-panel-hover border border-border transition-colors"
               >
-                Яндекс
+                Яндекс Карты
               </a>
             </div>
           </div>

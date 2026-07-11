@@ -241,10 +241,11 @@
     }
   });
   $effect(() => {
+    const routeData = appState.routeData;
     if (!map?.getSource('route')) return;
     map.getSource('route').setData(
-      appState.routeData
-        ? { type: 'FeatureCollection', features: [appState.routeData] }
+      routeData
+        ? { type: 'FeatureCollection', features: [routeData] }
         : { type: 'FeatureCollection', features: [] }
     );
   });
