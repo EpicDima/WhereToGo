@@ -31,6 +31,8 @@ export const appState = $state({
   zoneCoordinates: getInitialZone(),
   zonePreset: saved?.zonePreset ?? 'wide',
 
+  customZones: saved?.customZones ?? [],
+
   userLocations: saved?.userLocations ?? [],
   savedFriends: saved?.savedFriends ?? [],
 
@@ -60,6 +62,7 @@ export function saveSettings() {
       presetKey: appState.presetKey,
       zoneCoordinates: appState.zoneCoordinates,
       zonePreset: appState.zonePreset,
+      customZones: appState.customZones,
       userLocations: appState.userLocations,
       savedFriends: appState.savedFriends,
       minDistance: appState.minDistance,
@@ -128,6 +131,27 @@ export function saveFriends() {
 
 export function loadFriends() {
   appState.userLocations = [...appState.savedFriends];
+  saveSettings();
+}
+
+export function saveCustomZone(name) {
+  if (appState.zoneCoordinates.length < 3) return;
+  appState.customZones = [...appState.customZones, { name, coordinates: [...appState.zoneCoordinates] }];
+  saveSettings();
+}
+
+export function loadCustomZone(index) {
+  const zone = appState.customZones[index];
+  if (!zone) return;
+  appState.zoneCoordinates = [...zone.coordinates];
+  appState.zonePreset = 'custom';
+  appState.drawingMode = false;
+  appState.generatedPoint = null;
+  saveSettings();
+}
+
+export function deleteCustomZone(index) {
+  appState.customZones = appState.customZones.filter((_, i) => i !== index);
   saveSettings();
 }
 
