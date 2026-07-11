@@ -37,7 +37,7 @@
               {appState.zonePreset === key
                 ? 'bg-accent text-white font-semibold shadow-md shadow-accent-glow'
                 : 'text-ink font-medium border border-border hover:bg-panel-hover'}"
-            onclick={() => setZonePreset(key)}
+            onclick={() => { appState.drawingMode = false; setZonePreset(key); }}
           >
             {zone.name}
           </button>
