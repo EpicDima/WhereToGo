@@ -76,7 +76,7 @@
   <!-- Route toggle -->
   <button
     class="w-full flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] transition-colors
-      {appState.showRouting ? 'bg-accent-soft text-accent font-semibold' : 'text-ink-2 hover:bg-panel-hover'}"
+      {appState.showRouting ? 'bg-accent-soft text-accent' : 'text-ink-2 hover:bg-panel-hover'}"
     onclick={() => { appState.showRouting = !appState.showRouting; saveSettings(); }}
     title="Пешеходный маршрут от первого участника"
   >
