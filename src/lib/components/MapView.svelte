@@ -33,6 +33,7 @@
     map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
 
     map.on('load', () => {
+      addRouteLayers();
       addZoneLayers();
       addDrawLayers();
       updateZoneData();
@@ -51,6 +52,27 @@
     };
   });
 
+  function addRouteLayers() {
+    map.addSource('route', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+    map.addLayer({
+      id: 'route-line-bg',
+      type: 'line',
+      source: 'route',
+      paint: { 'line-color': '#1A1A1A', 'line-width': 6, 'line-opacity': 0.15 },
+      layout: { 'line-cap': 'round', 'line-join': 'round' }
+    });
+    map.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      paint: { 'line-color': '#E8584A', 'line-width': 3.5 },
+      layout: { 'line-cap': 'round', 'line-join': 'round' }
+    });
+  }
+
   function addZoneLayers() {
     map.addSource('zone', {
       type: 'geojson',
@@ -60,13 +82,13 @@
       id: 'zone-fill',
       type: 'fill',
       source: 'zone',
-      paint: { 'fill-color': '#2B7A6F', 'fill-opacity': 0.1 }
+      paint: { 'fill-color': '#E8584A', 'fill-opacity': 0.06 }
     });
     map.addLayer({
       id: 'zone-border',
       type: 'line',
       source: 'zone',
-      paint: { 'line-color': '#2B7A6F', 'line-width': 2.5, 'line-dasharray': [4, 3] }
+      paint: { 'line-color': '#E8584A', 'line-width': 2, 'line-opacity': 0.5 }
     });
   }
 
@@ -194,9 +216,9 @@
 
     const el = document.createElement('div');
     el.innerHTML = `<svg width="36" height="44" viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.06 27.94 0 18 0z" fill="#2B7A6F"/>
+      <path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.06 27.94 0 18 0z" fill="#E8584A"/>
       <circle cx="18" cy="17" r="7" fill="white"/>
-      <circle cx="18" cy="17" r="3" fill="#2B7A6F"/>
+      <circle cx="18" cy="17" r="3" fill="#E8584A"/>
     </svg>`;
     el.style.cursor = 'pointer';
     el.className = 'result-pin';
@@ -235,6 +257,15 @@
   });
 
   $effect(() => {
+    if (!map?.getSource('route')) return;
+    if (appState.routeData) {
+      map.getSource('route').setData({ type: 'FeatureCollection', features: [appState.routeData] });
+    } else {
+      map.getSource('route').setData({ type: 'FeatureCollection', features: [] });
+    }
+  });
+
+  $effect(() => {
     if (map) {
       map.getCanvas().style.cursor = appState.drawingMode ? 'crosshair' : '';
     }
@@ -244,16 +275,17 @@
 <div bind:this={mapContainer} class="absolute inset-0 w-full h-full"></div>
 
 {#if appState.drawingMode}
-  <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 max-lg:left-4 max-lg:translate-x-0 max-lg:right-4 max-lg:top-auto max-lg:bottom-[calc(70vh+1rem)]">
-    <span class="text-sm text-ink-600">Кликайте на карту для точек полигона</span>
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 glass rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 border border-border
+    max-lg:left-4 max-lg:right-4 max-lg:translate-x-0 max-lg:top-4">
+    <span class="text-[13px] text-ink-2 font-medium">Кликайте для точек полигона</span>
     <button
-      class="px-3 py-1.5 text-xs font-medium rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-colors"
+      class="px-3 py-1.5 text-[12px] font-semibold rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors"
       onclick={() => finishDrawing()}
     >
-      Готово ✓
+      Готово
     </button>
     <button
-      class="px-3 py-1.5 text-xs font-medium rounded-lg bg-cream-200 text-ink-600 hover:bg-cream-300 transition-colors"
+      class="px-3 py-1.5 text-[12px] font-semibold rounded-lg text-ink-3 hover:bg-panel-hover transition-colors"
       onclick={() => cancelDrawing()}
     >
       Отмена

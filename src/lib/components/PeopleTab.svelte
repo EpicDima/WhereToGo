@@ -3,36 +3,32 @@
   import { CITY_PRESETS } from '../utils/presets.js';
 </script>
 
-<div class="space-y-5">
-  <div class="text-sm text-ink-600">
-    Кликните на карту, чтобы добавить участника. Маркеры можно перетаскивать.
-  </div>
+<div class="space-y-3">
+  <p class="text-[12px] text-ink-3">
+    Кликните на карту, чтобы добавить точку. Маркеры можно перетаскивать.
+  </p>
 
   {#if appState.userLocations.length === 0}
-    <div class="bg-cream-200/60 rounded-xl p-6 text-center">
-      <div class="text-3xl mb-2">📍</div>
-      <p class="text-sm text-ink-400">Нажмите на карту, чтобы отметить своё местоположение</p>
+    <div class="rounded-xl border border-border border-dashed p-5 text-center">
+      <p class="text-[13px] text-ink-3">Нет участников</p>
+      <p class="text-[11px] text-ink-4 mt-1">Нажмите на карту или используйте GPS</p>
     </div>
   {:else}
-    <div class="space-y-2">
+    <div class="space-y-1.5">
       {#each appState.userLocations as loc, i}
-        <div class="flex items-center gap-3 bg-cream-200 rounded-lg px-3 py-2.5">
-          <div class="w-7 h-7 rounded-full bg-ink-900 text-white text-xs font-semibold flex items-center justify-center shrink-0">
+        <div class="flex items-center gap-2.5 rounded-xl px-3 py-2 hover:bg-panel-hover transition-colors group">
+          <div class="w-6 h-6 rounded-full bg-ink text-white text-[11px] font-bold flex items-center justify-center shrink-0">
             {i + 1}
           </div>
           <input
-            class="flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400"
+            class="flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-4 font-medium"
             value={loc.name}
             oninput={(e) => updateUserLocationName(i, e.target.value)}
             placeholder="Имя"
           />
-          <span class="text-xs text-ink-400 shrink-0">
-            {loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}
-          </span>
           <button
-            class="text-red-600 hover:text-red-600/80 text-lg leading-none shrink-0"
+            class="w-6 h-6 rounded-full text-ink-4 hover:text-danger hover:bg-danger/10 text-sm flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
             onclick={() => removeUserLocation(i)}
-            title="Удалить"
           >
             ×
           </button>
@@ -42,7 +38,7 @@
   {/if}
 
   <button
-    class="w-full py-2.5 rounded-lg text-sm font-medium bg-cream-200 text-ink-600 hover:bg-cream-300 transition-colors"
+    class="w-full py-2.5 rounded-xl text-[13px] font-medium text-ink-2 hover:bg-panel-hover border border-border transition-colors"
     onclick={() => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -55,6 +51,6 @@
       }
     }}
   >
-    📍 Моё местоположение (GPS)
+    Моё местоположение (GPS)
   </button>
 </div>

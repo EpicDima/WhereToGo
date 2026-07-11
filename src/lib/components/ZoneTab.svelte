@@ -1,58 +1,41 @@
 <script>
-  import { appState, setCity, setZonePreset } from '../stores/app.svelte.js';
+  import { appState, setZonePreset } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
 </script>
 
-<div class="space-y-5">
-  <div>
-    <span class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-2">Город</span>
-    <div class="grid grid-cols-3 gap-2">
-      {#each Object.entries(CITY_PRESETS) as [key, city]}
-        <button
-          class="px-3 py-2 rounded-lg text-sm font-medium transition-all
-            {appState.selectedCity === key
-              ? 'bg-teal-600 text-white shadow-md'
-              : 'bg-cream-200 text-ink-600 hover:bg-cream-300'}"
-          onclick={() => setCity(key)}
-        >
-          {city.name}
-        </button>
-      {/each}
-    </div>
-  </div>
+<div class="space-y-3">
+  <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider">Зона поиска</span>
 
-  <div>
-    <span class="block text-xs font-medium text-ink-400 uppercase tracking-wider mb-2">Зона поиска</span>
-    <div class="space-y-2">
-      {#each Object.entries(CITY_PRESETS[appState.selectedCity].zones) as [key, zone]}
-        <button
-          class="w-full text-left px-4 py-3 rounded-lg text-sm transition-all
-            {appState.zonePreset === key
-              ? 'bg-teal-600/10 text-teal-600 ring-1 ring-teal-600/30'
-              : 'bg-cream-200 text-ink-600 hover:bg-cream-300'}"
-          onclick={() => setZonePreset(key)}
-        >
-          <span class="font-medium">{zone.name}</span>
-        </button>
-      {/each}
+  <div class="space-y-1.5">
+    {#each Object.entries(CITY_PRESETS[appState.selectedCity].zones) as [key, zone]}
       <button
-        class="w-full text-left px-4 py-3 rounded-lg text-sm transition-all
-          {appState.zonePreset === 'custom'
-            ? 'bg-teal-600/10 text-teal-600 ring-1 ring-teal-600/30'
-            : 'bg-cream-200 text-ink-600 hover:bg-cream-300'}"
-        onclick={() => {
-          appState.drawingMode = !appState.drawingMode;
-          appState.zonePreset = 'custom';
-        }}
+        class="w-full text-left px-3.5 py-2.5 rounded-xl text-[13px] transition-all
+          {appState.zonePreset === key
+            ? 'bg-accent text-white font-semibold shadow-md shadow-accent-glow'
+            : 'text-ink-2 hover:bg-panel-hover font-medium'}"
+        onclick={() => setZonePreset(key)}
       >
-        <span class="font-medium">
-          {appState.drawingMode ? '✏️ Рисуем... (кликайте на карту)' : '✏️ Нарисовать свою зону'}
-        </span>
+        {zone.name}
       </button>
-    </div>
+    {/each}
+
+    <button
+      class="w-full text-left px-3.5 py-2.5 rounded-xl text-[13px] transition-all
+        {appState.drawingMode
+          ? 'bg-accent text-white font-semibold shadow-md shadow-accent-glow'
+          : appState.zonePreset === 'custom'
+            ? 'bg-accent/10 text-accent font-semibold ring-1 ring-accent/20'
+            : 'text-ink-2 hover:bg-panel-hover font-medium'}"
+      onclick={() => {
+        appState.drawingMode = !appState.drawingMode;
+        if (appState.drawingMode) appState.zonePreset = 'custom';
+      }}
+    >
+      {appState.drawingMode ? 'Рисуем — кликайте на карту...' : 'Нарисовать свою зону'}
+    </button>
   </div>
 
-  <div class="text-xs text-ink-400 bg-cream-200/60 rounded-lg p-3">
-    Зона определяет область, в которой будет выбрана случайная точка. Используйте пресет или нарисуйте свою зону на карте.
-  </div>
+  <p class="text-[11px] text-ink-3 leading-relaxed pt-1">
+    Зона определяет область, в которой появится случайная точка.
+  </p>
 </div>
