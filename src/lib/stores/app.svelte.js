@@ -34,7 +34,6 @@ export const appState = $state({
   customZones: saved?.customZones ?? [],
 
   userLocations: saved?.userLocations ?? [],
-  savedFriends: saved?.savedFriends ?? [],
 
   minDistance: saved?.minDistance ?? 0.5,
   maxDistance: saved?.maxDistance ?? 10,
@@ -64,7 +63,6 @@ export function saveSettings() {
       zonePreset: appState.zonePreset,
       customZones: appState.customZones,
       userLocations: appState.userLocations,
-      savedFriends: appState.savedFriends,
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
       showRouting: appState.showRouting,
@@ -121,16 +119,6 @@ export function updateUserLocationName(index, name) {
   appState.userLocations = appState.userLocations.map((loc, i) =>
     i === index ? { ...loc, name } : loc
   );
-  saveSettings();
-}
-
-export function saveFriends() {
-  appState.savedFriends = [...appState.userLocations];
-  saveSettings();
-}
-
-export function loadFriends() {
-  appState.userLocations = [...appState.savedFriends];
   saveSettings();
 }
 

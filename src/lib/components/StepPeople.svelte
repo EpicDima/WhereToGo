@@ -1,5 +1,5 @@
 <script>
-  import { appState, addUserLocation, removeUserLocation, updateUserLocationName, saveFriends, loadFriends } from '../stores/app.svelte.js';
+  import { appState, addUserLocation, removeUserLocation, updateUserLocationName } from '../stores/app.svelte.js';
 
   let { onNext } = $props();
 </script>
@@ -37,37 +37,19 @@
     </div>
   {/if}
 
-  <div class="flex gap-2">
-    <button
-      class="flex-1 py-2 rounded-xl text-[12px] font-medium text-ink-2 hover:bg-panel-hover border border-border transition-colors"
-      onclick={() => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => addUserLocation({ lng: pos.coords.longitude, lat: pos.coords.latitude }),
-            () => {}
-          );
-        }
-      }}
-    >
-      GPS
-    </button>
-    {#if appState.userLocations.length > 0}
-      <button
-        class="flex-1 py-2 rounded-xl text-[12px] font-medium text-ink-2 hover:bg-panel-hover border border-border transition-colors"
-        onclick={saveFriends}
-      >
-        Сохранить
-      </button>
-    {/if}
-    {#if appState.savedFriends.length > 0 && appState.userLocations.length === 0}
-      <button
-        class="flex-1 py-2 rounded-xl text-[12px] font-medium text-accent hover:bg-accent-soft border border-accent/20 transition-colors"
-        onclick={loadFriends}
-      >
-        Загрузить ({appState.savedFriends.length})
-      </button>
-    {/if}
-  </div>
+  <button
+    class="w-full py-2 rounded-xl text-[12px] font-medium text-ink-2 hover:bg-panel-hover border border-border transition-colors"
+    onclick={() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => addUserLocation({ lng: pos.coords.longitude, lat: pos.coords.latitude }),
+          () => {}
+        );
+      }
+    }}
+  >
+    GPS
+  </button>
 
   <button
     class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all"
