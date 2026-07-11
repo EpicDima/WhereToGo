@@ -36,7 +36,7 @@
         {#each appState.userLocations as loc, i}
           <div class="rounded-xl border border-border p-3 space-y-2">
             <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-ink text-white text-[10px] font-bold inline-flex items-center justify-center">{i + 1}</span>
+              <span class="w-5 h-5 rounded-full bg-btn text-btn-text text-[10px] font-bold inline-flex items-center justify-center">{i + 1}</span>
               <span class="text-[13px] font-medium text-ink">{loc.name}</span>
               <span class="text-[11px] text-ink-3 ml-auto">{formatDistance(distancesToPoint[i])}</span>
             </div>

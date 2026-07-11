@@ -16,7 +16,7 @@
         <button
           class="px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all
             {appState.presetKey === key
-              ? 'bg-ink text-white'
+              ? 'btn-primary'
               : 'text-ink-2 hover:bg-panel-hover border border-border'}"
           onclick={() => setPresetCity(key)}
         >
@@ -63,7 +63,7 @@
   </button>
 
   <button
-    class="w-full py-3 rounded-xl text-[14px] font-bold bg-ink text-white hover:bg-ink/90 active:scale-[0.97] transition-all mt-2"
+    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
     onclick={onNext}
     disabled={appState.zoneCoordinates.length < 3}
   >

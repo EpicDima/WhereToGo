@@ -18,7 +18,7 @@
     <div class="space-y-1.5">
       {#each appState.userLocations as loc, i}
         <div class="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-panel-hover transition-colors group">
-          <div class="w-6 h-6 rounded-full bg-ink text-white text-[11px] font-bold flex items-center justify-center shrink-0">{i + 1}</div>
+          <div class="w-6 h-6 rounded-full bg-btn text-btn-text text-[11px] font-bold flex items-center justify-center shrink-0">{i + 1}</div>
           <div class="flex-1 min-w-0">
             <input
               class="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-4 font-medium"
@@ -70,7 +70,7 @@
   </div>
 
   <button
-    class="w-full py-3 rounded-xl text-[14px] font-bold bg-ink text-white hover:bg-ink/90 active:scale-[0.97] transition-all"
+    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all"
     onclick={onNext}
   >
     {appState.userLocations.length === 0 ? 'Пропустить' : 'Далее'}
