@@ -17,7 +17,7 @@
           class="px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all
             {appState.presetKey === key
               ? 'btn-primary'
-              : 'text-ink-2 hover:bg-panel-hover border border-border'}"
+              : 'text-ink hover:bg-panel-hover border border-border'}"
           onclick={() => setPresetCity(key)}
         >
           {city.name}
@@ -36,7 +36,7 @@
             class="w-full text-left px-3.5 py-2.5 rounded-xl text-[13px] transition-all
               {appState.zonePreset === key
                 ? 'bg-accent text-white font-semibold shadow-md shadow-accent-glow'
-                : 'text-ink-2 hover:bg-panel-hover font-medium'}"
+                : 'text-ink font-medium border border-border hover:bg-panel-hover'}"
             onclick={() => setZonePreset(key)}
           >
             {zone.name}
@@ -53,7 +53,7 @@
         ? 'bg-accent text-white font-semibold shadow-md shadow-accent-glow'
         : appState.zonePreset === 'custom'
           ? 'bg-accent/10 text-accent font-semibold ring-1 ring-accent/20'
-          : 'text-ink-2 hover:bg-panel-hover font-medium'}"
+          : 'text-ink font-medium border border-border hover:bg-panel-hover'}"
     onclick={() => {
       appState.drawingMode = !appState.drawingMode;
       if (appState.drawingMode) appState.zonePreset = 'custom';
