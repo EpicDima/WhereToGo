@@ -1,9 +1,16 @@
 <script>
-  import { appState } from '../stores/app.svelte.js';
+  import { appState, saveSettings } from '../stores/app.svelte.js';
   import { formatDistance, formatDuration } from '../utils/routing.js';
   import { haversineDistance } from '../utils/geo.js';
 
   let { onGenerate, errorMsg = '' } = $props();
+
+  $effect(() => {
+    appState.minDistance;
+    appState.maxDistance;
+    appState.showRouting;
+    saveSettings();
+  });
 
   let distancesToPoint = $derived(
     appState.generatedPoint && appState.userLocations.length > 0
