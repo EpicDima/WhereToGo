@@ -1,11 +1,11 @@
 <script>
   import { appState, setZonePreset } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
+
+  let { onNext } = $props();
 </script>
 
 <div class="space-y-3">
-  <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider">Зона поиска</span>
-
   <div class="space-y-1.5">
     {#each Object.entries(CITY_PRESETS[appState.selectedCity].zones) as [key, zone]}
       <button
@@ -35,7 +35,14 @@
     </button>
   </div>
 
-  <p class="text-[11px] text-ink-3 leading-relaxed pt-1">
-    Зона определяет область, в которой появится случайная точка.
+  <p class="text-[11px] text-ink-3 leading-relaxed">
+    Зона — область, в которой появится случайная точка.
   </p>
+
+  <button
+    class="w-full py-3 rounded-xl text-[14px] font-bold bg-ink text-white hover:bg-ink/90 active:scale-[0.97] transition-all"
+    onclick={onNext}
+  >
+    Далее
+  </button>
 </div>

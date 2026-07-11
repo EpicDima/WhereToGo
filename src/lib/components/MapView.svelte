@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
+  import * as turf from '@turf/turf';
   import { appState, addUserLocation } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { createPolygonFeature } from '../utils/geo.js';
@@ -26,14 +27,10 @@
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.addControl(new maplibregl.GeolocateControl({
-      positionOptions: { enableHighAccuracy: true },
-      trackUserLocation: false,
-    }), 'bottom-right');
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
 
     map.on('load', () => {
       addRouteLayers();
+      addRadiusLayers();
       addZoneLayers();
       addDrawLayers();
       updateZoneData();
@@ -42,7 +39,7 @@
     map.on('click', (e) => {
       if (appState.drawingMode) {
         handleDrawClick(e.lngLat);
-      } else if (appState.activeTab === 'people') {
+      } else if (appState.step === 1) {
         addUserLocation(e.lngLat);
       }
     });
@@ -61,15 +58,50 @@
       id: 'route-line-bg',
       type: 'line',
       source: 'route',
-      paint: { 'line-color': '#1A1A1A', 'line-width': 6, 'line-opacity': 0.15 },
+      paint: { 'line-color': '#111', 'line-width': 6, 'line-opacity': 0.1 },
       layout: { 'line-cap': 'round', 'line-join': 'round' }
     });
     map.addLayer({
       id: 'route-line',
       type: 'line',
       source: 'route',
-      paint: { 'line-color': '#E8584A', 'line-width': 3.5 },
+      paint: { 'line-color': '#E8584A', 'line-width': 3 },
       layout: { 'line-cap': 'round', 'line-join': 'round' }
+    });
+  }
+
+  function addRadiusLayers() {
+    map.addSource('radius-min', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+    map.addSource('radius-max', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+    map.addLayer({
+      id: 'radius-max-fill',
+      type: 'fill',
+      source: 'radius-max',
+      paint: { 'fill-color': '#E8584A', 'fill-opacity': 0.04 }
+    });
+    map.addLayer({
+      id: 'radius-max-border',
+      type: 'line',
+      source: 'radius-max',
+      paint: { 'line-color': '#E8584A', 'line-width': 1.5, 'line-opacity': 0.3, 'line-dasharray': [4, 4] }
+    });
+    map.addLayer({
+      id: 'radius-min-fill',
+      type: 'fill',
+      source: 'radius-min',
+      paint: { 'fill-color': '#999', 'fill-opacity': 0.08 }
+    });
+    map.addLayer({
+      id: 'radius-min-border',
+      type: 'line',
+      source: 'radius-min',
+      paint: { 'line-color': '#999', 'line-width': 1.5, 'line-opacity': 0.4, 'line-dasharray': [3, 3] }
     });
   }
 
@@ -105,7 +137,7 @@
       id: 'draw-line',
       type: 'line',
       source: 'draw-line',
-      paint: { 'line-color': '#E85D4A', 'line-width': 2, 'line-dasharray': [3, 2] }
+      paint: { 'line-color': '#E8584A', 'line-width': 2, 'line-dasharray': [3, 2] }
     });
     map.addLayer({
       id: 'draw-points',
@@ -113,7 +145,7 @@
       source: 'draw-points',
       paint: {
         'circle-radius': 5,
-        'circle-color': '#E85D4A',
+        'circle-color': '#E8584A',
         'circle-stroke-color': '#fff',
         'circle-stroke-width': 2,
       }
@@ -130,6 +162,26 @@
     );
   }
 
+  function updateRadiusCircles() {
+    if (!map?.getSource('radius-min') || !map?.getSource('radius-max')) return;
+
+    if (appState.userLocations.length === 0 || appState.step < 2) {
+      map.getSource('radius-min').setData({ type: 'FeatureCollection', features: [] });
+      map.getSource('radius-max').setData({ type: 'FeatureCollection', features: [] });
+      return;
+    }
+
+    const minCircles = appState.userLocations.map(loc =>
+      turf.circle([loc.lng, loc.lat], appState.minDistance, { units: 'kilometers', steps: 48 })
+    );
+    const maxCircles = appState.userLocations.map(loc =>
+      turf.circle([loc.lng, loc.lat], appState.maxDistance, { units: 'kilometers', steps: 48 })
+    );
+
+    map.getSource('radius-min').setData({ type: 'FeatureCollection', features: minCircles });
+    map.getSource('radius-max').setData({ type: 'FeatureCollection', features: maxCircles });
+  }
+
   function handleDrawClick(lngLat) {
     drawPoints.push([lngLat.lng, lngLat.lat]);
     updateDrawVisuals();
@@ -137,20 +189,17 @@
 
   function updateDrawVisuals() {
     if (!map?.getSource('draw-points')) return;
-
     const pointFeatures = drawPoints.map(p => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: p }
+      type: 'Feature', geometry: { type: 'Point', coordinates: p }
     }));
     map.getSource('draw-points').setData({ type: 'FeatureCollection', features: pointFeatures });
 
     if (drawPoints.length >= 2) {
-      const lineCoords = [...drawPoints, drawPoints[0]];
       map.getSource('draw-line').setData({
         type: 'FeatureCollection',
         features: [{
           type: 'Feature',
-          geometry: { type: 'LineString', coordinates: lineCoords }
+          geometry: { type: 'LineString', coordinates: [...drawPoints, drawPoints[0]] }
         }]
       });
     }
@@ -183,12 +232,10 @@
   function updateUserMarkers() {
     userMarkers.forEach(m => m.remove());
     userMarkers = [];
-
     if (!map) return;
 
     appState.userLocations.forEach((loc, i) => {
       const el = document.createElement('div');
-      el.className = 'user-marker';
       el.innerHTML = `<div class="user-marker-dot">${i + 1}</div>`;
 
       const marker = new maplibregl.Marker({ element: el, draggable: true })
@@ -207,20 +254,15 @@
   }
 
   function updateResultMarker() {
-    if (resultMarker) {
-      resultMarker.remove();
-      resultMarker = null;
-    }
-
+    if (resultMarker) { resultMarker.remove(); resultMarker = null; }
     if (!map || !appState.generatedPoint) return;
 
     const el = document.createElement('div');
-    el.innerHTML = `<svg width="36" height="44" viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    el.innerHTML = `<svg width="36" height="44" viewBox="0 0 36 44" fill="none">
       <path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 26 18 26s18-12.5 18-26C36 8.06 27.94 0 18 0z" fill="#E8584A"/>
       <circle cx="18" cy="17" r="7" fill="white"/>
       <circle cx="18" cy="17" r="3" fill="#E8584A"/>
     </svg>`;
-    el.style.cursor = 'pointer';
     el.className = 'result-pin';
 
     resultMarker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
@@ -234,28 +276,17 @@
     });
   }
 
+  $effect(() => { appState.zoneCoordinates; updateZoneData(); });
+  $effect(() => { appState.userLocations; updateUserMarkers(); });
+  $effect(() => { appState.generatedPoint; updateResultMarker(); });
   $effect(() => {
-    appState.zoneCoordinates;
-    updateZoneData();
+    appState.userLocations; appState.minDistance; appState.maxDistance; appState.step;
+    updateRadiusCircles();
   });
-
-  $effect(() => {
-    appState.userLocations;
-    updateUserMarkers();
-  });
-
-  $effect(() => {
-    appState.generatedPoint;
-    updateResultMarker();
-  });
-
   $effect(() => {
     const city = CITY_PRESETS[appState.selectedCity];
-    if (map) {
-      map.flyTo({ center: city.center, zoom: city.zoom, duration: 1000 });
-    }
+    if (map) map.flyTo({ center: city.center, zoom: city.zoom, duration: 1000 });
   });
-
   $effect(() => {
     if (!map?.getSource('route')) return;
     if (appState.routeData) {
@@ -264,11 +295,8 @@
       map.getSource('route').setData({ type: 'FeatureCollection', features: [] });
     }
   });
-
   $effect(() => {
-    if (map) {
-      map.getCanvas().style.cursor = appState.drawingMode ? 'crosshair' : '';
-    }
+    if (map) map.getCanvas().style.cursor = appState.drawingMode ? 'crosshair' : '';
   });
 </script>
 
@@ -295,25 +323,23 @@
 
 <style>
   :global(.user-marker-dot) {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: #1A1A1A;
+    background: #111;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     font-family: 'Inter', sans-serif;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    border: 2.5px solid white;
+    border: 2px solid white;
     cursor: grab;
     transition: transform 0.15s;
   }
-  :global(.user-marker-dot:hover) {
-    transform: scale(1.1);
-  }
+  :global(.user-marker-dot:hover) { transform: scale(1.1); }
   :global(.result-pin) {
     animation: dropBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -322,4 +348,5 @@
     60% { transform: translateY(4px); opacity: 1; }
     100% { transform: translateY(0); }
   }
+  :global(.maplibregl-ctrl-attrib) { display: none !important; }
 </style>

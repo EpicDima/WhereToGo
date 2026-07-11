@@ -29,11 +29,10 @@ export const appState = $state({
 
   drawingMode: false,
 
-  showRouting: saved?.showRouting ?? false,
+  showRouting: saved?.showRouting ?? true,
   routeData: null,
 
-  sidebarOpen: true,
-  activeTab: 'zone',
+  step: 0,
 });
 
 export function saveSettings() {
@@ -47,9 +46,7 @@ export function saveSettings() {
       maxDistance: appState.maxDistance,
       showRouting: appState.showRouting,
     }));
-  } catch {
-    // storage full or unavailable
-  }
+  } catch {}
 }
 
 export function resetState() {
@@ -59,6 +56,7 @@ export function resetState() {
   appState.userLocations = [];
   appState.generatedPoint = null;
   appState.routeData = null;
+  appState.step = 0;
   saveSettings();
 }
 
@@ -92,4 +90,14 @@ export function updateUserLocationName(index, name) {
     i === index ? { ...loc, name } : loc
   );
   saveSettings();
+}
+
+export function nextStep() {
+  appState.step = Math.min(appState.step + 1, 3);
+}
+
+export function restart() {
+  appState.generatedPoint = null;
+  appState.routeData = null;
+  appState.step = 0;
 }
