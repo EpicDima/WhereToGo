@@ -19,9 +19,7 @@ export function generateRandomPointInPolygon(polygon, maxAttempts = 1000) {
   return null;
 }
 
-export function generateConstrainedPoint(polygon, userLocations, minKm, maxKm, pois = [], poiWeight = 0.3, maxAttempts = 3000) {
-  const candidates = [];
-
+export function generateConstrainedPoint(polygon, userLocations, minKm, maxKm, maxAttempts = 3000) {
   for (let i = 0; i < maxAttempts; i++) {
     const point = generateRandomPointInPolygon(polygon);
     if (!point) continue;
@@ -31,37 +29,10 @@ export function generateConstrainedPoint(polygon, userLocations, minKm, maxKm, p
       return dist >= minKm && dist <= maxKm;
     });
 
-    if (allWithinRange) {
-      candidates.push(point);
-      if (candidates.length >= 20) break;
-    }
+    if (allWithinRange) return point;
   }
 
-  if (candidates.length === 0) return null;
-  if (pois.length === 0 || poiWeight <= 0) {
-    return candidates[Math.floor(Math.random() * candidates.length)];
-  }
-
-  let best = null;
-  let bestScore = -1;
-
-  for (const candidate of candidates) {
-    let minPoiDist = Infinity;
-    for (const poi of pois) {
-      const d = haversineDistance(candidate, poi);
-      if (d < minPoiDist) minPoiDist = d;
-    }
-    const poiScore = 1 / (1 + minPoiDist);
-    const randomScore = Math.random();
-    const score = randomScore * (1 - poiWeight) + poiScore * poiWeight;
-
-    if (score > bestScore) {
-      bestScore = score;
-      best = candidate;
-    }
-  }
-
-  return best;
+  return null;
 }
 
 export function createPolygonFeature(coordinates) {

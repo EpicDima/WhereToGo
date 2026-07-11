@@ -3,7 +3,6 @@
   import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, createPolygonFeature } from '../utils/geo.js';
   import { getWalkingRoute } from '../utils/routing.js';
-  import { getActivePOIs } from '../utils/poi.js';
   import StepZone from './StepZone.svelte';
   import StepPeople from './StepPeople.svelte';
   import StepSettings from './StepSettings.svelte';
@@ -34,9 +33,8 @@
 
     await new Promise(r => setTimeout(r, 300));
 
-    const pois = getActivePOIs(appState.poiCategories);
     const point = generateConstrainedPoint(
-      polygon, locations, appState.minDistance, appState.maxDistance, pois, appState.poiWeight
+      polygon, locations, appState.minDistance, appState.maxDistance
     );
 
     if (!point) {

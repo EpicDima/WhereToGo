@@ -1,6 +1,5 @@
 <script>
   import { appState, saveSettings } from '../stores/app.svelte.js';
-  import { POI_CATEGORIES } from '../utils/poi.js';
 
   let { onGenerate, errorMsg = '' } = $props();
 
@@ -17,15 +16,6 @@
 
   function onMaxChange(e) {
     appState.maxDistance = Math.max(parseFloat(e.target.value), appState.minDistance + 0.1);
-  }
-
-  function togglePoi(cat) {
-    if (appState.poiCategories.includes(cat)) {
-      appState.poiCategories = appState.poiCategories.filter(c => c !== cat);
-    } else {
-      appState.poiCategories = [...appState.poiCategories, cat];
-    }
-    saveSettings();
   }
 </script>
 
@@ -52,25 +42,6 @@
     </div>
     <input type="range" min={Math.max(appState.minDistance + 0.1, 0.2)} max="30" step="0.5" value={appState.maxDistance} oninput={onMaxChange} class="w-full" />
     <p class="text-[10px] text-ink-3 mt-1">Максимальный радиус поиска (жёлтый круг на карте)</p>
-  </div>
-
-  <!-- POI attraction -->
-  <div>
-    <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">Притяжение к местам</span>
-    <div class="flex flex-wrap gap-1.5">
-      {#each Object.entries(POI_CATEGORIES) as [key, cat]}
-        <button
-          class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all
-            {appState.poiCategories.includes(key)
-              ? 'bg-accent text-white'
-              : 'text-ink-3 hover:bg-panel-hover border border-border'}"
-          onclick={() => togglePoi(key)}
-        >
-          {cat.emoji} {cat.name}
-        </button>
-      {/each}
-    </div>
-    <p class="text-[10px] text-ink-3 mt-1.5">Точка с большей вероятностью появится рядом с этими местами</p>
   </div>
 
   <!-- Route toggle -->

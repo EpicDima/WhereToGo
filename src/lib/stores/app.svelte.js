@@ -46,9 +46,6 @@ export const appState = $state({
   showRouting: saved?.showRouting ?? true,
   routeData: null,
 
-  poiCategories: saved?.poiCategories ?? ['parks', 'cafes', 'culture'],
-  poiWeight: saved?.poiWeight ?? 0.3,
-
   step: 0,
   themeMode: saved?.themeMode ?? 'system',
   darkMode: saved?.themeMode === 'dark' || (saved?.themeMode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches),
@@ -67,8 +64,6 @@ export function saveSettings() {
       maxDistance: appState.maxDistance,
       showRouting: appState.showRouting,
       themeMode: appState.themeMode,
-      poiCategories: appState.poiCategories,
-      poiWeight: appState.poiWeight,
     }));
   } catch {}
 }
