@@ -1,5 +1,5 @@
 <script>
-  import { appState, nextStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
+  import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, createPolygonFeature } from '../utils/geo.js';
   import { getWalkingRoute } from '../utils/routing.js';
@@ -85,7 +85,14 @@
       {/each}
     </div>
     <div class="flex items-center justify-between mt-2">
-      <span class="text-[12px] font-semibold text-ink-2">{stepTitles[appState.step]}</span>
+      <div class="flex items-center gap-2">
+        {#if appState.step > 0}
+          <button class="text-[11px] text-ink-3 hover:text-ink transition-colors" onclick={prevStep}>
+            ← Назад
+          </button>
+        {/if}
+        <span class="text-[12px] font-semibold text-ink-2">{stepTitles[appState.step]}</span>
+      </div>
       {#if appState.step > 0 && appState.step < 3}
         <button class="text-[11px] text-ink-3 hover:text-accent transition-colors font-medium" onclick={restart}>
           Сначала

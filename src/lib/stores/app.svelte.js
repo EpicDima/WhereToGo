@@ -148,6 +148,14 @@ export function nextStep() {
   appState.step = Math.min(appState.step + 1, 3);
 }
 
+export function prevStep() {
+  if (appState.step === 3) {
+    appState.generatedPoint = null;
+    appState.routeData = null;
+  }
+  appState.step = Math.max(appState.step - 1, 0);
+}
+
 export function restart() {
   appState.generatedPoint = null;
   appState.routeData = null;
