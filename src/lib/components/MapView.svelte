@@ -220,11 +220,12 @@
       .setLngLat([appState.generatedPoint.lng, appState.generatedPoint.lat])
       .addTo(map);
 
-    map.flyTo({
-      center: [appState.generatedPoint.lng, appState.generatedPoint.lat],
-      zoom: Math.max(map.getZoom(), 14),
-      duration: 1200,
-    });
+    const bounds = new maplibregl.LngLatBounds();
+    bounds.extend([appState.generatedPoint.lng, appState.generatedPoint.lat]);
+    for (const loc of appState.userLocations) {
+      bounds.extend([loc.lng, loc.lat]);
+    }
+    map.fitBounds(bounds, { padding: { top: 60, bottom: 60, left: 400, right: 60 }, maxZoom: 14, duration: 1200 });
   }
 
   $effect(() => { appState.zoneCoordinates; updateZoneData(); });
