@@ -36,10 +36,10 @@
     map.addControl(new maplibregl.NavigationControl({ showCompass: false, visualizePitch: false }), 'bottom-right');
 
     map.on('load', () => {
-      addRouteLayers();
-      addRadiusLayers();
       addZoneLayers();
+      addRadiusLayers();
       addDrawLayers();
+      addRouteLayers();
       updateZoneData();
     });
 
@@ -255,10 +255,10 @@
     if (map.getStyle()?.sprite !== style) {
       map.setStyle(style);
       map.once('style.load', () => {
-        addRouteLayers();
-        addRadiusLayers();
         addZoneLayers();
+        addRadiusLayers();
         addDrawLayers();
+        addRouteLayers();
         updateZoneData();
         updateRadiusCircles();
         if (appState.routeData) {
