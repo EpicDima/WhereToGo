@@ -12,6 +12,8 @@
   let resultMarker = null;
   let drawPoints = [];
 
+  const MAP_PADDING = { top: 60, bottom: 60, left: 400, right: 60 };
+
   const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
   const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
@@ -23,6 +25,7 @@
       style: appState.darkMode ? DARK_STYLE : LIGHT_STYLE,
       center: city.center,
       zoom: city.zoom,
+      padding: MAP_PADDING,
       attributionControl: false,
       maxZoom: 18,
       maxPitch: 0,
@@ -225,7 +228,7 @@
     for (const loc of appState.userLocations) {
       bounds.extend([loc.lng, loc.lat]);
     }
-    map.fitBounds(bounds, { padding: { top: 60, bottom: 60, left: 400, right: 60 }, maxZoom: 14, duration: 1200 });
+    map.fitBounds(bounds, { padding: MAP_PADDING, maxZoom: 14, duration: 1200 });
   }
 
   $effect(() => { appState.zoneCoordinates; updateZoneData(); });
@@ -234,7 +237,7 @@
   $effect(() => { appState.userLocations; appState.minDistance; appState.maxDistance; appState.step; updateRadiusCircles(); });
   $effect(() => {
     if (map) {
-      map.flyTo({ center: appState.city.center, zoom: appState.city.zoom, duration: 1000 });
+      map.flyTo({ center: appState.city.center, zoom: appState.city.zoom, padding: MAP_PADDING, duration: 1000 });
     }
   });
   $effect(() => {
