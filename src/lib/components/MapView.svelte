@@ -247,7 +247,7 @@
 
     appState.userLocations.forEach((loc, i) => {
       const el = document.createElement('div');
-      el.innerHTML = `<div class="user-marker-dot">${i + 1}</div>`;
+      el.innerHTML = `<div class="user-marker-dot${draggable ? '' : ' static'}">${i + 1}</div>`;
 
       const marker = new maplibregl.Marker({ element: el, draggable })
         .setLngLat([loc.lng, loc.lat])
@@ -409,7 +409,8 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     border: 2px solid white; cursor: grab; transition: transform 0.15s;
   }
-  :global(.user-marker-dot:hover) { transform: scale(1.1); }
+  :global(.user-marker-dot:not(.static):hover) { transform: scale(1.1); }
+  :global(.user-marker-dot.static) { cursor: default; }
   :global(.result-pin) { animation: dropBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
   @keyframes dropBounce {
     0% { transform: translateY(-30px); opacity: 0; }
