@@ -176,7 +176,13 @@ export function updateUserLocationName(index, name) {
 
 export function saveCustomZone(name) {
   if (appState.zoneCoordinates.length < 3) return;
-  appState.customZones = [...appState.customZones, { name, coordinates: [...appState.zoneCoordinates] }];
+  const existing = appState.customZones.map(z => z.name);
+  let uniqueName = name;
+  let n = 2;
+  while (existing.includes(uniqueName)) {
+    uniqueName = `${name} (${n++})`;
+  }
+  appState.customZones = [...appState.customZones, { name: uniqueName, coordinates: [...appState.zoneCoordinates] }];
   saveSettings();
 }
 
@@ -192,7 +198,17 @@ export function loadCustomZone(index) {
 }
 
 export function deleteCustomZone(index) {
+  const deleted = appState.customZones[index];
   appState.customZones = appState.customZones.filter((_, i) => i !== index);
+  if (deleted && appState.zonePreset === 'custom' && JSON.stringify(appState.zoneCoordinates) === JSON.stringify(deleted.coordinates)) {
+    const preset = CITY_PRESETS[appState.presetKey];
+    if (preset) {
+      const fallback = preset.zones.mkad ? 'mkad' : 'wide';
+      appState.zonePreset = fallback;
+      appState.zoneCoordinates = [...preset.zones[fallback].coordinates];
+    }
+    appState.generatedPoint = null;
+  }
   saveSettings();
 }
 
