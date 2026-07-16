@@ -559,6 +559,7 @@
     mapPadding = mobile
       ? { top: 60, bottom: Math.max(height + 20, 80), left: 20, right: 20 }
       : { top: 60, bottom: 60, left: 400, right: 60 };
+    if (map) map.setPadding(mapPadding);
   });
   $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; appState.drawingMode; updateZoneData(); });
   $effect(() => { appState.userLocations; appState.step; updateUserMarkers(); });
@@ -675,6 +676,16 @@
     100% { transform: translateY(0); }
   }
   :global(.maplibregl-ctrl-attrib) { display: none !important; }
+  :global(.dark .maplibregl-ctrl-group) {
+    background: var(--color-panel);
+    border-color: var(--color-border);
+  }
+  :global(.dark .maplibregl-ctrl-group button + button) {
+    border-top-color: var(--color-border);
+  }
+  :global(.dark .maplibregl-ctrl button .maplibregl-ctrl-icon) {
+    filter: invert(1);
+  }
   :global(.debug-popup .maplibregl-popup-content) {
     padding: 3px 8px; font-size: 11px; font-weight: 600;
     border-radius: 6px; min-width: auto; pointer-events: none;
