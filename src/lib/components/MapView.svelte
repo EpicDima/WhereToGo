@@ -373,7 +373,7 @@
     map.fitBounds(bounds, { padding: MAP_PADDING, maxZoom: 14, duration: 1200 });
   }
 
-  const DEBUG_GRID = 80;
+  const DEBUG_GRID = 100;
   const DEG2RAD = Math.PI / 180;
 
   function fastDistKm(lat1, lng1, lat2, lng2) {
@@ -450,15 +450,17 @@
 
     const scores = results.map(r => r.score);
     const minScore = Math.min(...scores);
-    const weights = scores.map(s => s - minScore + 0.01);
-    const maxWeight = Math.max(...weights);
+    const maxScore = Math.max(...scores);
+    const range = maxScore - minScore;
 
     return {
       type: 'FeatureCollection',
       features: results.map((pt, idx) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [pt.lng, pt.lat] },
-        properties: { weight: weights[idx] / maxWeight }
+        properties: {
+          weight: range < 0.001 ? 1 : 0.3 + 0.7 * (scores[idx] - minScore) / range
+        }
       }))
     };
   }
@@ -565,7 +567,7 @@
   </button>
   {#if showDebugHeatmap}
     <div class="absolute top-[6.5rem] right-4 z-30 glass rounded-xl border border-border shadow-lg px-3 py-2.5 flex flex-col gap-1">
-      <span class="text-[10px] font-semibold text-ink-3 uppercase tracking-wider">Вероятность</span>
+      <span class="text-[10px] font-semibold text-ink-3 uppercase tracking-wider">Вероятность выбора</span>
       <div class="flex items-stretch gap-2">
         <div class="w-3 rounded-sm" style="background: linear-gradient(to bottom, #EF4444, #EAB308, #22C55E, #06B6D4, #6366F1);"></div>
         <div class="flex flex-col justify-between text-[10px] text-ink-3 py-0.5">
