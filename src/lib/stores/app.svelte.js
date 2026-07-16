@@ -115,17 +115,6 @@ export function toggleDistrict(name) {
   } else {
     appState.selectedDistricts = [...appState.selectedDistricts, name];
   }
-  if (appState.selectedDistricts.length > 0) {
-    appState.zonePreset = 'districts';
-    appState.zoneCoordinates = [];
-  } else {
-    const preset = CITY_PRESETS[appState.presetKey];
-    if (preset) {
-      const fallback = preset.zones.mkad ? 'mkad' : 'wide';
-      appState.zonePreset = fallback;
-      appState.zoneCoordinates = [...preset.zones[fallback].coordinates];
-    }
-  }
   appState.drawingMode = false;
   appState.generatedPoint = null;
   saveSettings();

@@ -74,7 +74,7 @@ export function generateConstrainedPoint(poly, userLocations, minKm, maxKm, pref
   return pickWeighted(candidates, preferences);
 }
 
-export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000) {
+export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000, zoneBounds = null) {
   const bboxes = polygons.map(p => bbox(p));
   const combined = [
     Math.min(...bboxes.map(b => b[0])),
@@ -89,6 +89,7 @@ export function generateConstrainedPointMulti(polygons, userLocations, minKm, ma
     const lat = combined[1] + Math.random() * (combined[3] - combined[1]);
     const pt = point([lng, lat]);
     if (!polygons.some(p => booleanPointInPolygon(pt, p))) continue;
+    if (zoneBounds && !booleanPointInPolygon(pt, zoneBounds)) continue;
 
     const candidate = { lng, lat };
     if (!checkDistanceConstraints(candidate, userLocations, minKm, maxKm)) continue;

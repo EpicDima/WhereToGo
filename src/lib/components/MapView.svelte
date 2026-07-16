@@ -172,20 +172,20 @@
   function updateZoneData() {
     if (!map?.getSource('zone')) return;
 
+    const features = [];
+    const zonePoly = createPolygonFeature(appState.zoneCoordinates.map(c => [c[0], c[1]]));
+    if (zonePoly) features.push(zonePoly);
+
     if (appState.selectedDistricts.length > 0) {
-      const features = appState.selectedDistricts
+      const districtFeatures = appState.selectedDistricts
         .map(name => MINSK_DISTRICTS[name])
         .filter(Boolean)
         .map(coords => createPolygonFeature(coords))
         .filter(Boolean);
-      map.getSource('zone').setData({ type: 'FeatureCollection', features });
-      return;
+      features.push(...districtFeatures);
     }
 
-    const polygon = createPolygonFeature(appState.zoneCoordinates.map(c => [c[0], c[1]]));
-    map.getSource('zone').setData(
-      polygon ? { type: 'FeatureCollection', features: [polygon] } : { type: 'FeatureCollection', features: [] }
-    );
+    map.getSource('zone').setData({ type: 'FeatureCollection', features });
   }
 
   function updateRadiusCircles() {
@@ -402,6 +402,10 @@
     const polygons = getZonePolygons();
     if (polygons.length === 0) return empty;
 
+    const zoneBounds = appState.selectedDistricts.length > 0
+      ? createPolygonFeature(appState.zoneCoordinates.map(c => [c[0], c[1]]))
+      : null;
+
     const bboxes = polygons.map(p => bbox(p));
     const bb = [
       Math.min(...bboxes.map(b => b[0])),
@@ -426,8 +430,10 @@
       for (let j = 0; j <= DEBUG_GRID; j++) {
         const lng = bb[0] + i * lngStep;
         const lat = bb[1] + j * latStep;
+        const pt = point([lng, lat]);
 
-        if (!polygons.some(p => booleanPointInPolygon(point([lng, lat]), p))) continue;
+        if (!polygons.some(p => booleanPointInPolygon(pt, p))) continue;
+        if (zoneBounds && !booleanPointInPolygon(pt, zoneBounds)) continue;
 
         if (useDistance) {
           const passesDistance = locations.every(loc => {

@@ -20,6 +20,11 @@
 
     const useDistricts = appState.selectedDistricts.length > 0;
     let polygons = [];
+    let zoneBounds = null;
+
+    const zonePoly = createPolygonFeature(
+      appState.zoneCoordinates.map(c => [c[0], c[1]])
+    );
 
     if (useDistricts) {
       polygons = appState.selectedDistricts
@@ -27,11 +32,9 @@
         .filter(Boolean)
         .map(coords => createPolygonFeature(coords))
         .filter(Boolean);
+      zoneBounds = zonePoly;
     } else {
-      const poly = createPolygonFeature(
-        appState.zoneCoordinates.map(c => [c[0], c[1]])
-      );
-      if (poly) polygons = [poly];
+      if (zonePoly) polygons = [zonePoly];
     }
 
     if (polygons.length === 0) {
@@ -53,9 +56,9 @@
 
     await new Promise(r => setTimeout(r, 300));
 
-    const point = polygons.length === 1
+    const point = polygons.length === 1 && !zoneBounds
       ? generateConstrainedPoint(polygons[0], locations, appState.minDistance, appState.maxDistance, preferences)
-      : generateConstrainedPointMulti(polygons, locations, appState.minDistance, appState.maxDistance, preferences);
+      : generateConstrainedPointMulti(polygons, locations, appState.minDistance, appState.maxDistance, preferences, 3000, zoneBounds);
 
     if (!point) {
       errorMsg = 'Не удалось найти точку. Измените расстояния, зону или предпочтения.';
