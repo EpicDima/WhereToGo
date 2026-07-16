@@ -459,7 +459,7 @@
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [pt.lng, pt.lat] },
         properties: {
-          weight: range < 0.001 ? 1 : 0.3 + 0.7 * (scores[idx] - minScore) / range
+          weight: range < 0.001 ? 0.5 : (scores[idx] - minScore) / range
         }
       }))
     };
@@ -472,22 +472,20 @@
     });
     map.addLayer({
       id: 'debug-heatmap',
-      type: 'heatmap',
+      type: 'circle',
       source: 'debug-heatmap',
       paint: {
-        'heatmap-weight': ['get', 'weight'],
-        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, 1, 14, 2],
-        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 10, 20, 12, 35, 14, 60, 16, 100],
-        'heatmap-opacity': 0.6,
-        'heatmap-color': [
-          'interpolate', ['linear'], ['heatmap-density'],
-          0, 'rgba(0,0,0,0)',
-          0.2, '#6366F1',
-          0.4, '#06B6D4',
-          0.6, '#22C55E',
-          0.8, '#EAB308',
-          1.0, '#EF4444',
-        ]
+        'circle-radius': ['interpolate', ['linear'], ['zoom'],
+          10, 4, 12, 8, 14, 16, 16, 32],
+        'circle-color': ['interpolate', ['linear'], ['get', 'weight'],
+          0, '#6366F1',
+          0.25, '#06B6D4',
+          0.5, '#22C55E',
+          0.75, '#EAB308',
+          1, '#EF4444',
+        ],
+        'circle-opacity': 0.45,
+        'circle-blur': 0.6,
       }
     });
   }
