@@ -184,16 +184,21 @@
   function updateRadiusCircles() {
     if (!map?.getSource('radius-min') || !map?.getSource('radius-max')) return;
 
-    if (appState.userLocations.length === 0 || appState.step < 3) {
-      map.getSource('radius-min').setData({ type: 'FeatureCollection', features: [] });
-      map.getSource('radius-max').setData({ type: 'FeatureCollection', features: [] });
+    const empty = { type: 'FeatureCollection', features: [] };
+    if (appState.step < 3) {
+      map.getSource('radius-min').setData(empty);
+      map.getSource('radius-max').setData(empty);
       return;
     }
 
-    const minCircles = appState.userLocations.map(loc =>
+    const locations = appState.userLocations.length > 0
+      ? appState.userLocations
+      : [{ lng: appState.city.center[0], lat: appState.city.center[1] }];
+
+    const minCircles = locations.map(loc =>
       circle([loc.lng, loc.lat], appState.minDistance, { units: 'kilometers', steps: 64 })
     );
-    const maxCircles = appState.userLocations.map(loc =>
+    const maxCircles = locations.map(loc =>
       circle([loc.lng, loc.lat], appState.maxDistance, { units: 'kilometers', steps: 64 })
     );
 
