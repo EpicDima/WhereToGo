@@ -4,6 +4,10 @@
 
   let { onRestart, onRegenerate } = $props();
 
+  let address = $state('');
+  let addressLoading = $state(false);
+  let shared = $state(false);
+
   function formatDistance(km) {
     if (km < 1) return `${Math.round(km * 1000)} м`;
     return `${km.toFixed(1)} км`;
@@ -14,16 +18,72 @@
       ? appState.userLocations.map(loc => haversineDistance(loc, appState.generatedPoint))
       : []
   );
+
+  $effect(() => {
+    const pt = appState.generatedPoint;
+    if (!pt) { address = ''; return; }
+    addressLoading = true;
+    address = '';
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pt.lat}&lon=${pt.lng}&zoom=18&accept-language=ru`)
+      .then(r => r.json())
+      .then(data => {
+        if (appState.generatedPoint?.lat !== pt.lat || appState.generatedPoint?.lng !== pt.lng) return;
+        const a = data.address;
+        if (!a) { address = ''; return; }
+        const road = a.road || a.pedestrian || a.footway || a.path || '';
+        const house = a.house_number || '';
+        const district = a.suburb || a.neighbourhood || a.city_district || '';
+        const parts = [road, house].filter(Boolean).join(', ');
+        address = [parts, district].filter(Boolean).join(' · ');
+      })
+      .catch(() => { address = ''; })
+      .finally(() => { addressLoading = false; });
+  });
+
+  async function handleShare() {
+    const pt = appState.generatedPoint;
+    if (!pt) return;
+    const text = `${address || 'Место'}\n${pt.lat.toFixed(5)}, ${pt.lng.toFixed(5)}\nhttps://www.google.com/maps?q=${pt.lat},${pt.lng}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Куда пойти?', text });
+        return;
+      } catch {}
+    }
+    await navigator.clipboard.writeText(text);
+    shared = true;
+    setTimeout(() => shared = false, 2000);
+  }
 </script>
 
 <div class="space-y-4">
   {#if appState.generatedPoint}
     <div class="rounded-xl border border-accent/20 bg-accent/5 p-4 space-y-2">
-      <div>
-        <div class="text-[15px] font-bold text-ink">Место найдено</div>
-        <div class="text-[11px] text-ink-3 font-mono mt-1">
-          {appState.generatedPoint.lat.toFixed(5)}, {appState.generatedPoint.lng.toFixed(5)}
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <div class="text-[15px] font-bold text-ink">Место найдено</div>
+          {#if addressLoading}
+            <div class="text-[12px] text-ink-4 mt-1 animate-pulse">Определяем адрес...</div>
+          {:else if address}
+            <div class="text-[13px] text-ink-2 mt-1 leading-snug">{address}</div>
+          {/if}
+          <div class="text-[11px] text-ink-3 font-mono mt-1">
+            {appState.generatedPoint.lat.toFixed(5)}, {appState.generatedPoint.lng.toFixed(5)}
+          </div>
         </div>
+        <button
+          class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all
+            {shared ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-border text-ink-3 hover:bg-panel-hover hover:text-ink'}"
+          onclick={handleShare}
+          title={shared ? 'Скопировано!' : 'Поделиться'}
+        >
+          {#if shared}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {:else}
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="13" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M5.7 7L10.3 4M5.7 9l4.6 3" stroke="currentColor" stroke-width="1.5"/></svg>
+          {/if}
+        </button>
       </div>
     </div>
 

@@ -29,7 +29,7 @@
             <span class="text-[10px] text-ink-4 font-mono">{loc.lat.toFixed(5)}, {loc.lng.toFixed(5)}</span>
           </div>
           <button
-            class="w-6 h-6 rounded-full text-ink-4 hover:text-danger hover:bg-danger/10 text-sm flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            class="w-6 h-6 rounded-full text-ink-4 hover:text-danger hover:bg-danger/10 text-sm flex items-center justify-center shrink-0 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
             onclick={() => removeUserLocation(i)}
           >×</button>
         </div>
