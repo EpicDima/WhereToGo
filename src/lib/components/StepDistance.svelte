@@ -4,19 +4,14 @@
 
   let { onNext } = $props();
 
-  $effect(() => {
-    if (appState.minDistance >= appState.maxDistance) {
-      appState.minDistance = Math.max(0, appState.maxDistance - 0.5);
-    }
-    saveSettings();
-  });
-
   function onMinChange(e) {
     appState.minDistance = Math.min(parseFloat(e.target.value), appState.maxDistance - 0.1);
+    saveSettings();
   }
 
   function onMaxChange(e) {
     appState.maxDistance = Math.max(parseFloat(e.target.value), appState.minDistance + 0.1);
+    saveSettings();
   }
 </script>
 

@@ -25,6 +25,7 @@
   let showDebugHeatmap = $state(false);
   let isMobile = $state(false);
   let mapPadding = { top: 60, bottom: 60, left: 400, right: 60 };
+  let currentStyleUrl = '';
 
   const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
   const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
@@ -40,9 +41,10 @@
 
     const city = appState.city;
 
+    currentStyleUrl = appState.darkMode ? DARK_STYLE : LIGHT_STYLE;
     map = new maplibregl.Map({
       container: mapContainer,
-      style: appState.darkMode ? DARK_STYLE : LIGHT_STYLE,
+      style: currentStyleUrl,
       center: city.center,
       zoom: city.zoom,
       padding: mapPadding,
@@ -609,7 +611,8 @@
   $effect(() => {
     if (!map) return;
     const style = appState.darkMode ? DARK_STYLE : LIGHT_STYLE;
-    if (map.getStyle()?.sprite !== style) {
+    if (style !== currentStyleUrl) {
+      currentStyleUrl = style;
       map.setStyle(style);
       map.once('style.load', () => {
         applyStyleOverrides();

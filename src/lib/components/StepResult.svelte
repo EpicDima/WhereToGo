@@ -8,6 +8,7 @@
   let address = $state('');
   let addressLoading = $state(false);
   let shared = $state(false);
+  let abortController = null;
 
   function formatDistance(km) {
     if (km < 1) return `${Math.round(km * 1000)} ${t('m')}`;
@@ -22,13 +23,14 @@
 
   $effect(() => {
     const pt = appState.generatedPoint;
-    if (!pt) { address = ''; return; }
+    if (!pt) { address = ''; addressLoading = false; return; }
+    abortController?.abort();
+    const ac = abortController = new AbortController();
     addressLoading = true;
     address = '';
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pt.lat}&lon=${pt.lng}&zoom=18&accept-language=${i18n.locale}`)
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pt.lat}&lon=${pt.lng}&zoom=18&accept-language=${i18n.locale}`, { signal: ac.signal })
       .then(r => r.json())
       .then(data => {
-        if (appState.generatedPoint?.lat !== pt.lat || appState.generatedPoint?.lng !== pt.lng) return;
         const a = data.address;
         if (!a) { address = ''; return; }
         const road = a.road || a.pedestrian || a.footway || a.path || '';
@@ -37,8 +39,8 @@
         const parts = [road, house].filter(Boolean).join(', ');
         address = [parts, district].filter(Boolean).join(' · ');
       })
-      .catch(() => { address = ''; })
-      .finally(() => { addressLoading = false; });
+      .catch((e) => { if (e.name !== 'AbortError') address = ''; })
+      .finally(() => { if (!ac.signal.aborted) addressLoading = false; });
   });
 
   async function handleShare() {
@@ -53,9 +55,11 @@
         return;
       } catch {}
     }
-    await navigator.clipboard.writeText(text);
-    shared = true;
-    setTimeout(() => shared = false, 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      shared = true;
+      setTimeout(() => shared = false, 2000);
+    } catch {}
   }
 </script>
 

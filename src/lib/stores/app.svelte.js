@@ -41,7 +41,7 @@ export const appState = $state({
   repulsionPoints: saved?.repulsionPoints ?? [],
   attractionRadius: saved?.attractionRadius ?? 1.5,
   repulsionRadius: saved?.repulsionRadius ?? 0.5,
-  preferenceMode: 'repulsion',
+  preferenceMode: saved?.preferenceMode ?? 'repulsion',
 
   minDistance: saved?.minDistance ?? 0.5,
   maxDistance: saved?.maxDistance ?? 10,
@@ -72,6 +72,7 @@ export function saveSettings() {
       repulsionRadius: appState.repulsionRadius,
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
+      preferenceMode: appState.preferenceMode,
       step: appState.step,
       themeMode: appState.themeMode,
     }));
@@ -236,10 +237,15 @@ export function regenerate() {
   appState.generatedPoint = null;
 }
 
+const systemThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+systemThemeMq.addEventListener('change', (e) => {
+  if (appState.themeMode === 'system') appState.darkMode = e.matches;
+});
+
 export function setThemeMode(mode) {
   appState.themeMode = mode;
   if (mode === 'system') {
-    appState.darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    appState.darkMode = systemThemeMq.matches;
   } else {
     appState.darkMode = mode === 'dark';
   }

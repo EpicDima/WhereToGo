@@ -3,7 +3,6 @@
   import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
   import { t } from '../i18n/index.svelte.js';
   import { uiState } from '../stores/ui.svelte.js';
-  import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../utils/geo.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
   import StepZone from './StepZone.svelte';
@@ -35,9 +34,13 @@
       isMobile = e.matches;
       if (isMobile) { updateSnaps(); sheetHeight = snapHalf; }
     };
+    const onResize = () => { if (isMobile) updateSnaps(); };
     mq.addEventListener('change', handler);
-    window.addEventListener('resize', () => { if (isMobile) updateSnaps(); });
-    return () => mq.removeEventListener('change', handler);
+    window.addEventListener('resize', onResize);
+    return () => {
+      mq.removeEventListener('change', handler);
+      window.removeEventListener('resize', onResize);
+    };
   });
 
   function updateSnaps() {
@@ -162,6 +165,7 @@
     onpointerdown={onHandleDown}
     onpointermove={onHandleMove}
     onpointerup={onHandleUp}
+    onpointercancel={onHandleUp}
     style:touch-action={isMobile ? 'none' : undefined}
     style:cursor={isMobile ? (isDragging ? 'grabbing' : 'grab') : undefined}
   >
