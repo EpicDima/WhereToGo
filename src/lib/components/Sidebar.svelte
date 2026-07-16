@@ -11,7 +11,7 @@
 
   let errorMsg = $state('');
 
-  const stepTitles = ['Выберите зону', 'Кто идёт?', 'Предпочтения', 'Настройки', 'Результат'];
+  const stepTitles = ['Выберите зону', 'Кто идёт?', 'Расстояние', 'Предпочтения', 'Результат'];
 
   async function handleGenerate() {
     appState.isGenerating = true;
@@ -118,9 +118,9 @@
     {:else if appState.step === 1}
       <StepPeople onNext={nextStep} />
     {:else if appState.step === 2}
-      <StepPreferences onNext={nextStep} />
+      <StepSettings onNext={nextStep} />
     {:else if appState.step === 3}
-      <StepSettings onGenerate={handleGenerate} {errorMsg} />
+      <StepPreferences onGenerate={handleGenerate} {errorMsg} />
     {:else}
       <StepResult onRestart={restart} onRegenerate={handleGenerate} />
     {/if}

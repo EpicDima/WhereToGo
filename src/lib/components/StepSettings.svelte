@@ -1,7 +1,7 @@
 <script>
   import { appState, saveSettings } from '../stores/app.svelte.js';
 
-  let { onGenerate, errorMsg = '' } = $props();
+  let { onNext } = $props();
 
   $effect(() => {
     if (appState.minDistance >= appState.maxDistance) {
@@ -44,28 +44,10 @@
     <p class="text-[10px] text-ink-3 mt-1">Максимальный радиус поиска (жёлтый круг на карте)</p>
   </div>
 
-  {#if errorMsg}
-    <div class="text-danger text-[12px] rounded-xl bg-danger/10 p-3">{errorMsg}</div>
-  {/if}
-
-  <!-- Generate -->
   <button
-    class="w-full py-3.5 rounded-xl text-[15px] font-bold transition-all
-      {appState.isGenerating
-        ? 'bg-accent/80 text-white cursor-wait'
-        : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.97] shadow-lg shadow-accent-glow'}"
-    onclick={onGenerate}
-    disabled={appState.isGenerating}
+    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
+    onclick={onNext}
   >
-    {#if appState.isGenerating}
-      <span class="inline-flex items-center gap-2">
-        <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 31.4" />
-        </svg>
-        Ищем...
-      </span>
-    {:else}
-      Куда пойти?
-    {/if}
+    Далее
   </button>
 </div>

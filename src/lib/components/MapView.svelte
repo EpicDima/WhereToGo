@@ -53,7 +53,7 @@
         handleDrawClick(e.lngLat);
       } else if (appState.step === 1) {
         addUserLocation(e.lngLat);
-      } else if (appState.step === 2) {
+      } else if (appState.step === 3) {
         addPreferencePoint(e.lngLat);
       }
     });
@@ -120,7 +120,7 @@
     if (!map?.getSource('pref-attraction') || !map?.getSource('pref-repulsion')) return;
 
     const empty = { type: 'FeatureCollection', features: [] };
-    if (appState.step < 2) {
+    if (appState.step < 3) {
       map.getSource('pref-attraction').setData(empty);
       map.getSource('pref-repulsion').setData(empty);
       return;
@@ -185,7 +185,7 @@
     if (!map?.getSource('radius-min') || !map?.getSource('radius-max')) return;
 
     const empty = { type: 'FeatureCollection', features: [] };
-    if (appState.step < 3) {
+    if (appState.step < 2) {
       map.getSource('radius-min').setData(empty);
       map.getSource('radius-max').setData(empty);
       return;
@@ -294,9 +294,9 @@
   function updatePreferenceMarkers() {
     preferenceMarkers.forEach(m => m.remove());
     preferenceMarkers = [];
-    if (!map || appState.step < 2) return;
+    if (!map || appState.step < 3) return;
 
-    const draggable = appState.step === 2;
+    const draggable = appState.step === 3;
 
     appState.attractionPoints.forEach((pt, i) => {
       const marker = new maplibregl.Marker({ element: createAttractionMarker(), draggable })
@@ -383,7 +383,7 @@
     }
     map.flyTo({ center, zoom, padding: MAP_PADDING, duration: 1000 });
   });
-  $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 2) ? 'crosshair' : ''; });
+  $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 3) ? 'crosshair' : ''; });
   $effect(() => {
     if (!map) return;
     const style = appState.darkMode ? DARK_STYLE : LIGHT_STYLE;
