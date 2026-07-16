@@ -94,9 +94,11 @@
               {zone.name}
             </button>
             <button
-              class="w-9 rounded-xl text-ink-3 hover:text-danger hover:bg-danger/10 border border-border flex items-center justify-center transition-colors"
+              class="w-7 h-7 my-auto rounded-lg text-ink-3 hover:text-red-500 hover:bg-red-500/10 border border-border flex items-center justify-center transition-colors shrink-0"
               onclick={() => deleteCustomZone(i)}
-            >×</button>
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
           </div>
         {/each}
       </div>

@@ -174,6 +174,11 @@
   function updateZoneData() {
     if (!map?.getSource('zone')) return;
 
+    if (appState.drawingMode) {
+      map.getSource('zone').setData({ type: 'FeatureCollection', features: [] });
+      return;
+    }
+
     const zonePoly = createPolygonFeature(appState.zoneCoordinates.map(c => [c[0], c[1]]));
 
     if (appState.selectedDistricts.length > 0 && zonePoly) {
@@ -536,7 +541,7 @@
     map.getSource('debug-heatmap').setData(computeDebugGrid());
   }
 
-  $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; updateZoneData(); });
+  $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; appState.drawingMode; updateZoneData(); });
   $effect(() => { appState.userLocations; appState.step; updateUserMarkers(); });
   $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.step; updatePreferenceMarkers(); });
   $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.attractionRadius; appState.repulsionRadius; appState.step; updatePreferenceRadii(); });
