@@ -266,11 +266,21 @@
     });
   }
 
-  function createPrefPin(color) {
+  function createAttractionMarker() {
     const el = document.createElement('div');
-    el.innerHTML = `<svg width="24" height="32" viewBox="0 0 24 32" fill="none">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20C24 5.37 18.63 0 12 0z" fill="${color}"/>
-      <circle cx="12" cy="11" r="4" fill="white" fill-opacity="0.9"/>
+    el.innerHTML = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="12" fill="#22C55E" stroke="white" stroke-width="2.5"/>
+      <path d="M14 7.5l1.8 4.2h4.5l-3.6 2.8 1.3 4.3L14 16.2l-4 2.6 1.3-4.3-3.6-2.8h4.5z" fill="white"/>
+    </svg>`;
+    el.style.cursor = 'grab';
+    return el;
+  }
+
+  function createRepulsionMarker() {
+    const el = document.createElement('div');
+    el.innerHTML = `<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="12" fill="#EF4444" stroke="white" stroke-width="2.5"/>
+      <path d="M9.5 9.5l9 9M18.5 9.5l-9 9" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
     </svg>`;
     el.style.cursor = 'grab';
     return el;
@@ -284,7 +294,7 @@
     const draggable = appState.step === 2;
 
     appState.attractionPoints.forEach((pt, i) => {
-      const marker = new maplibregl.Marker({ element: createPrefPin('#22C55E'), draggable, anchor: 'bottom' })
+      const marker = new maplibregl.Marker({ element: createAttractionMarker(), draggable })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
@@ -306,7 +316,7 @@
     });
 
     appState.repulsionPoints.forEach((pt, i) => {
-      const marker = new maplibregl.Marker({ element: createPrefPin('#EF4444'), draggable, anchor: 'bottom' })
+      const marker = new maplibregl.Marker({ element: createRepulsionMarker(), draggable })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
