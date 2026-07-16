@@ -419,6 +419,9 @@
 
     const results = [];
 
+    const useDistance = appState.step >= 2;
+    const usePrefs = appState.step >= 3;
+
     for (let i = 0; i <= DEBUG_GRID; i++) {
       for (let j = 0; j <= DEBUG_GRID; j++) {
         const lng = bb[0] + i * lngStep;
@@ -426,20 +429,24 @@
 
         if (!polygons.some(p => booleanPointInPolygon(point([lng, lat]), p))) continue;
 
-        const passesDistance = locations.every(loc => {
-          const dist = fastDistKm(loc.lat, loc.lng, lat, lng);
-          return dist >= appState.minDistance && dist <= appState.maxDistance;
-        });
-        if (!passesDistance) continue;
+        if (useDistance) {
+          const passesDistance = locations.every(loc => {
+            const dist = fastDistKm(loc.lat, loc.lng, lat, lng);
+            return dist >= appState.minDistance && dist <= appState.maxDistance;
+          });
+          if (!passesDistance) continue;
+        }
 
         let score = 0;
-        for (const ap of appState.attractionPoints) {
-          const dist = fastDistKm(ap.lat, ap.lng, lat, lng);
-          score += Math.exp(-((dist / appState.attractionRadius) ** 2));
-        }
-        for (const rp of appState.repulsionPoints) {
-          const dist = fastDistKm(rp.lat, rp.lng, lat, lng);
-          score -= Math.exp(-((dist / appState.repulsionRadius) ** 2));
+        if (usePrefs) {
+          for (const ap of appState.attractionPoints) {
+            const dist = fastDistKm(ap.lat, ap.lng, lat, lng);
+            score += Math.exp(-((dist / appState.attractionRadius) ** 2));
+          }
+          for (const rp of appState.repulsionPoints) {
+            const dist = fastDistKm(rp.lat, rp.lng, lat, lng);
+            score -= Math.exp(-((dist / appState.repulsionRadius) ** 2));
+          }
         }
 
         results.push({ lng, lat, score });
@@ -526,7 +533,7 @@
   $effect(() => { appState.userLocations; appState.minDistance; appState.maxDistance; appState.step; updateRadiusCircles(); });
   if (isDev) {
     $effect(() => {
-      showDebugHeatmap;
+      showDebugHeatmap; appState.step;
       appState.zoneCoordinates; appState.selectedDistricts;
       appState.userLocations; appState.minDistance; appState.maxDistance;
       appState.attractionPoints; appState.repulsionPoints;
