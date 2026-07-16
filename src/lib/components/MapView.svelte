@@ -8,6 +8,7 @@
   import { intersect } from '@turf/intersect';
   import { featureCollection } from '@turf/helpers';
   import { appState, addUserLocation, addPreferencePoint } from '../stores/app.svelte.js';
+  import { uiState } from '../stores/ui.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
   import { createPolygonFeature } from '../utils/geo.js';
@@ -21,13 +22,21 @@
   let initialLoad = true;
   const isDev = import.meta.env.DEV;
   let showDebugHeatmap = $state(false);
-
-  const MAP_PADDING = { top: 60, bottom: 60, left: 400, right: 60 };
+  let isMobile = $state(false);
+  let mapPadding = { top: 60, bottom: 60, left: 400, right: 60 };
 
   const LIGHT_STYLE = 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
   const DARK_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
   onMount(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    isMobile = mq.matches;
+    mq.addEventListener('change', (e) => isMobile = e.matches);
+
+    mapPadding = isMobile
+      ? { top: 60, bottom: 200, left: 20, right: 20 }
+      : { top: 60, bottom: 60, left: 400, right: 60 };
+
     const city = appState.city;
 
     map = new maplibregl.Map({
@@ -35,7 +44,7 @@
       style: appState.darkMode ? DARK_STYLE : LIGHT_STYLE,
       center: city.center,
       zoom: city.zoom,
-      padding: MAP_PADDING,
+      padding: mapPadding,
       attributionControl: false,
       maxZoom: 18,
       maxPitch: 0,
@@ -383,7 +392,7 @@
       bounds.extend([loc.lng, loc.lat]);
       bounds.extend([2 * gp[0] - loc.lng, 2 * gp[1] - loc.lat]);
     }
-    map.fitBounds(bounds, { padding: MAP_PADDING, maxZoom: 14, duration: 1200 });
+    map.fitBounds(bounds, { padding: mapPadding, maxZoom: 14, duration: 1200 });
   }
 
   const DEBUG_GRID = 100;
@@ -544,6 +553,13 @@
     map.getSource('debug-heatmap').setData(computeDebugGrid());
   }
 
+  $effect(() => {
+    const mobile = isMobile;
+    const height = uiState.mobileSheetHeight;
+    mapPadding = mobile
+      ? { top: 60, bottom: Math.max(height + 20, 80), left: 20, right: 20 }
+      : { top: 60, bottom: 60, left: 400, right: 60 };
+  });
   $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; appState.drawingMode; updateZoneData(); });
   $effect(() => { appState.userLocations; appState.step; updateUserMarkers(); });
   $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.step; updatePreferenceMarkers(); });
@@ -566,10 +582,10 @@
     if (!map) return;
     if (initialLoad) {
       initialLoad = false;
-      map.jumpTo({ center, zoom, padding: MAP_PADDING });
+      map.jumpTo({ center, zoom, padding: mapPadding });
       return;
     }
-    map.flyTo({ center, zoom, padding: MAP_PADDING, duration: 1000 });
+    map.flyTo({ center, zoom, padding: mapPadding, duration: 1000 });
   });
   $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 3) ? 'crosshair' : ''; });
   $effect(() => {

@@ -1,5 +1,7 @@
 <script>
+  import { onMount } from 'svelte';
   import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
+  import { uiState } from '../stores/ui.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../utils/geo.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
@@ -12,6 +14,65 @@
   let errorMsg = $state('');
 
   const stepTitles = ['Выберите зону', 'Кто идёт?', 'Расстояние', 'Предпочтения', 'Результат'];
+
+  let isMobile = $state(false);
+  let sheetHeight = $state(0);
+  let isDragging = $state(false);
+  let dragStartY = 0;
+  let dragStartHeight = 0;
+
+  const SNAP_COLLAPSED = 130;
+  let snapHalf = 400;
+  let snapFull = 700;
+
+  onMount(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    isMobile = mq.matches;
+    updateSnaps();
+    if (isMobile) sheetHeight = snapHalf;
+    const handler = (e) => {
+      isMobile = e.matches;
+      if (isMobile) { updateSnaps(); sheetHeight = snapHalf; }
+    };
+    mq.addEventListener('change', handler);
+    window.addEventListener('resize', () => { if (isMobile) updateSnaps(); });
+    return () => mq.removeEventListener('change', handler);
+  });
+
+  function updateSnaps() {
+    snapHalf = Math.round(window.innerHeight * 0.45);
+    snapFull = Math.round(window.innerHeight * 0.85);
+  }
+
+  $effect(() => { uiState.mobileSheetHeight = isMobile ? sheetHeight : 0; });
+  $effect(() => { appState.step; if (isMobile && sheetHeight < snapHalf) sheetHeight = snapHalf; });
+
+  function onHandleDown(e) {
+    if (!isMobile || e.target.closest('button')) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    isDragging = true;
+    dragStartY = e.clientY;
+    dragStartHeight = sheetHeight;
+  }
+
+  function onHandleMove(e) {
+    if (!isDragging) return;
+    sheetHeight = Math.max(SNAP_COLLAPSED, Math.min(snapFull, dragStartHeight + (dragStartY - e.clientY)));
+  }
+
+  function onHandleUp() {
+    if (!isDragging) return;
+    const delta = sheetHeight - dragStartHeight;
+    const snaps = [SNAP_COLLAPSED, snapHalf, snapFull];
+    if (Math.abs(delta) > 40) {
+      sheetHeight = delta > 0
+        ? (snaps.find(s => s > dragStartHeight) ?? snaps[snaps.length - 1])
+        : ([...snaps].reverse().find(s => s < dragStartHeight) ?? snaps[0]);
+    } else {
+      sheetHeight = snaps.reduce((a, b) => Math.abs(b - sheetHeight) < Math.abs(a - sheetHeight) ? b : a);
+    }
+    isDragging = false;
+  }
 
   async function handleGenerate() {
     appState.isGenerating = true;
@@ -79,11 +140,19 @@
   shadow-xl shadow-black/8
   max-lg:top-auto max-lg:left-0 max-lg:right-0 max-lg:bottom-0
   max-lg:w-full max-lg:rounded-t-2xl max-lg:rounded-b-none
-  max-lg:max-h-[75vh] max-lg:border-0 max-lg:border-t
-">
+  max-lg:border-0 max-lg:border-t max-lg:overflow-hidden
+  {isMobile && !isDragging ? 'sheet-snap' : ''}"
+  style={isMobile ? `height: ${sheetHeight}px` : ''}
+>
   <!-- Header -->
-  <div class="px-5 pt-4 pb-2 max-lg:pt-2 shrink-0">
-    <div class="w-9 h-[3px] bg-ink-4/50 rounded-full mx-auto mb-2.5 lg:hidden"></div>
+  <div class="px-5 pt-4 pb-2 max-lg:pt-2 shrink-0"
+    onpointerdown={onHandleDown}
+    onpointermove={onHandleMove}
+    onpointerup={onHandleUp}
+    style:touch-action={isMobile ? 'none' : undefined}
+    style:cursor={isMobile ? (isDragging ? 'grabbing' : 'grab') : undefined}
+  >
+    <div class="w-10 h-1 bg-ink-4/40 rounded-full mx-auto mb-2 lg:hidden"></div>
     <div class="flex items-center justify-between">
       <h1 class="font-heading text-lg font-bold text-ink tracking-tight">Куда пойти?</h1>
     </div>
@@ -129,3 +198,9 @@
     {/if}
   </div>
 </div>
+
+<style>
+  :global(.sheet-snap) {
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</style>
