@@ -43,7 +43,8 @@
   async function handleShare() {
     const pt = appState.generatedPoint;
     if (!pt) return;
-    const text = `${address || 'Место'}\n${pt.lat.toFixed(5)}, ${pt.lng.toFixed(5)}\nhttps://www.google.com/maps?q=${pt.lat},${pt.lng}`;
+    const loc = address || `${pt.lat.toFixed(5)}, ${pt.lng.toFixed(5)}`;
+    const text = `Куда пойти? Сюда: ${loc}\n\nGoogle Maps: https://www.google.com/maps?q=${pt.lat},${pt.lng}\nЯндекс Карты: https://yandex.ru/maps/?pt=${pt.lng},${pt.lat}&z=15`;
 
     if (navigator.share) {
       try {
