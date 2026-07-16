@@ -377,10 +377,11 @@
       .setLngLat([appState.generatedPoint.lng, appState.generatedPoint.lat])
       .addTo(map);
 
-    const bounds = new maplibregl.LngLatBounds();
-    bounds.extend([appState.generatedPoint.lng, appState.generatedPoint.lat]);
+    const gp = [appState.generatedPoint.lng, appState.generatedPoint.lat];
+    const bounds = new maplibregl.LngLatBounds(gp, gp);
     for (const loc of appState.userLocations) {
       bounds.extend([loc.lng, loc.lat]);
+      bounds.extend([2 * gp[0] - loc.lng, 2 * gp[1] - loc.lat]);
     }
     map.fitBounds(bounds, { padding: MAP_PADDING, maxZoom: 14, duration: 1200 });
   }
