@@ -1,15 +1,15 @@
 <script>
   import { onMount } from 'svelte';
-  import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
-  import { t } from '../i18n/index.svelte.js';
-  import { uiState } from '../stores/ui.svelte.js';
-  import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../utils/geo.js';
-  import { MINSK_DISTRICTS } from '../utils/districts.js';
-  import StepZone from './StepZone.svelte';
-  import StepPeople from './StepPeople.svelte';
-  import StepPreferences from './StepPreferences.svelte';
-  import StepDistance from './StepDistance.svelte';
-  import StepResult from './StepResult.svelte';
+  import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../shared/stores/app.svelte.js';
+  import { t } from '../shared/i18n/index.svelte.js';
+  import { uiState } from '../shared/stores/ui.svelte.js';
+  import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../shared/utils/geo.js';
+  import { MINSK_DISTRICTS } from '../shared/utils/districts.js';
+  import StepZone from '../features/StepZone.svelte';
+  import StepPeople from '../features/StepPeople.svelte';
+  import StepPreferences from '../features/StepPreferences.svelte';
+  import StepDistance from '../features/StepDistance.svelte';
+  import StepResult from '../features/StepResult.svelte';
 
   let errorMsg = $state('');
 

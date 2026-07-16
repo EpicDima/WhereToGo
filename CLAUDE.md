@@ -42,27 +42,42 @@ npm run build    # production
 npm run preview  # preview build
 ```
 
-## Структура
+## Структура (Feature-Sliced)
 
 ```
 src/
 ├── App.svelte
-├── app.css                      # Tailwind @theme, dark mode vars, glass
+├── app.css                        # Tailwind @theme, dark mode vars, glass
 ├── main.js
 ├── lib/
-│   ├── components/
-│   │   ├── MapView.svelte       # карта, маркеры, зоны, радиусы, предпочтения
-│   │   ├── Sidebar.svelte       # wizard shell, генерация, bottom sheet
-│   │   ├── StepZone.svelte      # шаг 0: выбор зоны
-│   │   ├── StepPeople.svelte    # шаг 1: участники
-│   │   ├── StepDistance.svelte   # шаг 2: расстояния
+│   ├── shared/                    # общие модули
+│   │   ├── ui/                    # переиспользуемые UI-компоненты
+│   │   │   ├── Chip.svelte        # кнопка-чип (города, районы)
+│   │   │   ├── CloseButton.svelte # кнопка удаления ×
+│   │   │   └── PointCard.svelte   # карточка точки (люди, предпочтения)
+│   │   ├── stores/
+│   │   │   ├── app.svelte.js      # $state, localStorage, actions
+│   │   │   └── ui.svelte.js       # shared UI state (mobile sheet height)
+│   │   ├── utils/
+│   │   │   ├── geo.js             # haversine, point-in-polygon, random
+│   │   │   ├── districts.js       # полигоны районов Минска
+│   │   │   └── presets.js         # Минск (OSM-verified polygons)
+│   │   └── i18n/
+│   │       ├── index.svelte.js    # реактивный i18n ($state locale)
+│   │       ├── ru.js              # русские строки
+│   │       └── en.js              # английские строки
+│   ├── features/                  # шаги wizard
+│   │   ├── StepZone.svelte        # шаг 0: выбор зоны
+│   │   ├── StepPeople.svelte      # шаг 1: участники
+│   │   ├── StepDistance.svelte    # шаг 2: расстояния
 │   │   ├── StepPreferences.svelte # шаг 3: притяжение/отталкивание
-│   │   └── StepResult.svelte    # шаг 4: результат + навигация + шаринг
-│   ├── stores/
-│   │   ├── app.svelte.js        # $state, localStorage, actions
-│   │   └── ui.svelte.js         # shared UI state (mobile sheet height)
-│   └── utils/
-│       ├── geo.js               # haversine, point-in-polygon, random
-│       ├── districts.js         # полигоны районов Минска
-│       └── presets.js           # Минск (OSM-verified polygons)
+│   │   └── StepResult.svelte     # шаг 4: результат + навигация + шаринг
+│   └── widgets/                   # композитные компоненты
+│       ├── map/
+│       │   ├── MapView.svelte     # карта, маркеры, эффекты
+│       │   ├── layers.js          # GeoJSON-слои (зоны, радиусы, рисование)
+│       │   ├── markers.js         # DOM-фабрики маркеров
+│       │   └── debug.js           # DEV heatmap (вероятности генерации)
+│       ├── Sidebar.svelte         # wizard shell, генерация, bottom sheet
+│       └── ThemeToggle.svelte     # тема + язык
 ```

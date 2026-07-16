@@ -1,7 +1,7 @@
 <script>
-  import { appState } from '../stores/app.svelte.js';
-  import { haversineDistance } from '../utils/geo.js';
-  import { t, tf, i18n } from '../i18n/index.svelte.js';
+  import { appState } from '../shared/stores/app.svelte.js';
+  import { haversineDistance } from '../shared/utils/geo.js';
+  import { t, tf, i18n } from '../shared/i18n/index.svelte.js';
 
   let { onRestart, onRegenerate } = $props();
 

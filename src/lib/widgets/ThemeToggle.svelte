@@ -1,6 +1,6 @@
 <script>
-  import { appState, setThemeMode } from '../stores/app.svelte.js';
-  import { t, i18n, setLocale } from '../i18n/index.svelte.js';
+  import { appState, setThemeMode } from '../shared/stores/app.svelte.js';
+  import { t, i18n, setLocale } from '../shared/i18n/index.svelte.js';
 
   const themeCycle = ['system', 'light', 'dark'];
 
