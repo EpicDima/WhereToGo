@@ -395,9 +395,11 @@
       .addTo(map);
 
     const gp = [appState.generatedPoint.lng, appState.generatedPoint.lat];
-    const allPoints = [gp, ...appState.userLocations.map(l => [l.lng, l.lat])];
     const bounds = new maplibregl.LngLatBounds(gp, gp);
-    allPoints.forEach(p => bounds.extend(p));
+    for (const loc of appState.userLocations) {
+      bounds.extend([loc.lng, loc.lat]);
+      bounds.extend([2 * gp[0] - loc.lng, 2 * gp[1] - loc.lat]);
+    }
 
     const fitResult = map.cameraForBounds(bounds, { padding: mapPadding, maxZoom: 14 });
     const zoom = fitResult ? Math.min(fitResult.zoom, 14) : 14;
