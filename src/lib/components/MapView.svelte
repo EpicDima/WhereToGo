@@ -5,6 +5,8 @@
   import { point } from '@turf/helpers';
   import { bbox } from '@turf/bbox';
   import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
+  import { intersect } from '@turf/intersect';
+  import { featureCollection } from '@turf/helpers';
   import { appState, addUserLocation, addPreferencePoint } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
@@ -172,20 +174,23 @@
   function updateZoneData() {
     if (!map?.getSource('zone')) return;
 
-    const features = [];
     const zonePoly = createPolygonFeature(appState.zoneCoordinates.map(c => [c[0], c[1]]));
-    if (zonePoly) features.push(zonePoly);
 
-    if (appState.selectedDistricts.length > 0) {
-      const districtFeatures = appState.selectedDistricts
+    if (appState.selectedDistricts.length > 0 && zonePoly) {
+      const clipped = appState.selectedDistricts
         .map(name => MINSK_DISTRICTS[name])
         .filter(Boolean)
         .map(coords => createPolygonFeature(coords))
+        .filter(Boolean)
+        .map(dp => intersect(featureCollection([zonePoly, dp])))
         .filter(Boolean);
-      features.push(...districtFeatures);
+      map.getSource('zone').setData({ type: 'FeatureCollection', features: clipped });
+      return;
     }
 
-    map.getSource('zone').setData({ type: 'FeatureCollection', features });
+    map.getSource('zone').setData(
+      zonePoly ? { type: 'FeatureCollection', features: [zonePoly] } : { type: 'FeatureCollection', features: [] }
+    );
   }
 
   function updateRadiusCircles() {
