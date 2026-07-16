@@ -169,7 +169,7 @@
     <div class="flex items-center justify-between">
       <h1 class="font-heading text-lg font-bold text-ink tracking-tight">{t('appTitle')}</h1>
     </div>
-    <span class="text-[12px] text-ink-3">{appState.city.name}</span>
+    <span class="text-[12px] text-ink-3">{t(`city.${appState.presetKey}`) || appState.city.name}</span>
   </div>
 
   <!-- Progress -->

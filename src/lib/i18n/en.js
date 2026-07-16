@@ -1,5 +1,25 @@
 export default {
   appTitle: 'Where to go?',
+  ok: 'OK',
+
+  // Cities & zones
+  'city.minsk': 'Minsk',
+  'zone.wide': 'Whole city',
+  'zone.mkad': 'Ring road',
+  'zone.center': 'Center',
+
+  // Districts
+  'district.Центральный': 'Central',
+  'district.Советский': 'Sovetsky',
+  'district.Первомайский': 'Pervomaisky',
+  'district.Партизанский': 'Partizansky',
+  'district.Заводской': 'Zavodskoy',
+  'district.Ленинский': 'Leninsky',
+  'district.Октябрьский': 'Oktyabrsky',
+  'district.Московский': 'Moskovsky',
+  'district.Фрунзенский': 'Frunzensky',
+
+  switchLang: 'Переключить на русский',
 
   // Steps
   stepZone: 'Choose a zone',

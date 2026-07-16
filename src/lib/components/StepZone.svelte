@@ -32,7 +32,7 @@
               : 'text-ink hover:bg-panel-hover border-border'}"
           onclick={() => setPresetCity(key)}
         >
-          {city.name}
+          {t(`city.${key}`)}
         </button>
       {/each}
     </div>
@@ -51,7 +51,7 @@
                 : 'text-ink border-border hover:bg-panel-hover'}"
             onclick={() => { appState.drawingMode = false; setZonePreset(key); }}
           >
-            {zone.name}
+            {t(`zone.${key}`)}
           </button>
         {/each}
 
@@ -89,7 +89,7 @@
                 onkeydown={(e) => { if (e.key === 'Enter') handleSave(); }}
               />
               <button class="px-3 py-2 rounded-xl text-[12px] font-medium btn-primary" onclick={handleSave}>
-                OK
+                {t('ok')}
               </button>
             </div>
           {:else}
@@ -136,7 +136,7 @@
                 : 'text-ink border-border hover:bg-panel-hover'}"
             onclick={() => toggleDistrict(name)}
           >
-            {name}
+            {t(`district.${name}`)}
           </button>
         {/each}
       </div>

@@ -7,7 +7,7 @@
   <button
     class="glass rounded-full border border-border shadow-lg w-9 h-9 flex items-center justify-center text-[12px] font-bold text-ink-3 hover:text-ink hover:bg-panel-hover transition-all uppercase"
     onclick={() => setLocale(i18n.locale === 'ru' ? 'en' : 'ru')}
-    title={i18n.locale === 'ru' ? 'Switch to English' : 'Переключить на русский'}
+    title={t('switchLang')}
   >
     {i18n.locale === 'ru' ? 'en' : 'ру'}
   </button>

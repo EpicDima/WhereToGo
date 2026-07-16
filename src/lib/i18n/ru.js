@@ -1,5 +1,25 @@
 export default {
   appTitle: 'Куда пойти?',
+  ok: 'OK',
+
+  // Cities & zones
+  'city.minsk': 'Минск',
+  'zone.wide': 'Весь город',
+  'zone.mkad': 'МКАД',
+  'zone.center': 'Центр',
+
+  // Districts
+  'district.Центральный': 'Центральный',
+  'district.Советский': 'Советский',
+  'district.Первомайский': 'Первомайский',
+  'district.Партизанский': 'Партизанский',
+  'district.Заводской': 'Заводской',
+  'district.Ленинский': 'Ленинский',
+  'district.Октябрьский': 'Октябрьский',
+  'district.Московский': 'Московский',
+  'district.Фрунзенский': 'Фрунзенский',
+
+  switchLang: 'Switch to English',
 
   // Steps
   stepZone: 'Выберите зону',
