@@ -121,8 +121,9 @@ export function toggleDistrict(name) {
   } else {
     const preset = CITY_PRESETS[appState.presetKey];
     if (preset) {
-      appState.zonePreset = 'wide';
-      appState.zoneCoordinates = [...preset.zones.wide.coordinates];
+      const fallback = preset.zones.mkad ? 'mkad' : 'wide';
+      appState.zonePreset = fallback;
+      appState.zoneCoordinates = [...preset.zones[fallback].coordinates];
     }
   }
   appState.drawingMode = false;
