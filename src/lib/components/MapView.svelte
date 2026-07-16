@@ -395,14 +395,27 @@
       .addTo(map);
 
     const gp = [appState.generatedPoint.lng, appState.generatedPoint.lat];
-    const bounds = new maplibregl.LngLatBounds(gp, gp);
-    for (const loc of appState.userLocations) {
-      bounds.extend([loc.lng, loc.lat]);
-      bounds.extend([2 * gp[0] - loc.lng, 2 * gp[1] - loc.lat]);
+
+    if (appState.userLocations.length === 0) {
+      map.flyTo({ center: gp, zoom: 14, padding: mapPadding, duration: 1200 });
+      return;
     }
 
-    const fitResult = map.cameraForBounds(bounds, { padding: mapPadding, maxZoom: 14 });
-    const zoom = fitResult ? Math.min(fitResult.zoom, 14) : 14;
+    const container = map.getContainer();
+    const halfW = (container.clientWidth - mapPadding.left - mapPadding.right) / 2 * 0.85;
+    const halfH = (container.clientHeight - mapPadding.top - mapPadding.bottom) / 2 * 0.85;
+
+    const gpMerc = maplibregl.MercatorCoordinate.fromLngLat(gp);
+    let maxDx = 0, maxDy = 0;
+    for (const loc of appState.userLocations) {
+      const m = maplibregl.MercatorCoordinate.fromLngLat([loc.lng, loc.lat]);
+      maxDx = Math.max(maxDx, Math.abs(m.x - gpMerc.x));
+      maxDy = Math.max(maxDy, Math.abs(m.y - gpMerc.y));
+    }
+
+    let zoom = 14;
+    if (maxDx > 0 && halfW > 0) zoom = Math.min(zoom, Math.log2(halfW / (maxDx * 512)));
+    if (maxDy > 0 && halfH > 0) zoom = Math.min(zoom, Math.log2(halfH / (maxDy * 512)));
 
     map.flyTo({ center: gp, zoom, padding: mapPadding, duration: 1200 });
   }
