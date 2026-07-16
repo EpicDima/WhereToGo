@@ -13,6 +13,7 @@
   let preferenceMarkers = [];
   let resultMarker = null;
   let drawPoints = [];
+  let initialLoad = true;
 
   const MAP_PADDING = { top: 60, bottom: 60, left: 400, right: 60 };
 
@@ -38,6 +39,7 @@
     map.addControl(new maplibregl.NavigationControl({ showCompass: false, visualizePitch: false }), 'bottom-right');
 
     map.on('load', () => {
+      hideBoundaryLayers();
       addZoneLayers();
       addRadiusLayers();
       addDrawLayers();
@@ -56,6 +58,14 @@
 
     return () => { map?.remove(); };
   });
+
+  function hideBoundaryLayers() {
+    for (const layer of map.getStyle().layers) {
+      if (layer.id.includes('boundary')) {
+        map.setLayoutProperty(layer.id, 'visibility', 'none');
+      }
+    }
+  }
 
   function addRadiusLayers() {
     map.addSource('radius-min', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -279,9 +289,11 @@
   $effect(() => { appState.generatedPoint; updateResultMarker(); });
   $effect(() => { appState.userLocations; appState.minDistance; appState.maxDistance; appState.step; updateRadiusCircles(); });
   $effect(() => {
-    if (map) {
-      map.flyTo({ center: appState.city.center, zoom: appState.city.zoom, padding: MAP_PADDING, duration: 1000 });
-    }
+    const center = appState.city.center;
+    const zoom = appState.city.zoom;
+    if (!map) return;
+    if (initialLoad) { initialLoad = false; return; }
+    map.flyTo({ center, zoom, padding: MAP_PADDING, duration: 1000 });
   });
   $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 2) ? 'crosshair' : ''; });
   $effect(() => {
@@ -290,6 +302,7 @@
     if (map.getStyle()?.sprite !== style) {
       map.setStyle(style);
       map.once('style.load', () => {
+        hideBoundaryLayers();
         addZoneLayers();
         addRadiusLayers();
         addDrawLayers();
