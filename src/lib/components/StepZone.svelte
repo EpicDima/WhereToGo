@@ -37,7 +37,7 @@
     </div>
   </div>
 
-  <!-- Zone presets -->
+  <!-- Zone presets + custom zones + draw -->
   {#if hasPreset}
     <div>
       <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">Зона</span>
@@ -53,6 +53,70 @@
             {zone.name}
           </button>
         {/each}
+
+        {#each appState.customZones as zone, i}
+          {@const active = appState.zonePreset === 'custom' && !appState.drawingMode && JSON.stringify(appState.zoneCoordinates) === JSON.stringify(zone.coordinates)}
+          <div
+            class="flex items-center gap-2 rounded-xl px-3.5 py-2.5 border transition-all cursor-pointer
+              {active
+                ? 'bg-accent text-white border-transparent shadow-md shadow-accent-glow'
+                : 'text-ink border-border hover:bg-panel-hover'}"
+            onclick={() => loadCustomZone(i)}
+            role="button"
+            tabindex="0"
+          >
+            <span class="flex-1 text-[13px] font-medium">{zone.name}</span>
+            <button
+              class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors shrink-0
+                {active
+                  ? 'text-white/70 hover:text-white hover:bg-white/15 border border-white/20'
+                  : 'text-ink-3 hover:text-red-500 hover:bg-red-500/10 border border-border'}"
+              onclick={(e) => { e.stopPropagation(); deleteCustomZone(i); }}
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        {/each}
+
+        <button
+          class="w-full text-left px-3.5 py-2.5 rounded-xl text-[13px] font-medium border transition-all
+            {appState.drawingMode
+              ? 'bg-accent text-white border-transparent shadow-md shadow-accent-glow'
+              : appState.zonePreset === 'custom' && !isZoneSaved
+                ? 'bg-accent/10 text-accent border-accent/20'
+                : 'text-ink border-border hover:bg-panel-hover'}"
+          onclick={() => {
+            appState.drawingMode = !appState.drawingMode;
+            if (appState.drawingMode) {
+              appState.selectedDistricts = [];
+            }
+          }}
+        >
+          {appState.drawingMode ? 'Рисуем — кликайте на карту...' : 'Нарисовать зону'}
+        </button>
+
+        {#if appState.zonePreset === 'custom' && appState.zoneCoordinates.length >= 3 && !appState.drawingMode && !isZoneSaved}
+          {#if showSaveInput}
+            <div class="flex gap-1.5">
+              <input
+                class="flex-1 px-3 py-2 rounded-xl text-[13px] bg-transparent border border-border text-ink outline-none placeholder:text-ink-4"
+                placeholder="Название зоны"
+                bind:value={zoneName}
+                onkeydown={(e) => { if (e.key === 'Enter') handleSave(); }}
+              />
+              <button class="px-3 py-2 rounded-xl text-[12px] font-medium btn-primary" onclick={handleSave}>
+                OK
+              </button>
+            </div>
+          {:else}
+            <button
+              class="w-full py-2 rounded-xl text-[12px] font-medium text-ink-2 hover:bg-panel-hover border border-border transition-colors"
+              onclick={() => showSaveInput = true}
+            >
+              Сохранить зону
+            </button>
+          {/if}
+        {/if}
       </div>
     </div>
   {/if}
@@ -76,80 +140,6 @@
         {/each}
       </div>
     </div>
-  {/if}
-
-  <!-- Saved custom zones -->
-  {#if appState.customZones.length > 0}
-    <div>
-      <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">Мои зоны</span>
-      <div class="space-y-1.5">
-        {#each appState.customZones as zone, i}
-          {@const active = appState.zonePreset === 'custom' && !appState.drawingMode && JSON.stringify(appState.zoneCoordinates) === JSON.stringify(zone.coordinates)}
-          <div
-            class="flex items-center gap-2 rounded-xl px-3.5 py-2.5 border transition-all cursor-pointer
-              {active
-                ? 'bg-accent text-white border-transparent shadow-md shadow-accent-glow'
-                : 'text-ink border-border hover:bg-panel-hover'}"
-            onclick={() => loadCustomZone(i)}
-            role="button"
-            tabindex="0"
-          >
-            <span class="flex-1 text-[13px] font-medium">{zone.name}</span>
-            <button
-              class="w-7 h-7 rounded-lg flex items-center justify-center transition-colors shrink-0
-                {active
-                  ? 'text-white/70 hover:text-white hover:bg-white/15'
-                  : 'text-ink-3 hover:text-red-500 hover:bg-red-500/10 border border-border'}"
-              onclick={(e) => { e.stopPropagation(); deleteCustomZone(i); }}
-            >
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </button>
-          </div>
-        {/each}
-      </div>
-    </div>
-  {/if}
-
-  <!-- Custom draw -->
-  <button
-    class="w-full text-left px-3.5 py-2.5 rounded-xl text-[13px] font-medium border transition-all
-      {appState.drawingMode
-        ? 'bg-accent text-white border-transparent shadow-md shadow-accent-glow'
-        : appState.zonePreset === 'custom' && !isZoneSaved
-          ? 'bg-accent/10 text-accent border-accent/20'
-          : 'text-ink border-border hover:bg-panel-hover'}"
-    onclick={() => {
-      appState.drawingMode = !appState.drawingMode;
-      if (appState.drawingMode) {
-        appState.selectedDistricts = [];
-      }
-    }}
-  >
-    {appState.drawingMode ? 'Рисуем — кликайте на карту...' : 'Нарисовать зону'}
-  </button>
-
-  <!-- Save custom zone -->
-  {#if appState.zonePreset === 'custom' && appState.zoneCoordinates.length >= 3 && !appState.drawingMode && !isZoneSaved}
-    {#if showSaveInput}
-      <div class="flex gap-1.5">
-        <input
-          class="flex-1 px-3 py-2 rounded-xl text-[13px] bg-transparent border border-border text-ink outline-none placeholder:text-ink-4"
-          placeholder="Название зоны"
-          bind:value={zoneName}
-          onkeydown={(e) => { if (e.key === 'Enter') handleSave(); }}
-        />
-        <button class="px-3 py-2 rounded-xl text-[12px] font-medium btn-primary" onclick={handleSave}>
-          OK
-        </button>
-      </div>
-    {:else}
-      <button
-        class="w-full py-2 rounded-xl text-[12px] font-medium text-ink-2 hover:bg-panel-hover border border-border transition-colors"
-        onclick={() => showSaveInput = true}
-      >
-        Сохранить зону
-      </button>
-    {/if}
   {/if}
 
   <button
