@@ -1,6 +1,7 @@
 <script>
-  import { appState, setPresetCity, setZonePreset, saveSettings, saveCustomZone, loadCustomZone, deleteCustomZone } from '../stores/app.svelte.js';
+  import { appState, setPresetCity, setZonePreset, toggleDistrict, saveSettings, saveCustomZone, loadCustomZone, deleteCustomZone } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
+  import { MINSK_DISTRICTS } from '../utils/districts.js';
 
   let { onNext } = $props();
 
@@ -55,6 +56,27 @@
     </div>
   {/if}
 
+  <!-- Districts multi-select -->
+  {#if hasPreset}
+    <div>
+      <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">Районы</span>
+      <div class="flex flex-wrap gap-1.5">
+        {#each Object.keys(MINSK_DISTRICTS) as name}
+          {@const selected = appState.selectedDistricts.includes(name)}
+          <button
+            class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all
+              {selected
+                ? 'bg-accent text-white border-transparent shadow-sm shadow-accent-glow'
+                : 'text-ink border-border hover:bg-panel-hover'}"
+            onclick={() => toggleDistrict(name)}
+          >
+            {name}
+          </button>
+        {/each}
+      </div>
+    </div>
+  {/if}
+
   <!-- Saved custom zones -->
   {#if appState.customZones.length > 0}
     <div>
@@ -91,7 +113,10 @@
           : 'text-ink border-border hover:bg-panel-hover'}"
     onclick={() => {
       appState.drawingMode = !appState.drawingMode;
-      if (appState.drawingMode) appState.zonePreset = 'custom';
+      if (appState.drawingMode) {
+        appState.zonePreset = 'custom';
+        appState.selectedDistricts = [];
+      }
     }}
   >
     {appState.drawingMode ? 'Рисуем — кликайте на карту...' : 'Нарисовать свою зону'}
@@ -124,7 +149,7 @@
   <button
     class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
     onclick={onNext}
-    disabled={appState.zoneCoordinates.length < 3}
+    disabled={appState.zoneCoordinates.length < 3 && appState.selectedDistricts.length === 0}
   >
     Далее
   </button>

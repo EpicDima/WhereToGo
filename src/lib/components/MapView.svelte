@@ -4,6 +4,7 @@
   import * as turf from '@turf/turf';
   import { appState, addUserLocation } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
+  import { MINSK_DISTRICTS } from '../utils/districts.js';
   import { createPolygonFeature } from '../utils/geo.js';
 
   let mapContainer;
@@ -102,6 +103,17 @@
 
   function updateZoneData() {
     if (!map?.getSource('zone')) return;
+
+    if (appState.selectedDistricts.length > 0) {
+      const features = appState.selectedDistricts
+        .map(name => MINSK_DISTRICTS[name])
+        .filter(Boolean)
+        .map(coords => createPolygonFeature(coords))
+        .filter(Boolean);
+      map.getSource('zone').setData({ type: 'FeatureCollection', features });
+      return;
+    }
+
     const polygon = createPolygonFeature(appState.zoneCoordinates.map(c => [c[0], c[1]]));
     map.getSource('zone').setData(
       polygon ? { type: 'FeatureCollection', features: [polygon] } : { type: 'FeatureCollection', features: [] }
@@ -216,7 +228,7 @@
     map.fitBounds(bounds, { padding: MAP_PADDING, maxZoom: 14, duration: 1200 });
   }
 
-  $effect(() => { appState.zoneCoordinates; updateZoneData(); });
+  $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; updateZoneData(); });
   $effect(() => { appState.userLocations; appState.step; updateUserMarkers(); });
   $effect(() => { appState.generatedPoint; updateResultMarker(); });
   $effect(() => { appState.userLocations; appState.minDistance; appState.maxDistance; appState.step; updateRadiusCircles(); });

@@ -1,7 +1,8 @@
 <script>
   import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
-  import { generateConstrainedPoint, createPolygonFeature } from '../utils/geo.js';
+  import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../utils/geo.js';
+  import { MINSK_DISTRICTS } from '../utils/districts.js';
   import StepZone from './StepZone.svelte';
   import StepPeople from './StepPeople.svelte';
   import StepSettings from './StepSettings.svelte';
@@ -16,11 +17,23 @@
     regenerate();
     errorMsg = '';
 
-    const polygon = createPolygonFeature(
-      appState.zoneCoordinates.map(c => [c[0], c[1]])
-    );
+    const useDistricts = appState.selectedDistricts.length > 0;
+    let polygons = [];
 
-    if (!polygon) {
+    if (useDistricts) {
+      polygons = appState.selectedDistricts
+        .map(name => MINSK_DISTRICTS[name])
+        .filter(Boolean)
+        .map(coords => createPolygonFeature(coords))
+        .filter(Boolean);
+    } else {
+      const poly = createPolygonFeature(
+        appState.zoneCoordinates.map(c => [c[0], c[1]])
+      );
+      if (poly) polygons = [poly];
+    }
+
+    if (polygons.length === 0) {
       errorMsg = 'Зона не задана.';
       appState.isGenerating = false;
       return;
@@ -32,9 +45,9 @@
 
     await new Promise(r => setTimeout(r, 300));
 
-    const point = generateConstrainedPoint(
-      polygon, locations, appState.minDistance, appState.maxDistance
-    );
+    const point = polygons.length === 1
+      ? generateConstrainedPoint(polygons[0], locations, appState.minDistance, appState.maxDistance)
+      : generateConstrainedPointMulti(polygons, locations, appState.minDistance, appState.maxDistance);
 
     if (!point) {
       errorMsg = 'Не удалось найти точку. Измените расстояния или зону.';

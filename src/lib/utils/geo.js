@@ -35,6 +35,33 @@ export function generateConstrainedPoint(polygon, userLocations, minKm, maxKm, m
   return null;
 }
 
+export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, maxAttempts = 3000) {
+  const bboxes = polygons.map(p => turf.bbox(p));
+  const combined = [
+    Math.min(...bboxes.map(b => b[0])),
+    Math.min(...bboxes.map(b => b[1])),
+    Math.max(...bboxes.map(b => b[2])),
+    Math.max(...bboxes.map(b => b[3])),
+  ];
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const lng = combined[0] + Math.random() * (combined[2] - combined[0]);
+    const lat = combined[1] + Math.random() * (combined[3] - combined[1]);
+    const pt = turf.point([lng, lat]);
+
+    if (!polygons.some(p => turf.booleanPointInPolygon(pt, p))) continue;
+
+    const point = { lng, lat };
+    const allWithinRange = userLocations.every(loc => {
+      const dist = haversineDistance(loc, point);
+      return dist >= minKm && dist <= maxKm;
+    });
+
+    if (allWithinRange) return point;
+  }
+  return null;
+}
+
 export function createPolygonFeature(coordinates) {
   if (coordinates.length < 3) return null;
   const closed = [...coordinates];

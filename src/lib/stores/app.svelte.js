@@ -32,6 +32,7 @@ export const appState = $state({
   zonePreset: saved?.zonePreset ?? 'wide',
 
   customZones: saved?.customZones ?? [],
+  selectedDistricts: saved?.selectedDistricts ?? [],
 
   userLocations: saved?.userLocations ?? [],
 
@@ -56,6 +57,7 @@ export function saveSettings() {
       zoneCoordinates: appState.zoneCoordinates,
       zonePreset: appState.zonePreset,
       customZones: appState.customZones,
+      selectedDistricts: appState.selectedDistricts,
       userLocations: appState.userLocations,
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
@@ -71,6 +73,7 @@ export function setPresetCity(key) {
   appState.city = { name: city.name, center: city.center, zoom: city.zoom };
   appState.zoneCoordinates = [...city.zones.wide.coordinates];
   appState.zonePreset = 'wide';
+  appState.selectedDistricts = [];
   appState.generatedPoint = null;
   saveSettings();
 }
@@ -89,9 +92,23 @@ export function setZonePreset(presetKey) {
   if (preset?.zones[presetKey]) {
     appState.zoneCoordinates = [...preset.zones[presetKey].coordinates];
     appState.zonePreset = presetKey;
+    appState.selectedDistricts = [];
     appState.generatedPoint = null;
     saveSettings();
   }
+}
+
+export function toggleDistrict(name) {
+  if (appState.selectedDistricts.includes(name)) {
+    appState.selectedDistricts = appState.selectedDistricts.filter(d => d !== name);
+  } else {
+    appState.selectedDistricts = [...appState.selectedDistricts, name];
+  }
+  appState.zonePreset = 'districts';
+  appState.zoneCoordinates = [];
+  appState.drawingMode = false;
+  appState.generatedPoint = null;
+  saveSettings();
 }
 
 export function addUserLocation(lngLat) {
@@ -123,6 +140,7 @@ export function loadCustomZone(index) {
   if (!zone) return;
   appState.zoneCoordinates = [...zone.coordinates];
   appState.zonePreset = 'custom';
+  appState.selectedDistricts = [];
   appState.drawingMode = false;
   appState.generatedPoint = null;
   saveSettings();
