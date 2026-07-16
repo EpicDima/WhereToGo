@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
-  import * as turf from '@turf/turf';
+  import { circle } from '@turf/circle';
   import { appState, addUserLocation } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
@@ -130,10 +130,10 @@
     }
 
     const minCircles = appState.userLocations.map(loc =>
-      turf.circle([loc.lng, loc.lat], appState.minDistance, { units: 'kilometers', steps: 64 })
+      circle([loc.lng, loc.lat], appState.minDistance, { units: 'kilometers', steps: 64 })
     );
     const maxCircles = appState.userLocations.map(loc =>
-      turf.circle([loc.lng, loc.lat], appState.maxDistance, { units: 'kilometers', steps: 64 })
+      circle([loc.lng, loc.lat], appState.maxDistance, { units: 'kilometers', steps: 64 })
     );
 
     map.getSource('radius-min').setData({ type: 'FeatureCollection', features: minCircles });

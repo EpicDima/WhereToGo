@@ -1,18 +1,21 @@
-import * as turf from '@turf/turf';
+import { point, polygon } from '@turf/helpers';
+import { distance } from '@turf/distance';
+import { bbox } from '@turf/bbox';
+import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 
 export function haversineDistance(coord1, coord2) {
-  const from = turf.point([coord1.lng, coord1.lat]);
-  const to = turf.point([coord2.lng, coord2.lat]);
-  return turf.distance(from, to, { units: 'kilometers' });
+  const from = point([coord1.lng, coord1.lat]);
+  const to = point([coord2.lng, coord2.lat]);
+  return distance(from, to, { units: 'kilometers' });
 }
 
-export function generateRandomPointInPolygon(polygon, maxAttempts = 1000) {
-  const bbox = turf.bbox(polygon);
+export function generateRandomPointInPolygon(poly, maxAttempts = 1000) {
+  const bb = bbox(poly);
   for (let i = 0; i < maxAttempts; i++) {
-    const lng = bbox[0] + Math.random() * (bbox[2] - bbox[0]);
-    const lat = bbox[1] + Math.random() * (bbox[3] - bbox[1]);
-    const pt = turf.point([lng, lat]);
-    if (turf.booleanPointInPolygon(pt, polygon)) {
+    const lng = bb[0] + Math.random() * (bb[2] - bb[0]);
+    const lat = bb[1] + Math.random() * (bb[3] - bb[1]);
+    const pt = point([lng, lat]);
+    if (booleanPointInPolygon(pt, poly)) {
       return { lng, lat };
     }
   }
@@ -36,7 +39,7 @@ export function generateConstrainedPoint(polygon, userLocations, minKm, maxKm, m
 }
 
 export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, maxAttempts = 3000) {
-  const bboxes = polygons.map(p => turf.bbox(p));
+  const bboxes = polygons.map(p => bbox(p));
   const combined = [
     Math.min(...bboxes.map(b => b[0])),
     Math.min(...bboxes.map(b => b[1])),
@@ -47,9 +50,9 @@ export function generateConstrainedPointMulti(polygons, userLocations, minKm, ma
   for (let i = 0; i < maxAttempts; i++) {
     const lng = combined[0] + Math.random() * (combined[2] - combined[0]);
     const lat = combined[1] + Math.random() * (combined[3] - combined[1]);
-    const pt = turf.point([lng, lat]);
+    const pt = point([lng, lat]);
 
-    if (!polygons.some(p => turf.booleanPointInPolygon(pt, p))) continue;
+    if (!polygons.some(p => booleanPointInPolygon(pt, p))) continue;
 
     const point = { lng, lat };
     const allWithinRange = userLocations.every(loc => {
@@ -70,5 +73,5 @@ export function createPolygonFeature(coordinates) {
   if (first[0] !== last[0] || first[1] !== last[1]) {
     closed.push([...first]);
   }
-  return turf.polygon([closed]);
+  return polygon([closed]);
 }
