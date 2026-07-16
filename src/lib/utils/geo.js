@@ -45,17 +45,21 @@ function generateRandomPointInPolygon(poly, maxAttempts = 1000) {
 const DEFAULT_PREFS = { attractionPoints: [], repulsionPoints: [], attractionRadius: 1.5, repulsionRadius: 0.5 };
 const CANDIDATE_BATCH = 80;
 
-function pickBest(candidates, preferences) {
+function pickWeighted(candidates, preferences) {
   const hasPrefs = preferences.attractionPoints.length > 0 || preferences.repulsionPoints.length > 0;
   if (!hasPrefs || candidates.length === 0) return candidates[0] ?? null;
 
-  let best = candidates[0];
-  let bestScore = scoreCandidate(best, preferences);
-  for (let i = 1; i < candidates.length; i++) {
-    const s = scoreCandidate(candidates[i], preferences);
-    if (s > bestScore) { best = candidates[i]; bestScore = s; }
+  const scores = candidates.map(c => scoreCandidate(c, preferences));
+  const min = Math.min(...scores);
+  const weights = scores.map(s => s - min + 0.01);
+  const total = weights.reduce((sum, w) => sum + w, 0);
+
+  let r = Math.random() * total;
+  for (let i = 0; i < candidates.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return candidates[i];
   }
-  return best;
+  return candidates[candidates.length - 1];
 }
 
 export function generateConstrainedPoint(poly, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000) {
@@ -67,7 +71,7 @@ export function generateConstrainedPoint(poly, userLocations, minKm, maxKm, pref
     candidates.push(candidate);
     if (candidates.length >= CANDIDATE_BATCH) break;
   }
-  return pickBest(candidates, preferences);
+  return pickWeighted(candidates, preferences);
 }
 
 export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000) {
@@ -91,7 +95,7 @@ export function generateConstrainedPointMulti(polygons, userLocations, minKm, ma
     candidates.push(candidate);
     if (candidates.length >= CANDIDATE_BATCH) break;
   }
-  return pickBest(candidates, preferences);
+  return pickWeighted(candidates, preferences);
 }
 
 export function createPolygonFeature(coordinates) {
