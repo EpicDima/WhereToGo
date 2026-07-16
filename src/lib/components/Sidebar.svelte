@@ -6,7 +6,7 @@
   import StepZone from './StepZone.svelte';
   import StepPeople from './StepPeople.svelte';
   import StepPreferences from './StepPreferences.svelte';
-  import StepSettings from './StepSettings.svelte';
+  import StepDistance from './StepDistance.svelte';
   import StepResult from './StepResult.svelte';
 
   let errorMsg = $state('');
@@ -118,7 +118,7 @@
     {:else if appState.step === 1}
       <StepPeople onNext={nextStep} />
     {:else if appState.step === 2}
-      <StepSettings onNext={nextStep} />
+      <StepDistance onNext={nextStep} />
     {:else if appState.step === 3}
       <StepPreferences onGenerate={handleGenerate} {errorMsg} />
     {:else}
