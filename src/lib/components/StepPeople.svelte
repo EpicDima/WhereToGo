@@ -19,7 +19,7 @@
     <div class="space-y-1.5">
       {#each appState.userLocations as loc, i}
         <div class="flex items-center gap-2 rounded-xl px-3 py-2.5 border border-border">
-          <div class="w-5 h-5 rounded-full bg-ink text-white text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</div>
+          <div class="w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</div>
           <div class="flex-1 min-w-0">
             <input
               class="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-4 font-medium"
