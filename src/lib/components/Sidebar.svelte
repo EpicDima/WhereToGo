@@ -44,8 +44,20 @@
     snapFull = Math.round(window.innerHeight * 0.85);
   }
 
-  $effect(() => { uiState.mobileSheetHeight = isMobile ? sheetHeight : 0; });
-  $effect(() => { appState.step; if (isMobile && sheetHeight < snapHalf) sheetHeight = snapHalf; });
+  $effect(() => {
+    uiState.mobileSheetHeight = isMobile ? sheetHeight : 0;
+    if (isMobile) {
+      document.documentElement.style.setProperty('--sheet-height', `${sheetHeight}px`);
+    } else {
+      document.documentElement.style.removeProperty('--sheet-height');
+    }
+  });
+  $effect(() => {
+    const step = appState.step;
+    if (!isMobile) return;
+    if (step === 1 || step === 3) return;
+    if (sheetHeight < snapHalf) sheetHeight = snapHalf;
+  });
 
   function onHandleDown(e) {
     if (!isMobile || e.target.closest('button')) return;

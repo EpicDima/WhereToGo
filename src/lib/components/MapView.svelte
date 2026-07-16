@@ -681,4 +681,10 @@
     font-family: 'Inter', sans-serif; background: rgba(0,0,0,0.8); color: white;
   }
   :global(.debug-popup .maplibregl-popup-tip) { border-top-color: rgba(0,0,0,0.8); }
+  @media (max-width: 1023px) {
+    :global(.maplibregl-ctrl-bottom-right) {
+      bottom: calc(var(--sheet-height, 0px) + 10px) !important;
+      transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
 </style>
