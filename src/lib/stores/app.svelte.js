@@ -50,7 +50,7 @@ export const appState = $state({
 
   drawingMode: false,
 
-  step: 0,
+  step: Math.min(saved?.step ?? 0, 3),
   themeMode: saved?.themeMode ?? 'system',
   darkMode: saved?.themeMode === 'dark' || (saved?.themeMode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches),
 });
@@ -71,6 +71,7 @@ export function saveSettings() {
       repulsionRadius: appState.repulsionRadius,
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
+      step: appState.step,
       themeMode: appState.themeMode,
     }));
   } catch {}
@@ -199,6 +200,7 @@ export function deleteCustomZone(index) {
 
 export function nextStep() {
   appState.step = Math.min(appState.step + 1, 4);
+  saveSettings();
 }
 
 export function prevStep() {
@@ -206,11 +208,13 @@ export function prevStep() {
     appState.generatedPoint = null;
   }
   appState.step = Math.max(appState.step - 1, 0);
+  saveSettings();
 }
 
 export function restart() {
   appState.generatedPoint = null;
   appState.step = 0;
+  saveSettings();
 }
 
 export function regenerate() {
