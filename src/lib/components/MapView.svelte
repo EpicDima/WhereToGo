@@ -17,7 +17,7 @@
   let userMarkers = [];
   let preferenceMarkers = [];
   let resultMarker = null;
-  let drawPoints = [];
+  let drawPoints = $state([]);
   let initialLoad = true;
   const isDev = import.meta.env.DEV;
   let showDebugHeatmap = $state(false);
@@ -224,7 +224,7 @@
   }
 
   function handleDrawClick(lngLat) {
-    drawPoints.push([lngLat.lng, lngLat.lat]);
+    drawPoints = [...drawPoints, [lngLat.lng, lngLat.lat]];
     updateDrawVisuals();
   }
 
@@ -241,10 +241,12 @@
   }
 
   export function finishDrawing() {
-    if (drawPoints.length >= 3) {
-      appState.zoneCoordinates = [...drawPoints];
-      appState.zonePreset = 'custom';
+    if (drawPoints.length < 3) {
+      cancelDrawing();
+      return;
     }
+    appState.zoneCoordinates = [...drawPoints];
+    appState.zonePreset = 'custom';
     clearDrawing();
     appState.drawingMode = false;
   }
@@ -627,8 +629,13 @@
 {#if appState.drawingMode}
   <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 glass rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 border border-border
     max-lg:left-4 max-lg:right-4 max-lg:translate-x-0 max-lg:top-4">
-    <span class="text-[13px] text-ink-2 font-medium">Кликайте для точек полигона</span>
-    <button class="px-3 py-1.5 text-[12px] font-semibold rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors" onclick={() => finishDrawing()}>Готово</button>
+    <span class="text-[13px] text-ink-2 font-medium">Кликайте для точек полигона{#if drawPoints.length > 0} <span class="text-ink-4">({drawPoints.length})</span>{/if}</span>
+    <button
+      class="px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors
+        {drawPoints.length >= 3 ? 'bg-accent text-white hover:bg-accent-hover' : 'bg-ink-4/20 text-ink-4 cursor-not-allowed'}"
+      onclick={() => finishDrawing()}
+      disabled={drawPoints.length < 3}
+    >Готово</button>
     <button class="px-3 py-1.5 text-[12px] font-semibold rounded-lg text-ink-3 hover:bg-panel-hover transition-colors" onclick={() => cancelDrawing()}>Отмена</button>
   </div>
 {/if}
