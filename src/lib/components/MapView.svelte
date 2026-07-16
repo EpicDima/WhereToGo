@@ -39,7 +39,7 @@
     map.addControl(new maplibregl.NavigationControl({ showCompass: false, visualizePitch: false }), 'bottom-right');
 
     map.on('load', () => {
-      hideBoundaryLayers();
+      applyStyleOverrides();
       addZoneLayers();
       addRadiusLayers();
       addDrawLayers();
@@ -59,10 +59,13 @@
     return () => { map?.remove(); };
   });
 
-  function hideBoundaryLayers() {
+  function applyStyleOverrides() {
     for (const layer of map.getStyle().layers) {
       if (layer.id.includes('boundary')) {
         map.setLayoutProperty(layer.id, 'visibility', 'none');
+      }
+      if (layer.type === 'symbol' && layer.layout?.['text-field']) {
+        map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', 'name:ru'], ['get', 'name']]);
       }
     }
   }
@@ -302,7 +305,7 @@
     if (map.getStyle()?.sprite !== style) {
       map.setStyle(style);
       map.once('style.load', () => {
-        hideBoundaryLayers();
+        applyStyleOverrides();
         addZoneLayers();
         addRadiusLayers();
         addDrawLayers();
