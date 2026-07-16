@@ -78,7 +78,7 @@ export function saveSettings() {
 
 export function setPresetCity(key) {
   const city = CITY_PRESETS[key];
-  if (!city) return;
+  if (!city || appState.presetKey === key) return;
   appState.presetKey = key;
   appState.city = { name: city.name, center: city.center, zoom: city.zoom };
   appState.zoneCoordinates = [...city.zones.wide.coordinates];
