@@ -5,7 +5,7 @@ export default {
   // Cities & zones
   'city.minsk': 'Minsk',
   'zone.wide': 'Whole city',
-  'zone.mkad': 'Ring road',
+  'zone.mkad': 'MKAD',
   'zone.center': 'Center',
 
   // Districts
