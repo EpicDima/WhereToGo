@@ -23,12 +23,12 @@
   <!-- City selection -->
   <div>
     <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">{t('city')}</span>
-    <div class="space-y-1.5">
+    <div class="flex flex-wrap gap-1.5">
       {#each Object.entries(CITY_PRESETS) as [key, city]}
         <button
-          class="w-full text-left px-3.5 py-2.5 rounded-xl text-[13px] font-medium border transition-all
+          class="px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all
             {appState.presetKey === key
-              ? 'bg-accent text-white border-transparent shadow-md shadow-accent-glow'
+              ? 'bg-accent text-white border-transparent shadow-sm shadow-accent-glow'
               : 'text-ink border-border hover:bg-panel-hover'}"
           onclick={() => setPresetCity(key)}
         >
