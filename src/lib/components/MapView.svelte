@@ -450,8 +450,10 @@
 
     const scores = results.map(r => r.score);
     const minScore = Math.min(...scores);
-    const maxScore = Math.max(...scores);
-    const range = maxScore - minScore;
+    const weights = scores.map(s => s - minScore + 0.01);
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    const maxWeight = Math.max(...weights);
+    const hasPrefs = appState.attractionPoints.length > 0 || appState.repulsionPoints.length > 0;
 
     return {
       type: 'FeatureCollection',
@@ -459,10 +461,27 @@
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [pt.lng, pt.lat] },
         properties: {
-          weight: range < 0.001 ? 0.5 : (scores[idx] - minScore) / range
+          weight: hasPrefs ? weights[idx] / maxWeight : 0.5,
+          pct: (weights[idx] / totalWeight * 100).toFixed(3)
         }
       }))
     };
+  }
+
+  let debugPopup = null;
+
+  function onDebugMouseMove(e) {
+    if (!e.features?.length) return;
+    const pct = e.features[0].properties.pct;
+    if (!debugPopup) {
+      debugPopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: 'debug-popup', offset: 12 });
+    }
+    debugPopup.setLngLat(e.lngLat).setHTML(`${pct}%`).addTo(map);
+  }
+
+  function onDebugMouseLeave() {
+    debugPopup?.remove();
+    debugPopup = null;
   }
 
   function addDebugHeatmapLayer() {
@@ -476,7 +495,7 @@
       source: 'debug-heatmap',
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'],
-          10, 4, 12, 8, 14, 16, 16, 32],
+          10, 8, 12, 16, 14, 32, 16, 64],
         'circle-color': ['interpolate', ['linear'], ['get', 'weight'],
           0, '#6366F1',
           0.25, '#06B6D4',
@@ -484,10 +503,14 @@
           0.75, '#EAB308',
           1, '#EF4444',
         ],
-        'circle-opacity': 0.45,
-        'circle-blur': 0.6,
+        'circle-opacity': 0.4,
+        'circle-blur': 1,
       }
     });
+    map.off('mousemove', 'debug-heatmap', onDebugMouseMove);
+    map.off('mouseleave', 'debug-heatmap', onDebugMouseLeave);
+    map.on('mousemove', 'debug-heatmap', onDebugMouseMove);
+    map.on('mouseleave', 'debug-heatmap', onDebugMouseLeave);
   }
 
   function updateDebugHeatmap() {
@@ -605,4 +628,10 @@
     100% { transform: translateY(0); }
   }
   :global(.maplibregl-ctrl-attrib) { display: none !important; }
+  :global(.debug-popup .maplibregl-popup-content) {
+    padding: 3px 8px; font-size: 11px; font-weight: 600;
+    border-radius: 6px; min-width: auto; pointer-events: none;
+    font-family: 'Inter', sans-serif; background: rgba(0,0,0,0.8); color: white;
+  }
+  :global(.debug-popup .maplibregl-popup-tip) { border-top-color: rgba(0,0,0,0.8); }
 </style>
