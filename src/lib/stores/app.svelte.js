@@ -115,8 +115,16 @@ export function toggleDistrict(name) {
   } else {
     appState.selectedDistricts = [...appState.selectedDistricts, name];
   }
-  appState.zonePreset = 'districts';
-  appState.zoneCoordinates = [];
+  if (appState.selectedDistricts.length > 0) {
+    appState.zonePreset = 'districts';
+    appState.zoneCoordinates = [];
+  } else {
+    const preset = CITY_PRESETS[appState.presetKey];
+    if (preset) {
+      appState.zonePreset = 'wide';
+      appState.zoneCoordinates = [...preset.zones.wide.coordinates];
+    }
+  }
   appState.drawingMode = false;
   appState.generatedPoint = null;
   saveSettings();
