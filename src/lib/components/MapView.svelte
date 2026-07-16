@@ -2,6 +2,9 @@
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
   import { circle } from '@turf/circle';
+  import { point } from '@turf/helpers';
+  import { bbox } from '@turf/bbox';
+  import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
   import { appState, addUserLocation, addPreferencePoint } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
@@ -14,6 +17,8 @@
   let resultMarker = null;
   let drawPoints = [];
   let initialLoad = true;
+  const isDev = import.meta.env.DEV;
+  let showDebugHeatmap = $state(false);
 
   const MAP_PADDING = { top: 60, bottom: 60, left: 400, right: 60 };
 
@@ -40,12 +45,14 @@
 
     map.on('load', () => {
       applyStyleOverrides();
+      if (isDev) addDebugHeatmapLayer();
       addZoneLayers();
       addRadiusLayers();
       addPreferenceRadiusLayers();
       addDrawLayers();
       updateZoneData();
       updatePreferenceRadii();
+      if (isDev) updateDebugHeatmap();
     });
 
     map.on('click', (e) => {
@@ -366,12 +373,144 @@
     map.fitBounds(bounds, { padding: MAP_PADDING, maxZoom: 14, duration: 1200 });
   }
 
+  const DEBUG_GRID = 80;
+  const DEG2RAD = Math.PI / 180;
+
+  function fastDistKm(lat1, lng1, lat2, lng2) {
+    const dLat = (lat2 - lat1) * DEG2RAD;
+    const dLng = (lng2 - lng1) * DEG2RAD;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * DEG2RAD) * Math.cos(lat2 * DEG2RAD) * Math.sin(dLng / 2) ** 2;
+    return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function getZonePolygons() {
+    if (appState.selectedDistricts.length > 0) {
+      return appState.selectedDistricts
+        .map(name => MINSK_DISTRICTS[name])
+        .filter(Boolean)
+        .map(coords => createPolygonFeature(coords))
+        .filter(Boolean);
+    }
+    const poly = createPolygonFeature(appState.zoneCoordinates.map(c => [c[0], c[1]]));
+    return poly ? [poly] : [];
+  }
+
+  function computeDebugGrid() {
+    const empty = { type: 'FeatureCollection', features: [] };
+    if (!showDebugHeatmap) return empty;
+
+    const polygons = getZonePolygons();
+    if (polygons.length === 0) return empty;
+
+    const bboxes = polygons.map(p => bbox(p));
+    const bb = [
+      Math.min(...bboxes.map(b => b[0])),
+      Math.min(...bboxes.map(b => b[1])),
+      Math.max(...bboxes.map(b => b[2])),
+      Math.max(...bboxes.map(b => b[3])),
+    ];
+
+    const lngStep = (bb[2] - bb[0]) / DEBUG_GRID;
+    const latStep = (bb[3] - bb[1]) / DEBUG_GRID;
+
+    const locations = appState.userLocations.length > 0
+      ? appState.userLocations
+      : [{ lng: appState.city.center[0], lat: appState.city.center[1] }];
+
+    const results = [];
+
+    for (let i = 0; i <= DEBUG_GRID; i++) {
+      for (let j = 0; j <= DEBUG_GRID; j++) {
+        const lng = bb[0] + i * lngStep;
+        const lat = bb[1] + j * latStep;
+
+        if (!polygons.some(p => booleanPointInPolygon(point([lng, lat]), p))) continue;
+
+        const passesDistance = locations.every(loc => {
+          const dist = fastDistKm(loc.lat, loc.lng, lat, lng);
+          return dist >= appState.minDistance && dist <= appState.maxDistance;
+        });
+        if (!passesDistance) continue;
+
+        let score = 0;
+        for (const ap of appState.attractionPoints) {
+          const dist = fastDistKm(ap.lat, ap.lng, lat, lng);
+          score += Math.exp(-((dist / appState.attractionRadius) ** 2));
+        }
+        for (const rp of appState.repulsionPoints) {
+          const dist = fastDistKm(rp.lat, rp.lng, lat, lng);
+          score -= Math.exp(-((dist / appState.repulsionRadius) ** 2));
+        }
+
+        results.push({ lng, lat, score });
+      }
+    }
+
+    if (results.length === 0) return empty;
+
+    const scores = results.map(r => r.score);
+    const minScore = Math.min(...scores);
+    const weights = scores.map(s => s - minScore + 0.01);
+    const maxWeight = Math.max(...weights);
+
+    return {
+      type: 'FeatureCollection',
+      features: results.map((pt, idx) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [pt.lng, pt.lat] },
+        properties: { weight: weights[idx] / maxWeight }
+      }))
+    };
+  }
+
+  function addDebugHeatmapLayer() {
+    map.addSource('debug-heatmap', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+    map.addLayer({
+      id: 'debug-heatmap',
+      type: 'heatmap',
+      source: 'debug-heatmap',
+      paint: {
+        'heatmap-weight': ['get', 'weight'],
+        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, 1, 14, 2],
+        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 10, 20, 12, 35, 14, 60, 16, 100],
+        'heatmap-opacity': 0.6,
+        'heatmap-color': [
+          'interpolate', ['linear'], ['heatmap-density'],
+          0, 'rgba(0,0,0,0)',
+          0.2, '#6366F1',
+          0.4, '#06B6D4',
+          0.6, '#22C55E',
+          0.8, '#EAB308',
+          1.0, '#EF4444',
+        ]
+      }
+    });
+  }
+
+  function updateDebugHeatmap() {
+    if (!map?.getSource('debug-heatmap')) return;
+    map.getSource('debug-heatmap').setData(computeDebugGrid());
+  }
+
   $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; updateZoneData(); });
   $effect(() => { appState.userLocations; appState.step; updateUserMarkers(); });
   $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.step; updatePreferenceMarkers(); });
   $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.attractionRadius; appState.repulsionRadius; appState.step; updatePreferenceRadii(); });
   $effect(() => { appState.generatedPoint; updateResultMarker(); });
   $effect(() => { appState.userLocations; appState.minDistance; appState.maxDistance; appState.step; updateRadiusCircles(); });
+  if (isDev) {
+    $effect(() => {
+      showDebugHeatmap;
+      appState.zoneCoordinates; appState.selectedDistricts;
+      appState.userLocations; appState.minDistance; appState.maxDistance;
+      appState.attractionPoints; appState.repulsionPoints;
+      appState.attractionRadius; appState.repulsionRadius;
+      updateDebugHeatmap();
+    });
+  }
   $effect(() => {
     const center = appState.city.center;
     const zoom = appState.city.zoom;
@@ -391,6 +530,7 @@
       map.setStyle(style);
       map.once('style.load', () => {
         applyStyleOverrides();
+        if (isDev) addDebugHeatmapLayer();
         addZoneLayers();
         addRadiusLayers();
         addPreferenceRadiusLayers();
@@ -399,12 +539,44 @@
         updateRadiusCircles();
         updatePreferenceRadii();
         updatePreferenceMarkers();
+        if (isDev) updateDebugHeatmap();
       });
     }
   });
 </script>
 
 <div bind:this={mapContainer} class="absolute inset-0 w-full h-full"></div>
+
+{#if isDev}
+  <button
+    class="absolute top-16 right-4 z-30 rounded-lg p-2 border shadow-md transition-all
+      {showDebugHeatmap
+        ? 'bg-accent/90 border-accent text-white shadow-accent-glow'
+        : 'glass border-border text-ink-3 hover:bg-panel-hover'}"
+    onclick={() => showDebugHeatmap = !showDebugHeatmap}
+    title="Тепловая карта вероятности"
+  >
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <rect x="1" y="1" width="7" height="7" rx="1.5" fill="#6366F1" opacity="0.8"/>
+      <rect x="10" y="1" width="7" height="7" rx="1.5" fill="#22C55E" opacity="0.8"/>
+      <rect x="1" y="10" width="7" height="7" rx="1.5" fill="#EAB308" opacity="0.8"/>
+      <rect x="10" y="10" width="7" height="7" rx="1.5" fill="#EF4444" opacity="0.8"/>
+    </svg>
+  </button>
+  {#if showDebugHeatmap}
+    <div class="absolute top-[6.5rem] right-4 z-30 glass rounded-xl border border-border shadow-lg px-3 py-2.5 flex flex-col gap-1">
+      <span class="text-[10px] font-semibold text-ink-3 uppercase tracking-wider">Вероятность</span>
+      <div class="flex items-stretch gap-2">
+        <div class="w-3 rounded-sm" style="background: linear-gradient(to bottom, #EF4444, #EAB308, #22C55E, #06B6D4, #6366F1);"></div>
+        <div class="flex flex-col justify-between text-[10px] text-ink-3 py-0.5">
+          <span>Высокая</span>
+          <span>Средняя</span>
+          <span>Низкая</span>
+        </div>
+      </div>
+    </div>
+  {/if}
+{/if}
 
 {#if appState.drawingMode}
   <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 glass rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 border border-border
