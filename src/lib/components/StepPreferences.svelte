@@ -83,7 +83,7 @@
           <span class="text-[10px] text-ink-3">Влияние</span>
           <span class="text-[11px] font-bold text-ink tabular-nums">{appState.attractionRadius.toFixed(1)} км</span>
         </div>
-        <input type="range" min="0.3" max="5" step="0.1" value={appState.attractionRadius} oninput={onAttractionRadiusChange} class="w-full" />
+        <input type="range" min="0.1" max="5" step="0.1" value={appState.attractionRadius} oninput={onAttractionRadiusChange} class="w-full" />
         <p class="text-[10px] text-ink-4 mt-0.5">Чем ближе к точке, тем вероятнее результат</p>
       </div>
     </div>
@@ -123,7 +123,7 @@
           <span class="text-[10px] text-ink-3">Влияние</span>
           <span class="text-[11px] font-bold text-ink tabular-nums">{appState.repulsionRadius.toFixed(1)} км</span>
         </div>
-        <input type="range" min="0.1" max="3" step="0.1" value={appState.repulsionRadius} oninput={onRepulsionRadiusChange} class="w-full" />
+        <input type="range" min="0.1" max="5" step="0.1" value={appState.repulsionRadius} oninput={onRepulsionRadiusChange} class="w-full" />
         <p class="text-[10px] text-ink-4 mt-0.5">Чем ближе к точке, тем менее вероятен результат</p>
       </div>
     </div>
