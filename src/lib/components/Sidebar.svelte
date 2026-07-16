@@ -2,7 +2,6 @@
   import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, createPolygonFeature } from '../utils/geo.js';
-  import { getWalkingRoute } from '../utils/routing.js';
   import StepZone from './StepZone.svelte';
   import StepPeople from './StepPeople.svelte';
   import StepSettings from './StepSettings.svelte';
@@ -10,7 +9,7 @@
 
   let errorMsg = $state('');
 
-  const stepTitles = ['Выбери зону', 'Кто идёт?', 'Настройки', 'Результат'];
+  const stepTitles = ['Выберите зону', 'Кто идёт?', 'Настройки', 'Результат'];
 
   async function handleGenerate() {
     appState.isGenerating = true;
@@ -45,14 +44,6 @@
 
     appState.generatedPoint = point;
     appState.step = 3;
-
-    if (appState.showRouting && appState.userLocations.length > 0) {
-      try {
-        const route = await getWalkingRoute(appState.userLocations[0], point);
-        appState.routeData = route;
-      } catch {}
-    }
-
     appState.isGenerating = false;
   }
 </script>

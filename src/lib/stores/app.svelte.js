@@ -43,9 +43,6 @@ export const appState = $state({
 
   drawingMode: false,
 
-  showRouting: saved?.showRouting ?? true,
-  routeData: null,
-
   step: 0,
   themeMode: saved?.themeMode ?? 'system',
   darkMode: saved?.themeMode === 'dark' || (saved?.themeMode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches),
@@ -62,7 +59,6 @@ export function saveSettings() {
       userLocations: appState.userLocations,
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
-      showRouting: appState.showRouting,
       themeMode: appState.themeMode,
     }));
   } catch {}
@@ -76,7 +72,6 @@ export function setPresetCity(key) {
   appState.zoneCoordinates = [...city.zones.wide.coordinates];
   appState.zonePreset = 'wide';
   appState.generatedPoint = null;
-  appState.routeData = null;
   saveSettings();
 }
 
@@ -86,7 +81,6 @@ export function setCustomCity(name, center, zoom) {
   appState.zoneCoordinates = [];
   appState.zonePreset = 'custom';
   appState.generatedPoint = null;
-  appState.routeData = null;
   saveSettings();
 }
 
@@ -146,20 +140,17 @@ export function nextStep() {
 export function prevStep() {
   if (appState.step === 3) {
     appState.generatedPoint = null;
-    appState.routeData = null;
   }
   appState.step = Math.max(appState.step - 1, 0);
 }
 
 export function restart() {
   appState.generatedPoint = null;
-  appState.routeData = null;
   appState.step = 0;
 }
 
 export function regenerate() {
   appState.generatedPoint = null;
-  appState.routeData = null;
 }
 
 export function setThemeMode(mode) {

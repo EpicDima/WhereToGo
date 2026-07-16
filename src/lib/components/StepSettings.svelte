@@ -44,19 +44,6 @@
     <p class="text-[10px] text-ink-3 mt-1">Максимальный радиус поиска (жёлтый круг на карте)</p>
   </div>
 
-  <!-- Route toggle -->
-  <button
-    class="w-full flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] transition-colors
-      {appState.showRouting ? 'bg-accent-soft text-accent' : 'text-ink-2 hover:bg-panel-hover'}"
-    onclick={() => { appState.showRouting = !appState.showRouting; saveSettings(); }}
-    title="Пешеходный маршрут от первого участника"
-  >
-    <span>Маршрут на карте</span>
-    <span class="w-8 h-[18px] rounded-full relative transition-colors {appState.showRouting ? 'bg-accent' : 'bg-ink-4/40'}">
-      <span class="absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-all {appState.showRouting ? 'left-[16px]' : 'left-[2px]'}"></span>
-    </span>
-  </button>
-
   {#if errorMsg}
     <div class="text-danger text-[12px] rounded-xl bg-danger/10 p-3">{errorMsg}</div>
   {/if}

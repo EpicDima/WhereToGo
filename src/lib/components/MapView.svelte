@@ -39,7 +39,6 @@
       addZoneLayers();
       addRadiusLayers();
       addDrawLayers();
-      addRouteLayers();
       updateZoneData();
     });
 
@@ -53,20 +52,6 @@
 
     return () => { map?.remove(); };
   });
-
-  function addRouteLayers() {
-    map.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-    map.addLayer({
-      id: 'route-line-bg', type: 'line', source: 'route',
-      paint: { 'line-color': '#000', 'line-width': 7, 'line-opacity': 0.08 },
-      layout: { 'line-cap': 'round', 'line-join': 'round' }
-    });
-    map.addLayer({
-      id: 'route-line', type: 'line', source: 'route',
-      paint: { 'line-color': '#E8584A', 'line-width': 3.5 },
-      layout: { 'line-cap': 'round', 'line-join': 'round' }
-    });
-  }
 
   function addRadiusLayers() {
     map.addSource('radius-min', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -240,15 +225,6 @@
       map.flyTo({ center: appState.city.center, zoom: appState.city.zoom, padding: MAP_PADDING, duration: 1000 });
     }
   });
-  $effect(() => {
-    const routeData = appState.routeData;
-    if (!map?.getSource('route')) return;
-    map.getSource('route').setData(
-      routeData
-        ? { type: 'FeatureCollection', features: [routeData] }
-        : { type: 'FeatureCollection', features: [] }
-    );
-  });
   $effect(() => { if (map) map.getCanvas().style.cursor = appState.drawingMode ? 'crosshair' : ''; });
   $effect(() => {
     if (!map) return;
@@ -259,12 +235,8 @@
         addZoneLayers();
         addRadiusLayers();
         addDrawLayers();
-        addRouteLayers();
         updateZoneData();
         updateRadiusCircles();
-        if (appState.routeData) {
-          map.getSource('route').setData({ type: 'FeatureCollection', features: [appState.routeData] });
-        }
       });
     }
   });

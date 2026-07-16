@@ -1,9 +1,13 @@
 <script>
   import { appState } from '../stores/app.svelte.js';
-  import { formatDistance, formatDuration } from '../utils/routing.js';
   import { haversineDistance } from '../utils/geo.js';
 
   let { onRestart, onRegenerate } = $props();
+
+  function formatDistance(km) {
+    if (km < 1) return `${Math.round(km * 1000)} м`;
+    return `${km.toFixed(1)} км`;
+  }
 
   let distancesToPoint = $derived(
     appState.generatedPoint && appState.userLocations.length > 0
@@ -14,20 +18,13 @@
 
 <div class="space-y-4">
   {#if appState.generatedPoint}
-    <div class="rounded-xl border border-accent/20 bg-accent/5 p-4 space-y-3">
+    <div class="rounded-xl border border-accent/20 bg-accent/5 p-4 space-y-2">
       <div>
         <div class="text-[15px] font-bold text-ink">Место найдено</div>
         <div class="text-[11px] text-ink-3 font-mono mt-1">
           {appState.generatedPoint.lat.toFixed(5)}, {appState.generatedPoint.lng.toFixed(5)}
         </div>
       </div>
-
-      {#if appState.routeData}
-        <div class="flex gap-4 text-[13px] font-medium text-ink-2 bg-panel-hover rounded-lg px-3 py-2">
-          <span>🚶 {formatDistance(appState.routeData.properties.distanceKm)}</span>
-          <span>⏱ {formatDuration(appState.routeData.properties.timeSec)}</span>
-        </div>
-      {/if}
     </div>
 
     <!-- Per-person distances + navigation -->
@@ -73,7 +70,7 @@
           target="_blank" rel="noreferrer"
           class="flex-1 py-2.5 rounded-lg text-[12px] font-semibold text-center text-ink-2 hover:bg-panel-hover border border-border transition-colors"
         >
-          Яндекс
+          Яндекс Карты
         </a>
       </div>
     {/if}
