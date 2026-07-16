@@ -295,7 +295,11 @@
     const center = appState.city.center;
     const zoom = appState.city.zoom;
     if (!map) return;
-    if (initialLoad) { initialLoad = false; return; }
+    if (initialLoad) {
+      initialLoad = false;
+      map.jumpTo({ center, zoom, padding: MAP_PADDING });
+      return;
+    }
     map.flyTo({ center, zoom, padding: MAP_PADDING, duration: 1000 });
   });
   $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 2) ? 'crosshair' : ''; });
