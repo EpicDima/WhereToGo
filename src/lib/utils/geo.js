@@ -9,7 +9,30 @@ export function haversineDistance(coord1, coord2) {
   return distance(from, to, { units: 'kilometers' });
 }
 
-export function generateRandomPointInPolygon(poly, maxAttempts = 1000) {
+function checkAllConstraints(candidate, userLocations, minKm, maxKm, preferences) {
+  const withinRange = userLocations.every(loc => {
+    const dist = haversineDistance(loc, candidate);
+    return dist >= minKm && dist <= maxKm;
+  });
+  if (!withinRange) return false;
+
+  if (preferences.repulsionPoints.length > 0) {
+    for (const rp of preferences.repulsionPoints) {
+      if (haversineDistance(rp, candidate) < preferences.repulsionRadius) return false;
+    }
+  }
+
+  if (preferences.attractionPoints.length > 0) {
+    const nearAny = preferences.attractionPoints.some(
+      ap => haversineDistance(ap, candidate) < preferences.attractionRadius
+    );
+    if (!nearAny) return false;
+  }
+
+  return true;
+}
+
+function generateRandomPointInPolygon(poly, maxAttempts = 1000) {
   const bb = bbox(poly);
   for (let i = 0; i < maxAttempts; i++) {
     const lng = bb[0] + Math.random() * (bb[2] - bb[0]);
@@ -22,23 +45,18 @@ export function generateRandomPointInPolygon(poly, maxAttempts = 1000) {
   return null;
 }
 
-export function generateConstrainedPoint(polygon, userLocations, minKm, maxKm, maxAttempts = 3000) {
+const DEFAULT_PREFS = { attractionPoints: [], repulsionPoints: [], attractionRadius: 1.5, repulsionRadius: 0.5 };
+
+export function generateConstrainedPoint(poly, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000) {
   for (let i = 0; i < maxAttempts; i++) {
-    const point = generateRandomPointInPolygon(polygon);
-    if (!point) continue;
-
-    const allWithinRange = userLocations.every(loc => {
-      const dist = haversineDistance(loc, point);
-      return dist >= minKm && dist <= maxKm;
-    });
-
-    if (allWithinRange) return point;
+    const candidate = generateRandomPointInPolygon(poly);
+    if (!candidate) continue;
+    if (checkAllConstraints(candidate, userLocations, minKm, maxKm, preferences)) return candidate;
   }
-
   return null;
 }
 
-export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, maxAttempts = 3000) {
+export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000) {
   const bboxes = polygons.map(p => bbox(p));
   const combined = [
     Math.min(...bboxes.map(b => b[0])),
@@ -51,16 +69,10 @@ export function generateConstrainedPointMulti(polygons, userLocations, minKm, ma
     const lng = combined[0] + Math.random() * (combined[2] - combined[0]);
     const lat = combined[1] + Math.random() * (combined[3] - combined[1]);
     const pt = point([lng, lat]);
-
     if (!polygons.some(p => booleanPointInPolygon(pt, p))) continue;
 
-    const point = { lng, lat };
-    const allWithinRange = userLocations.every(loc => {
-      const dist = haversineDistance(loc, point);
-      return dist >= minKm && dist <= maxKm;
-    });
-
-    if (allWithinRange) return point;
+    const candidate = { lng, lat };
+    if (checkAllConstraints(candidate, userLocations, minKm, maxKm, preferences)) return candidate;
   }
   return null;
 }

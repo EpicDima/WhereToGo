@@ -36,6 +36,12 @@ export const appState = $state({
 
   userLocations: saved?.userLocations ?? [],
 
+  attractionPoints: saved?.attractionPoints ?? [],
+  repulsionPoints: saved?.repulsionPoints ?? [],
+  attractionRadius: saved?.attractionRadius ?? 1.5,
+  repulsionRadius: saved?.repulsionRadius ?? 0.5,
+  preferenceMode: 'repulsion',
+
   minDistance: saved?.minDistance ?? 0.5,
   maxDistance: saved?.maxDistance ?? 10,
 
@@ -59,6 +65,10 @@ export function saveSettings() {
       customZones: appState.customZones,
       selectedDistricts: appState.selectedDistricts,
       userLocations: appState.userLocations,
+      attractionPoints: appState.attractionPoints,
+      repulsionPoints: appState.repulsionPoints,
+      attractionRadius: appState.attractionRadius,
+      repulsionRadius: appState.repulsionRadius,
       minDistance: appState.minDistance,
       maxDistance: appState.maxDistance,
       themeMode: appState.themeMode,
@@ -111,6 +121,27 @@ export function toggleDistrict(name) {
   saveSettings();
 }
 
+export function addPreferencePoint(lngLat) {
+  const pt = { lng: lngLat.lng, lat: lngLat.lat };
+  if (appState.preferenceMode === 'attraction') {
+    appState.attractionPoints = [...appState.attractionPoints, pt];
+  } else {
+    appState.repulsionPoints = [...appState.repulsionPoints, pt];
+  }
+  appState.generatedPoint = null;
+  saveSettings();
+}
+
+export function removeAttractionPoint(index) {
+  appState.attractionPoints = appState.attractionPoints.filter((_, i) => i !== index);
+  saveSettings();
+}
+
+export function removeRepulsionPoint(index) {
+  appState.repulsionPoints = appState.repulsionPoints.filter((_, i) => i !== index);
+  saveSettings();
+}
+
 export function addUserLocation(lngLat) {
   const name = appState.userLocations.length === 0 ? 'Я' : `Друг ${appState.userLocations.length}`;
   appState.userLocations = [...appState.userLocations, { lng: lngLat.lng, lat: lngLat.lat, name }];
@@ -152,11 +183,11 @@ export function deleteCustomZone(index) {
 }
 
 export function nextStep() {
-  appState.step = Math.min(appState.step + 1, 3);
+  appState.step = Math.min(appState.step + 1, 4);
 }
 
 export function prevStep() {
-  if (appState.step === 3) {
+  if (appState.step === 4) {
     appState.generatedPoint = null;
   }
   appState.step = Math.max(appState.step - 1, 0);

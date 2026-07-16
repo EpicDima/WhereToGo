@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
   import { circle } from '@turf/circle';
-  import { appState, addUserLocation } from '../stores/app.svelte.js';
+  import { appState, addUserLocation, addPreferencePoint } from '../stores/app.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
   import { createPolygonFeature } from '../utils/geo.js';
@@ -10,6 +10,7 @@
   let mapContainer;
   let map;
   let userMarkers = [];
+  let preferenceMarkers = [];
   let resultMarker = null;
   let drawPoints = [];
 
@@ -48,6 +49,8 @@
         handleDrawClick(e.lngLat);
       } else if (appState.step === 1) {
         addUserLocation(e.lngLat);
+      } else if (appState.step === 2) {
+        addPreferencePoint(e.lngLat);
       }
     });
 
@@ -123,7 +126,7 @@
   function updateRadiusCircles() {
     if (!map?.getSource('radius-min') || !map?.getSource('radius-max')) return;
 
-    if (appState.userLocations.length === 0 || appState.step < 2) {
+    if (appState.userLocations.length === 0 || appState.step < 3) {
       map.getSource('radius-min').setData({ type: 'FeatureCollection', features: [] });
       map.getSource('radius-max').setData({ type: 'FeatureCollection', features: [] });
       return;
@@ -205,6 +208,48 @@
     });
   }
 
+  function updatePreferenceMarkers() {
+    preferenceMarkers.forEach(m => m.remove());
+    preferenceMarkers = [];
+    if (!map || appState.step < 2) return;
+
+    const draggable = appState.step === 2;
+
+    appState.attractionPoints.forEach((pt, i) => {
+      const el = document.createElement('div');
+      el.innerHTML = `<div class="pref-marker pref-attraction">+</div>`;
+      const marker = new maplibregl.Marker({ element: el, draggable })
+        .setLngLat([pt.lng, pt.lat])
+        .addTo(map);
+      if (draggable) {
+        marker.on('dragend', () => {
+          const lngLat = marker.getLngLat();
+          appState.attractionPoints = appState.attractionPoints.map((p, idx) =>
+            idx === i ? { lng: lngLat.lng, lat: lngLat.lat } : p
+          );
+        });
+      }
+      preferenceMarkers.push(marker);
+    });
+
+    appState.repulsionPoints.forEach((pt, i) => {
+      const el = document.createElement('div');
+      el.innerHTML = `<div class="pref-marker pref-repulsion">&minus;</div>`;
+      const marker = new maplibregl.Marker({ element: el, draggable })
+        .setLngLat([pt.lng, pt.lat])
+        .addTo(map);
+      if (draggable) {
+        marker.on('dragend', () => {
+          const lngLat = marker.getLngLat();
+          appState.repulsionPoints = appState.repulsionPoints.map((p, idx) =>
+            idx === i ? { lng: lngLat.lng, lat: lngLat.lat } : p
+          );
+        });
+      }
+      preferenceMarkers.push(marker);
+    });
+  }
+
   function updateResultMarker() {
     if (resultMarker) { resultMarker.remove(); resultMarker = null; }
     if (!map || !appState.generatedPoint) return;
@@ -230,6 +275,7 @@
 
   $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; updateZoneData(); });
   $effect(() => { appState.userLocations; appState.step; updateUserMarkers(); });
+  $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.step; updatePreferenceMarkers(); });
   $effect(() => { appState.generatedPoint; updateResultMarker(); });
   $effect(() => { appState.userLocations; appState.minDistance; appState.maxDistance; appState.step; updateRadiusCircles(); });
   $effect(() => {
@@ -237,7 +283,7 @@
       map.flyTo({ center: appState.city.center, zoom: appState.city.zoom, padding: MAP_PADDING, duration: 1000 });
     }
   });
-  $effect(() => { if (map) map.getCanvas().style.cursor = appState.drawingMode ? 'crosshair' : ''; });
+  $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 2) ? 'crosshair' : ''; });
   $effect(() => {
     if (!map) return;
     const style = appState.darkMode ? DARK_STYLE : LIGHT_STYLE;
@@ -249,6 +295,7 @@
         addDrawLayers();
         updateZoneData();
         updateRadiusCircles();
+        updatePreferenceMarkers();
       });
     }
   });
@@ -281,5 +328,15 @@
     60% { transform: translateY(4px); opacity: 1; }
     100% { transform: translateY(0); }
   }
+  :global(.pref-marker) {
+    width: 24px; height: 24px; border-radius: 50%;
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid white; cursor: grab; transition: transform 0.15s;
+  }
+  :global(.pref-marker:hover) { transform: scale(1.15); }
+  :global(.pref-attraction) { background: #22C55E; }
+  :global(.pref-repulsion) { background: #EF4444; }
   :global(.maplibregl-ctrl-attrib) { display: none !important; }
 </style>
