@@ -42,8 +42,10 @@
       applyStyleOverrides();
       addZoneLayers();
       addRadiusLayers();
+      addPreferenceRadiusLayers();
       addDrawLayers();
       updateZoneData();
+      updatePreferenceRadii();
     });
 
     map.on('click', (e) => {
@@ -90,6 +92,49 @@
       id: 'radius-min-border', type: 'line', source: 'radius-min',
       paint: { 'line-color': '#6366F1', 'line-width': 1.5, 'line-opacity': 0.7, 'line-dasharray': [4, 3] }
     });
+  }
+
+  function addPreferenceRadiusLayers() {
+    map.addSource('pref-attraction', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addSource('pref-repulsion', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+
+    map.addLayer({
+      id: 'pref-attraction-fill', type: 'fill', source: 'pref-attraction',
+      paint: { 'fill-color': '#22C55E', 'fill-opacity': 0.06 }
+    });
+    map.addLayer({
+      id: 'pref-attraction-border', type: 'line', source: 'pref-attraction',
+      paint: { 'line-color': '#22C55E', 'line-width': 1.5, 'line-opacity': 0.5, 'line-dasharray': [4, 3] }
+    });
+    map.addLayer({
+      id: 'pref-repulsion-fill', type: 'fill', source: 'pref-repulsion',
+      paint: { 'fill-color': '#EF4444', 'fill-opacity': 0.06 }
+    });
+    map.addLayer({
+      id: 'pref-repulsion-border', type: 'line', source: 'pref-repulsion',
+      paint: { 'line-color': '#EF4444', 'line-width': 1.5, 'line-opacity': 0.5, 'line-dasharray': [4, 3] }
+    });
+  }
+
+  function updatePreferenceRadii() {
+    if (!map?.getSource('pref-attraction') || !map?.getSource('pref-repulsion')) return;
+
+    const empty = { type: 'FeatureCollection', features: [] };
+    if (appState.step < 2) {
+      map.getSource('pref-attraction').setData(empty);
+      map.getSource('pref-repulsion').setData(empty);
+      return;
+    }
+
+    const aCircles = appState.attractionPoints.map(pt =>
+      circle([pt.lng, pt.lat], appState.attractionRadius, { units: 'kilometers', steps: 48 })
+    );
+    const rCircles = appState.repulsionPoints.map(pt =>
+      circle([pt.lng, pt.lat], appState.repulsionRadius, { units: 'kilometers', steps: 48 })
+    );
+
+    map.getSource('pref-attraction').setData({ type: 'FeatureCollection', features: aCircles });
+    map.getSource('pref-repulsion').setData({ type: 'FeatureCollection', features: rCircles });
   }
 
   function addZoneLayers() {
@@ -221,6 +266,16 @@
     });
   }
 
+  function createPrefPin(color) {
+    const el = document.createElement('div');
+    el.innerHTML = `<svg width="24" height="32" viewBox="0 0 24 32" fill="none">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 9 12 20 12 20s12-11 12-20C24 5.37 18.63 0 12 0z" fill="${color}"/>
+      <circle cx="12" cy="11" r="4" fill="white" fill-opacity="0.9"/>
+    </svg>`;
+    el.style.cursor = 'grab';
+    return el;
+  }
+
   function updatePreferenceMarkers() {
     preferenceMarkers.forEach(m => m.remove());
     preferenceMarkers = [];
@@ -229,16 +284,14 @@
     const draggable = appState.step === 2;
 
     appState.attractionPoints.forEach((pt, i) => {
-      const el = document.createElement('div');
-      el.innerHTML = `<div class="pref-marker pref-attraction">+</div>`;
-      const marker = new maplibregl.Marker({ element: el, draggable })
+      const marker = new maplibregl.Marker({ element: createPrefPin('#22C55E'), draggable, anchor: 'bottom' })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
           appState.attractionPoints = appState.attractionPoints.map((p, idx) =>
-            idx === i ? { lng: lngLat.lng, lat: lngLat.lat } : p
+            idx === i ? { ...p, lng: lngLat.lng, lat: lngLat.lat } : p
           );
         });
       }
@@ -246,16 +299,14 @@
     });
 
     appState.repulsionPoints.forEach((pt, i) => {
-      const el = document.createElement('div');
-      el.innerHTML = `<div class="pref-marker pref-repulsion">&minus;</div>`;
-      const marker = new maplibregl.Marker({ element: el, draggable })
+      const marker = new maplibregl.Marker({ element: createPrefPin('#EF4444'), draggable, anchor: 'bottom' })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
           appState.repulsionPoints = appState.repulsionPoints.map((p, idx) =>
-            idx === i ? { lng: lngLat.lng, lat: lngLat.lat } : p
+            idx === i ? { ...p, lng: lngLat.lng, lat: lngLat.lat } : p
           );
         });
       }
@@ -289,6 +340,7 @@
   $effect(() => { appState.zoneCoordinates; appState.selectedDistricts; updateZoneData(); });
   $effect(() => { appState.userLocations; appState.step; updateUserMarkers(); });
   $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.step; updatePreferenceMarkers(); });
+  $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.attractionRadius; appState.repulsionRadius; appState.step; updatePreferenceRadii(); });
   $effect(() => { appState.generatedPoint; updateResultMarker(); });
   $effect(() => { appState.userLocations; appState.minDistance; appState.maxDistance; appState.step; updateRadiusCircles(); });
   $effect(() => {
@@ -312,9 +364,11 @@
         applyStyleOverrides();
         addZoneLayers();
         addRadiusLayers();
+        addPreferenceRadiusLayers();
         addDrawLayers();
         updateZoneData();
         updateRadiusCircles();
+        updatePreferenceRadii();
         updatePreferenceMarkers();
       });
     }
@@ -348,15 +402,5 @@
     60% { transform: translateY(4px); opacity: 1; }
     100% { transform: translateY(0); }
   }
-  :global(.pref-marker) {
-    width: 24px; height: 24px; border-radius: 50%;
-    color: white; display: flex; align-items: center; justify-content: center;
-    font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    border: 2px solid white; cursor: grab; transition: transform 0.15s;
-  }
-  :global(.pref-marker:hover) { transform: scale(1.15); }
-  :global(.pref-attraction) { background: #22C55E; }
-  :global(.pref-repulsion) { background: #EF4444; }
   :global(.maplibregl-ctrl-attrib) { display: none !important; }
 </style>

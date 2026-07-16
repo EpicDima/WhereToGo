@@ -9,27 +9,24 @@ export function haversineDistance(coord1, coord2) {
   return distance(from, to, { units: 'kilometers' });
 }
 
-function checkAllConstraints(candidate, userLocations, minKm, maxKm, preferences) {
-  const withinRange = userLocations.every(loc => {
+function checkDistanceConstraints(candidate, userLocations, minKm, maxKm) {
+  return userLocations.every(loc => {
     const dist = haversineDistance(loc, candidate);
     return dist >= minKm && dist <= maxKm;
   });
-  if (!withinRange) return false;
+}
 
-  if (preferences.repulsionPoints.length > 0) {
-    for (const rp of preferences.repulsionPoints) {
-      if (haversineDistance(rp, candidate) < preferences.repulsionRadius) return false;
-    }
+function scoreCandidate(candidate, preferences) {
+  let score = 0;
+  for (const ap of preferences.attractionPoints) {
+    const dist = haversineDistance(ap, candidate);
+    score += Math.exp(-((dist / preferences.attractionRadius) ** 2));
   }
-
-  if (preferences.attractionPoints.length > 0) {
-    const nearAny = preferences.attractionPoints.some(
-      ap => haversineDistance(ap, candidate) < preferences.attractionRadius
-    );
-    if (!nearAny) return false;
+  for (const rp of preferences.repulsionPoints) {
+    const dist = haversineDistance(rp, candidate);
+    score -= Math.exp(-((dist / preferences.repulsionRadius) ** 2));
   }
-
-  return true;
+  return score;
 }
 
 function generateRandomPointInPolygon(poly, maxAttempts = 1000) {
@@ -46,14 +43,31 @@ function generateRandomPointInPolygon(poly, maxAttempts = 1000) {
 }
 
 const DEFAULT_PREFS = { attractionPoints: [], repulsionPoints: [], attractionRadius: 1.5, repulsionRadius: 0.5 };
+const CANDIDATE_BATCH = 80;
+
+function pickBest(candidates, preferences) {
+  const hasPrefs = preferences.attractionPoints.length > 0 || preferences.repulsionPoints.length > 0;
+  if (!hasPrefs || candidates.length === 0) return candidates[0] ?? null;
+
+  let best = candidates[0];
+  let bestScore = scoreCandidate(best, preferences);
+  for (let i = 1; i < candidates.length; i++) {
+    const s = scoreCandidate(candidates[i], preferences);
+    if (s > bestScore) { best = candidates[i]; bestScore = s; }
+  }
+  return best;
+}
 
 export function generateConstrainedPoint(poly, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000) {
+  const candidates = [];
   for (let i = 0; i < maxAttempts; i++) {
     const candidate = generateRandomPointInPolygon(poly);
     if (!candidate) continue;
-    if (checkAllConstraints(candidate, userLocations, minKm, maxKm, preferences)) return candidate;
+    if (!checkDistanceConstraints(candidate, userLocations, minKm, maxKm)) continue;
+    candidates.push(candidate);
+    if (candidates.length >= CANDIDATE_BATCH) break;
   }
-  return null;
+  return pickBest(candidates, preferences);
 }
 
 export function generateConstrainedPointMulti(polygons, userLocations, minKm, maxKm, preferences = DEFAULT_PREFS, maxAttempts = 3000) {
@@ -65,6 +79,7 @@ export function generateConstrainedPointMulti(polygons, userLocations, minKm, ma
     Math.max(...bboxes.map(b => b[3])),
   ];
 
+  const candidates = [];
   for (let i = 0; i < maxAttempts; i++) {
     const lng = combined[0] + Math.random() * (combined[2] - combined[0]);
     const lat = combined[1] + Math.random() * (combined[3] - combined[1]);
@@ -72,9 +87,11 @@ export function generateConstrainedPointMulti(polygons, userLocations, minKm, ma
     if (!polygons.some(p => booleanPointInPolygon(pt, p))) continue;
 
     const candidate = { lng, lat };
-    if (checkAllConstraints(candidate, userLocations, minKm, maxKm, preferences)) return candidate;
+    if (!checkDistanceConstraints(candidate, userLocations, minKm, maxKm)) continue;
+    candidates.push(candidate);
+    if (candidates.length >= CANDIDATE_BATCH) break;
   }
-  return null;
+  return pickBest(candidates, preferences);
 }
 
 export function createPolygonFeature(coordinates) {

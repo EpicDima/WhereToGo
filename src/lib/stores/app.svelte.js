@@ -122,11 +122,12 @@ export function toggleDistrict(name) {
 }
 
 export function addPreferencePoint(lngLat) {
-  const pt = { lng: lngLat.lng, lat: lngLat.lat };
   if (appState.preferenceMode === 'attraction') {
-    appState.attractionPoints = [...appState.attractionPoints, pt];
+    const name = `Точка ${appState.attractionPoints.length + 1}`;
+    appState.attractionPoints = [...appState.attractionPoints, { lng: lngLat.lng, lat: lngLat.lat, name }];
   } else {
-    appState.repulsionPoints = [...appState.repulsionPoints, pt];
+    const name = `Точка ${appState.repulsionPoints.length + 1}`;
+    appState.repulsionPoints = [...appState.repulsionPoints, { lng: lngLat.lng, lat: lngLat.lat, name }];
   }
   appState.generatedPoint = null;
   saveSettings();
@@ -139,6 +140,20 @@ export function removeAttractionPoint(index) {
 
 export function removeRepulsionPoint(index) {
   appState.repulsionPoints = appState.repulsionPoints.filter((_, i) => i !== index);
+  saveSettings();
+}
+
+export function updateAttractionPointName(index, name) {
+  appState.attractionPoints = appState.attractionPoints.map((p, i) =>
+    i === index ? { ...p, name } : p
+  );
+  saveSettings();
+}
+
+export function updateRepulsionPointName(index, name) {
+  appState.repulsionPoints = appState.repulsionPoints.map((p, i) =>
+    i === index ? { ...p, name } : p
+  );
   saveSettings();
 }
 
