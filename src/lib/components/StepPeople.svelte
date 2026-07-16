@@ -18,8 +18,8 @@
   {:else}
     <div class="space-y-1.5">
       {#each appState.userLocations as loc, i}
-        <div class="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-panel-hover transition-colors group">
-          <div class="w-6 h-6 rounded-full bg-btn text-btn-text text-[11px] font-bold flex items-center justify-center shrink-0">{i + 1}</div>
+        <div class="flex items-center gap-2 rounded-xl px-3 py-2.5 border border-border">
+          <div class="w-5 h-5 rounded-full bg-ink text-white text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</div>
           <div class="flex-1 min-w-0">
             <input
               class="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-4 font-medium"
@@ -30,9 +30,11 @@
             <span class="text-[10px] text-ink-4 font-mono">{loc.lat.toFixed(5)}, {loc.lng.toFixed(5)}</span>
           </div>
           <button
-            class="w-6 h-6 rounded-full text-ink-4 hover:text-danger hover:bg-danger/10 text-sm flex items-center justify-center shrink-0 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+            class="w-7 h-7 rounded-lg text-ink-3 hover:text-red-500 hover:bg-red-500/10 border border-border flex items-center justify-center transition-colors shrink-0"
             onclick={() => removeUserLocation(i)}
-          >×</button>
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
         </div>
       {/each}
     </div>
