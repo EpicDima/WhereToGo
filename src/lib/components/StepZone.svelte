@@ -6,6 +6,7 @@
   let { onNext } = $props();
 
   let hasPreset = $derived(appState.presetKey && CITY_PRESETS[appState.presetKey]);
+  let isZoneSaved = $derived(appState.customZones.some(z => JSON.stringify(z.coordinates) === JSON.stringify(appState.zoneCoordinates)));
   let showSaveInput = $state(false);
   let zoneName = $state('');
 
@@ -114,7 +115,7 @@
     class="w-full text-left px-3.5 py-2.5 rounded-xl text-[13px] font-medium border transition-all
       {appState.drawingMode
         ? 'bg-accent text-white border-transparent shadow-md shadow-accent-glow'
-        : appState.zonePreset === 'custom' && !appState.drawingMode
+        : appState.zonePreset === 'custom' && !isZoneSaved
           ? 'bg-accent/10 text-accent border-accent/20'
           : 'text-ink border-border hover:bg-panel-hover'}"
     onclick={() => {
@@ -124,11 +125,11 @@
       }
     }}
   >
-    {appState.drawingMode ? 'Рисуем — кликайте на карту...' : 'Нарисовать свою зону'}
+    {appState.drawingMode ? 'Рисуем — кликайте на карту...' : 'Нарисовать зону'}
   </button>
 
   <!-- Save custom zone -->
-  {#if appState.zonePreset === 'custom' && appState.zoneCoordinates.length >= 3 && !appState.drawingMode}
+  {#if appState.zonePreset === 'custom' && appState.zoneCoordinates.length >= 3 && !appState.drawingMode && !isZoneSaved}
     {#if showSaveInput}
       <div class="flex gap-1.5">
         <input
