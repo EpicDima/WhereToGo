@@ -184,7 +184,7 @@
   function updateRadiusCircles() {
     if (!map?.getSource('radius-min') || !map?.getSource('radius-max')) return;
 
-    if (appState.userLocations.length === 0 || appState.step < 3) {
+    if (appState.userLocations.length === 0 || appState.step < 2) {
       map.getSource('radius-min').setData({ type: 'FeatureCollection', features: [] });
       map.getSource('radius-max').setData({ type: 'FeatureCollection', features: [] });
       return;
