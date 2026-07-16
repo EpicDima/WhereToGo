@@ -395,16 +395,14 @@
       .addTo(map);
 
     const gp = [appState.generatedPoint.lng, appState.generatedPoint.lat];
-    if (appState.userLocations.length === 0) {
-      map.flyTo({ center: gp, zoom: 14, padding: mapPadding, duration: 1200 });
-    } else {
-      const bounds = new maplibregl.LngLatBounds(gp, gp);
-      for (const loc of appState.userLocations) {
-        bounds.extend([loc.lng, loc.lat]);
-        bounds.extend([2 * gp[0] - loc.lng, 2 * gp[1] - loc.lat]);
-      }
-      map.fitBounds(bounds, { padding: mapPadding, maxZoom: 14, duration: 1200 });
-    }
+    const allPoints = [gp, ...appState.userLocations.map(l => [l.lng, l.lat])];
+    const bounds = new maplibregl.LngLatBounds(gp, gp);
+    allPoints.forEach(p => bounds.extend(p));
+
+    const fitResult = map.cameraForBounds(bounds, { padding: mapPadding, maxZoom: 14 });
+    const zoom = fitResult ? Math.min(fitResult.zoom, 14) : 14;
+
+    map.flyTo({ center: gp, zoom, padding: mapPadding, duration: 1200 });
   }
 
   const DEBUG_GRID = 100;
