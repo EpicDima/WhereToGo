@@ -93,6 +93,7 @@
   }
 
   function addRadiusLayers() {
+    if (map.getSource('radius-min')) return;
     map.addSource('radius-min', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addSource('radius-max', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
 
@@ -115,6 +116,7 @@
   }
 
   function addPreferenceRadiusLayers() {
+    if (map.getSource('pref-attraction')) return;
     map.addSource('pref-attraction', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addSource('pref-repulsion', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
 
@@ -158,6 +160,7 @@
   }
 
   function addZoneLayers() {
+    if (map.getSource('zone')) return;
     map.addSource('zone', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({
       id: 'zone-fill', type: 'fill', source: 'zone',
@@ -170,6 +173,7 @@
   }
 
   function addDrawLayers() {
+    if (map.getSource('draw-points')) return;
     map.addSource('draw-points', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addSource('draw-line', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({
@@ -522,6 +526,7 @@
   }
 
   function addDebugHeatmapLayer() {
+    if (map.getSource('debug-heatmap')) return;
     map.addSource('debug-heatmap', {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] }
