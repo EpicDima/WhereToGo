@@ -1,43 +1,56 @@
-# Svelte + Vite
+# Куда пойти?
 
-This template should help get you started developing with Svelte in Vite.
+Веб-приложение для случайного выбора места на карте города. Не знаешь куда пойти гулять? Приложение выберет случайную точку на карте с учётом твоих предпочтений и покажет маршрут.
 
-## Recommended IDE Setup
+## Возможности
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+- **Зоны поиска** — выбирай из готовых зон (МКАД, центр) или нарисуй свою прямо на карте. Можно уточнить район города
+- **Участники** — добавь себя и друзей на карту кликом или через GPS. Маркеры перетаскиваются
+- **Расстояние** — задай минимальную и максимальную дистанцию. Круги на карте покажут зону поиска
+- **Притяжение и отталкивание** — отметь точки, к которым хочешь быть ближе или которые хочешь обойти
+- **Генерация** — случайная точка с учётом всех настроек. Не понравилось — жми «Другое место»
+- **Адрес** — приложение определяет ближайший адрес к сгенерированной точке
+- **Навигация** — маршрут для каждого участника через Google Maps или Яндекс Карты
+- **Поделиться** — отправь место друзьям через мессенджер или скопируй в буфер обмена
+- **Тёмная тема** — переключается вручную или следует за системой
+- **Мобильная версия** — адаптивный интерфейс с bottom sheet, работает на телефоне
 
-## Need an official Svelte framework?
+## Стек
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+| | |
+|---|---|
+| Фреймворк | [Svelte 5](https://svelte.dev) + [Vite](https://vite.dev) |
+| Карта | [MapLibre GL JS](https://maplibre.org) + [Carto](https://carto.com/basemaps) тайлы |
+| Геоутилиты | [Turf.js](https://turfjs.org) |
+| Стили | [Tailwind CSS v4](https://tailwindcss.com) |
+| Геокодирование | [Nominatim](https://nominatim.org) (OpenStreetMap) |
 
-## Technical considerations
+Бэкенда нет — всё работает в браузере.
 
-**Why use this over SvelteKit?**
+## Запуск
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```bash
+npm install
+npm run dev
 ```
+
+Откроется на [localhost:51269](http://localhost:51269).
+
+```bash
+npm run build     # сборка для продакшена
+npm run preview   # предпросмотр сборки
+```
+
+## Как это работает
+
+1. **Зона** — выбери или нарисуй область на карте, в которой искать место
+2. **Люди** — расставь участников на карте (или пропусти, если идёшь один)
+3. **Расстояние** — настрой минимальный и максимальный радиус от участников
+4. **Предпочтения** — при желании укажи точки притяжения или отталкивания
+5. **Результат** — получи случайную точку, адрес и ссылки на навигацию
+
+Алгоритм генерирует случайные координаты внутри зоны и проверяет, что точка удовлетворяет всем ограничениям: попадает в полигон, находится в заданном диапазоне расстояний от всех участников, и учитывает веса притяжения/отталкивания.
+
+## Лицензия
+
+MIT
