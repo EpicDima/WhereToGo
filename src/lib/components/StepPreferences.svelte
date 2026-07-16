@@ -56,9 +56,9 @@
         <span class="text-[11px] font-semibold text-emerald-500 uppercase tracking-wider">Притяжение</span>
         <span class="text-[11px] text-ink-4">{appState.attractionPoints.length}</span>
       </div>
-      <div class="space-y-1">
+      <div class="space-y-1.5">
         {#each appState.attractionPoints as pt, i}
-          <div class="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-panel-hover transition-colors group">
+          <div class="flex items-center gap-2 rounded-xl px-3 py-2.5 border border-emerald-500/25 bg-emerald-500/5">
             <div class="w-5 h-5 rounded-full bg-emerald-500 shrink-0"></div>
             <div class="flex-1 min-w-0">
               <input
@@ -70,19 +70,21 @@
               <span class="text-[10px] text-ink-4 font-mono">{pt.lat.toFixed(5)}, {pt.lng.toFixed(5)}</span>
             </div>
             <button
-              class="w-6 h-6 rounded-full text-ink-4 hover:text-red-500 hover:bg-red-500/10 text-sm flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              class="w-7 h-7 rounded-lg text-ink-3 hover:text-red-500 hover:bg-red-500/10 border border-border flex items-center justify-center transition-colors text-[12px] shrink-0"
               onclick={() => removeAttractionPoint(i)}
-            >×</button>
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
           </div>
         {/each}
       </div>
-      <div class="mt-2">
+      <div class="mt-2.5">
         <div class="flex justify-between items-baseline mb-1">
           <span class="text-[10px] text-ink-3">Влияние</span>
           <span class="text-[11px] font-bold text-ink tabular-nums">{appState.attractionRadius.toFixed(1)} км</span>
         </div>
         <input type="range" min="0.3" max="5" step="0.1" value={appState.attractionRadius} oninput={onAttractionRadiusChange} class="w-full" />
-        <p class="text-[10px] text-ink-4 mt-0.5">Чем ближе к точке, тем вероятнее результат (зелёный круг на карте)</p>
+        <p class="text-[10px] text-ink-4 mt-0.5">Чем ближе к точке, тем вероятнее результат</p>
       </div>
     </div>
   {/if}
@@ -94,9 +96,9 @@
         <span class="text-[11px] font-semibold text-red-500 uppercase tracking-wider">Отталкивание</span>
         <span class="text-[11px] text-ink-4">{appState.repulsionPoints.length}</span>
       </div>
-      <div class="space-y-1">
+      <div class="space-y-1.5">
         {#each appState.repulsionPoints as pt, i}
-          <div class="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-panel-hover transition-colors group">
+          <div class="flex items-center gap-2 rounded-xl px-3 py-2.5 border border-red-500/25 bg-red-500/5">
             <div class="w-5 h-5 rounded-full bg-red-500 shrink-0"></div>
             <div class="flex-1 min-w-0">
               <input
@@ -108,19 +110,21 @@
               <span class="text-[10px] text-ink-4 font-mono">{pt.lat.toFixed(5)}, {pt.lng.toFixed(5)}</span>
             </div>
             <button
-              class="w-6 h-6 rounded-full text-ink-4 hover:text-red-500 hover:bg-red-500/10 text-sm flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              class="w-7 h-7 rounded-lg text-ink-3 hover:text-red-500 hover:bg-red-500/10 border border-border flex items-center justify-center transition-colors text-[12px] shrink-0"
               onclick={() => removeRepulsionPoint(i)}
-            >×</button>
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
           </div>
         {/each}
       </div>
-      <div class="mt-2">
+      <div class="mt-2.5">
         <div class="flex justify-between items-baseline mb-1">
           <span class="text-[10px] text-ink-3">Влияние</span>
           <span class="text-[11px] font-bold text-ink tabular-nums">{appState.repulsionRadius.toFixed(1)} км</span>
         </div>
         <input type="range" min="0.1" max="3" step="0.1" value={appState.repulsionRadius} oninput={onRepulsionRadiusChange} class="w-full" />
-        <p class="text-[10px] text-ink-4 mt-0.5">Чем ближе к точке, тем менее вероятен результат (красный круг на карте)</p>
+        <p class="text-[10px] text-ink-4 mt-0.5">Чем ближе к точке, тем менее вероятен результат</p>
       </div>
     </div>
   {/if}

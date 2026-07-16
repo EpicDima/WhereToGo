@@ -288,6 +288,13 @@
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
+        marker.on('drag', () => {
+          const pos = marker.getLngLat();
+          const circles = appState.attractionPoints.map((p, idx) =>
+            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], appState.attractionRadius, { units: 'kilometers', steps: 48 })
+          );
+          map.getSource('pref-attraction').setData({ type: 'FeatureCollection', features: circles });
+        });
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
           appState.attractionPoints = appState.attractionPoints.map((p, idx) =>
@@ -303,6 +310,13 @@
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
+        marker.on('drag', () => {
+          const pos = marker.getLngLat();
+          const circles = appState.repulsionPoints.map((p, idx) =>
+            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], appState.repulsionRadius, { units: 'kilometers', steps: 48 })
+          );
+          map.getSource('pref-repulsion').setData({ type: 'FeatureCollection', features: circles });
+        });
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
           appState.repulsionPoints = appState.repulsionPoints.map((p, idx) =>
