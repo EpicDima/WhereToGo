@@ -8,6 +8,7 @@
   import { intersect } from '@turf/intersect';
   import { featureCollection } from '@turf/helpers';
   import { appState, addUserLocation, addPreferencePoint } from '../stores/app.svelte.js';
+  import { t, i18n } from '../i18n/index.svelte.js';
   import { uiState } from '../stores/ui.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
@@ -85,7 +86,8 @@
         map.setLayoutProperty(layer.id, 'visibility', 'none');
       }
       if (layer.type === 'symbol' && layer.layout?.['text-field']) {
-        map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', 'name:ru'], ['get', 'name']]);
+        const langKey = i18n.locale === 'ru' ? 'name:ru' : 'name:en';
+        map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', langKey], ['get', 'name']]);
       }
     }
   }
@@ -590,6 +592,16 @@
   });
   $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 3) ? 'crosshair' : ''; });
   $effect(() => {
+    const lang = i18n.locale;
+    if (!map?.isStyleLoaded()) return;
+    const langKey = lang === 'ru' ? 'name:ru' : 'name:en';
+    for (const layer of map.getStyle().layers) {
+      if (layer.type === 'symbol' && layer.layout?.['text-field']) {
+        map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', langKey], ['get', 'name']]);
+      }
+    }
+  });
+  $effect(() => {
     if (!map) return;
     const style = appState.darkMode ? DARK_STYLE : LIGHT_STYLE;
     if (map.getStyle()?.sprite !== style) {
@@ -620,7 +632,7 @@
         ? 'bg-accent/90 border-accent text-white shadow-accent-glow'
         : 'glass border-border text-ink-3 hover:bg-panel-hover'}"
     onclick={() => showDebugHeatmap = !showDebugHeatmap}
-    title="Тепловая карта вероятности"
+    title={t('heatmapTitle')}
   >
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <rect x="1" y="1" width="7" height="7" rx="1.5" fill="#6366F1" opacity="0.8"/>
@@ -631,13 +643,13 @@
   </button>
   {#if showDebugHeatmap}
     <div class="absolute top-[6.5rem] right-4 z-30 glass rounded-xl border border-border shadow-lg px-3 py-2.5 flex flex-col gap-1">
-      <span class="text-[10px] font-semibold text-ink-3 uppercase tracking-wider">Вероятность выбора</span>
+      <span class="text-[10px] font-semibold text-ink-3 uppercase tracking-wider">{t('heatmapLegend')}</span>
       <div class="flex items-stretch gap-2">
         <div class="w-3 rounded-sm" style="background: linear-gradient(to bottom, #EF4444, #EAB308, #22C55E, #06B6D4, #6366F1);"></div>
         <div class="flex flex-col justify-between text-[10px] text-ink-3 py-0.5">
-          <span>Высокая</span>
-          <span>Средняя</span>
-          <span>Низкая</span>
+          <span>{t('heatmapHigh')}</span>
+          <span>{t('heatmapMedium')}</span>
+          <span>{t('heatmapLow')}</span>
         </div>
       </div>
     </div>
@@ -647,14 +659,14 @@
 {#if appState.drawingMode}
   <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 glass rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 border border-border
     max-lg:left-4 max-lg:right-4 max-lg:translate-x-0 max-lg:top-4">
-    <span class="text-[13px] text-ink-2 font-medium">Кликайте для точек полигона</span>
+    <span class="text-[13px] text-ink-2 font-medium">{t('drawClickHint')}</span>
     <button
       class="px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors
         {drawPoints.length >= 3 ? 'bg-accent text-white hover:bg-accent-hover' : 'bg-ink-4/20 text-ink-4 cursor-not-allowed'}"
       onclick={() => finishDrawing()}
       disabled={drawPoints.length < 3}
-    >Готово</button>
-    <button class="px-3 py-1.5 text-[12px] font-semibold rounded-lg text-ink-3 hover:bg-panel-hover transition-colors" onclick={() => cancelDrawing()}>Отмена</button>
+    >{t('done')}</button>
+    <button class="px-3 py-1.5 text-[12px] font-semibold rounded-lg text-ink-3 hover:bg-panel-hover transition-colors" onclick={() => cancelDrawing()}>{t('cancel')}</button>
   </div>
 {/if}
 

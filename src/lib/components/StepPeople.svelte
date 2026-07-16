@@ -1,18 +1,19 @@
 <script>
   import { appState, addUserLocation, removeUserLocation, updateUserLocationName } from '../stores/app.svelte.js';
+  import { t } from '../i18n/index.svelte.js';
 
   let { onNext } = $props();
 </script>
 
 <div class="space-y-3">
   <p class="text-[12px] text-ink-3">
-    Кликните на карту, чтобы добавить участника. Маркеры можно перетаскивать.
+    {t('peopleHint')}
   </p>
 
   {#if appState.userLocations.length === 0}
     <div class="rounded-xl border border-border border-dashed p-5 text-center">
-      <p class="text-[13px] text-ink-3">Пока никого нет</p>
-      <p class="text-[11px] text-ink-4 mt-1">Нажмите на карту или используйте GPS</p>
+      <p class="text-[13px] text-ink-3">{t('nobodyYet')}</p>
+      <p class="text-[11px] text-ink-4 mt-1">{t('tapMapOrGps')}</p>
     </div>
   {:else}
     <div class="space-y-1.5">
@@ -24,7 +25,7 @@
               class="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-4 font-medium"
               value={loc.name}
               oninput={(e) => updateUserLocationName(i, e.target.value)}
-              placeholder="Имя"
+              placeholder={t('namePlaceholder')}
             />
             <span class="text-[10px] text-ink-4 font-mono">{loc.lat.toFixed(5)}, {loc.lng.toFixed(5)}</span>
           </div>
@@ -55,6 +56,6 @@
     class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all"
     onclick={onNext}
   >
-    {appState.userLocations.length === 0 ? 'Пропустить' : 'Далее'}
+    {appState.userLocations.length === 0 ? t('skip') : t('next')}
   </button>
 </div>

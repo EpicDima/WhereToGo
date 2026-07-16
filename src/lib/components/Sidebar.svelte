@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../stores/app.svelte.js';
+  import { t } from '../i18n/index.svelte.js';
   import { uiState } from '../stores/ui.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../utils/geo.js';
@@ -13,7 +14,7 @@
 
   let errorMsg = $state('');
 
-  const stepTitles = ['Выберите зону', 'Кто идёт?', 'Расстояние', 'Предпочтения', 'Результат'];
+  const stepKeys = ['stepZone', 'stepPeople', 'stepDistance', 'stepPreferences', 'stepResult'];
 
   let isMobile = $state(false);
   let sheetHeight = $state(0);
@@ -111,7 +112,7 @@
     }
 
     if (polygons.length === 0) {
-      errorMsg = 'Зона не задана.';
+      errorMsg = t('zoneNotSet');
       appState.isGenerating = false;
       return;
     }
@@ -134,7 +135,7 @@
       : generateConstrainedPointMulti(polygons, locations, appState.minDistance, appState.maxDistance, preferences, 3000, zoneBounds);
 
     if (!point) {
-      errorMsg = 'Не удалось найти точку. Измените расстояния, зону или предпочтения.';
+      errorMsg = t('generationFailed');
       appState.isGenerating = false;
       return;
     }
@@ -166,7 +167,7 @@
   >
     <div class="w-10 h-1 bg-ink-4/40 rounded-full mx-auto mb-2 lg:hidden"></div>
     <div class="flex items-center justify-between">
-      <h1 class="font-heading text-lg font-bold text-ink tracking-tight">Куда пойти?</h1>
+      <h1 class="font-heading text-lg font-bold text-ink tracking-tight">{t('appTitle')}</h1>
     </div>
     <span class="text-[12px] text-ink-3">{appState.city.name}</span>
   </div>
@@ -181,18 +182,18 @@
     <div class="flex items-center justify-between mt-2">
       {#if appState.step > 0}
         <button class="text-[11px] text-ink-3 hover:text-ink transition-colors" onclick={prevStep}>
-          ← Назад
+          {t('back')}
         </button>
       {:else}
         <span></span>
       {/if}
       {#if appState.step > 0 && appState.step < 4}
         <button class="text-[11px] text-ink-3 hover:text-accent transition-colors font-medium" onclick={restart}>
-          Сначала
+          {t('restart')}
         </button>
       {/if}
     </div>
-    <h2 class="text-[15px] font-bold text-ink mt-1">{stepTitles[appState.step]}</h2>
+    <h2 class="text-[15px] font-bold text-ink mt-1">{t(stepKeys[appState.step])}</h2>
   </div>
 
   <!-- Content -->

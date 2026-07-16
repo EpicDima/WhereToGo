@@ -1,5 +1,6 @@
 <script>
   import { appState, setPresetCity, setZonePreset, toggleDistrict, saveSettings, saveCustomZone, loadCustomZone, deleteCustomZone } from '../stores/app.svelte.js';
+  import { t } from '../i18n/index.svelte.js';
   import { CITY_PRESETS } from '../utils/presets.js';
   import { MINSK_DISTRICTS } from '../utils/districts.js';
 
@@ -11,7 +12,7 @@
   let zoneName = $state('');
 
   function handleSave() {
-    const name = zoneName.trim() || `Зона ${appState.customZones.length + 1}`;
+    const name = zoneName.trim() || `${t('zone')} ${appState.customZones.length + 1}`;
     saveCustomZone(name);
     showSaveInput = false;
     zoneName = '';
@@ -21,7 +22,7 @@
 <div class="space-y-3">
   <!-- City selection -->
   <div>
-    <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">Город</span>
+    <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">{t('city')}</span>
     <div class="flex gap-1.5 flex-wrap">
       {#each Object.entries(CITY_PRESETS) as [key, city]}
         <button
@@ -40,7 +41,7 @@
   <!-- Zone presets + custom zones + draw -->
   {#if hasPreset}
     <div>
-      <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">Зона</span>
+      <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">{t('zone')}</span>
       <div class="space-y-1.5">
         {#each Object.entries(CITY_PRESETS[appState.presetKey].zones) as [key, zone]}
           <button
@@ -83,7 +84,7 @@
             <div class="flex gap-1.5">
               <input
                 class="flex-1 px-3 py-2 rounded-xl text-[13px] bg-transparent border border-border text-ink outline-none placeholder:text-ink-4"
-                placeholder="Название зоны"
+                placeholder={t('zoneName')}
                 bind:value={zoneName}
                 onkeydown={(e) => { if (e.key === 'Enter') handleSave(); }}
               />
@@ -96,7 +97,7 @@
               class="w-full py-2 rounded-xl text-[12px] font-medium text-ink-2 hover:bg-panel-hover border border-border transition-colors"
               onclick={() => showSaveInput = true}
             >
-              Сохранить зону
+              {t('saveZone')}
             </button>
           {/if}
         {/if}
@@ -115,7 +116,7 @@
             }
           }}
         >
-          {appState.drawingMode ? 'Рисуем — кликайте на карту...' : 'Нарисовать зону'}
+          {appState.drawingMode ? t('drawingHint') : t('drawZone')}
         </button>
       </div>
     </div>
@@ -124,7 +125,7 @@
   <!-- Districts multi-select -->
   {#if hasPreset}
     <div>
-      <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">Районы</span>
+      <span class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">{t('districts')}</span>
       <div class="flex flex-wrap gap-1.5">
         {#each Object.keys(MINSK_DISTRICTS) as name}
           {@const selected = appState.selectedDistricts.includes(name)}
@@ -147,6 +148,6 @@
     onclick={onNext}
     disabled={appState.zoneCoordinates.length < 3 && appState.selectedDistricts.length === 0}
   >
-    Далее
+    {t('next')}
   </button>
 </div>

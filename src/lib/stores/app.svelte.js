@@ -1,4 +1,5 @@
 import { CITY_PRESETS, DEFAULT_CITY } from '../utils/presets.js';
+import { t } from '../i18n/index.svelte.js';
 
 const STORAGE_KEY = 'where-to-go-settings';
 
@@ -122,10 +123,10 @@ export function toggleDistrict(name) {
 
 export function addPreferencePoint(lngLat) {
   if (appState.preferenceMode === 'attraction') {
-    const name = `Точка ${appState.attractionPoints.length + 1}`;
+    const name = `${t('defaultPointName')} ${appState.attractionPoints.length + 1}`;
     appState.attractionPoints = [...appState.attractionPoints, { lng: lngLat.lng, lat: lngLat.lat, name }];
   } else {
-    const name = `Точка ${appState.repulsionPoints.length + 1}`;
+    const name = `${t('defaultPointName')} ${appState.repulsionPoints.length + 1}`;
     appState.repulsionPoints = [...appState.repulsionPoints, { lng: lngLat.lng, lat: lngLat.lat, name }];
   }
   appState.generatedPoint = null;
@@ -157,7 +158,7 @@ export function updateRepulsionPointName(index, name) {
 }
 
 export function addUserLocation(lngLat) {
-  const name = appState.userLocations.length === 0 ? 'Я' : `Друг ${appState.userLocations.length}`;
+  const name = appState.userLocations.length === 0 ? t('defaultNameMe') : `${t('defaultNameFriend')} ${appState.userLocations.length}`;
   appState.userLocations = [...appState.userLocations, { lng: lngLat.lng, lat: lngLat.lat, name }];
   saveSettings();
 }

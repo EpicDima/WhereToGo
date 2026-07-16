@@ -1,6 +1,7 @@
 <script>
   import { appState } from '../stores/app.svelte.js';
   import { haversineDistance } from '../utils/geo.js';
+  import { t, tf, i18n } from '../i18n/index.svelte.js';
 
   let { onRestart, onRegenerate } = $props();
 
@@ -9,8 +10,8 @@
   let shared = $state(false);
 
   function formatDistance(km) {
-    if (km < 1) return `${Math.round(km * 1000)} м`;
-    return `${km.toFixed(1)} км`;
+    if (km < 1) return `${Math.round(km * 1000)} ${t('m')}`;
+    return `${km.toFixed(1)} ${t('km')}`;
   }
 
   let distancesToPoint = $derived(
@@ -24,7 +25,7 @@
     if (!pt) { address = ''; return; }
     addressLoading = true;
     address = '';
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pt.lat}&lon=${pt.lng}&zoom=18&accept-language=ru`)
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pt.lat}&lon=${pt.lng}&zoom=18&accept-language=${i18n.locale}`)
       .then(r => r.json())
       .then(data => {
         if (appState.generatedPoint?.lat !== pt.lat || appState.generatedPoint?.lng !== pt.lng) return;
@@ -44,11 +45,11 @@
     const pt = appState.generatedPoint;
     if (!pt) return;
     const loc = address || `${pt.lat.toFixed(5)}, ${pt.lng.toFixed(5)}`;
-    const text = `Куда пойти? Сюда: ${loc}\n\nGoogle Maps: https://www.google.com/maps?q=${pt.lat},${pt.lng}\nЯндекс Карты: https://yandex.ru/maps/?pt=${pt.lng},${pt.lat}&z=15`;
+    const text = tf('shareText', loc, pt.lat, pt.lng);
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Куда пойти?', text });
+        await navigator.share({ title: t('appTitle'), text });
         return;
       } catch {}
     }
@@ -63,9 +64,9 @@
     <div class="rounded-xl border border-accent/20 bg-accent/5 p-4 space-y-2">
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
-          <div class="text-[15px] font-bold text-ink">Место найдено</div>
+          <div class="text-[15px] font-bold text-ink">{t('placeFound')}</div>
           {#if addressLoading}
-            <div class="text-[12px] text-ink-4 mt-1 animate-pulse">Определяем адрес...</div>
+            <div class="text-[12px] text-ink-4 mt-1 animate-pulse">{t('detectingAddress')}</div>
           {:else if address}
             <div class="text-[13px] text-ink-2 mt-1 leading-snug">{address}</div>
           {/if}
@@ -77,7 +78,7 @@
           class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all
             {shared ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-border text-ink-3 hover:bg-panel-hover hover:text-ink'}"
           onclick={handleShare}
-          title={shared ? 'Скопировано!' : 'Поделиться'}
+          title={shared ? t('copied') : t('share')}
         >
           {#if shared}
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -111,7 +112,7 @@
                 target="_blank" rel="noreferrer"
                 class="flex-1 py-1.5 rounded-lg text-[11px] font-medium text-center text-ink-3 hover:bg-panel-hover border border-border transition-colors"
               >
-                Яндекс Карты
+                {t('yandexMaps')}
               </a>
             </div>
           </div>
@@ -131,7 +132,7 @@
           target="_blank" rel="noreferrer"
           class="flex-1 py-2.5 rounded-lg text-[12px] font-semibold text-center text-ink-2 hover:bg-panel-hover border border-border transition-colors"
         >
-          Яндекс Карты
+          {t('yandexMaps')}
         </a>
       </div>
     {/if}
@@ -142,13 +143,13 @@
         class="flex-1 py-3 rounded-xl text-[14px] font-bold bg-accent text-white hover:bg-accent-hover active:scale-[0.97] transition-all shadow-md shadow-accent-glow"
         onclick={onRegenerate}
       >
-        Другое место
+        {t('anotherPlace')}
       </button>
       <button
         class="flex-1 py-3 rounded-xl text-[14px] font-bold text-ink-2 hover:bg-panel-hover border border-border transition-all"
         onclick={onRestart}
       >
-        Сначала
+        {t('restart')}
       </button>
     </div>
   {:else if appState.isGenerating}
@@ -156,7 +157,7 @@
       <svg class="animate-spin w-8 h-8 mx-auto text-accent" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 31.4" />
       </svg>
-      <p class="text-[13px] text-ink-3 mt-3">Ищем место...</p>
+      <p class="text-[13px] text-ink-3 mt-3">{t('searchingPlace')}</p>
     </div>
   {/if}
 </div>
