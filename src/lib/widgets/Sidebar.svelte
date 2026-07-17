@@ -121,7 +121,7 @@
     <div class="flex items-center justify-between">
       <h1 class="font-heading text-lg font-bold text-ink tracking-tight">{t('appTitle')}</h1>
     </div>
-    <span class="text-[12px] text-ink-3">{t(`city.${zoneState.presetKey}`) || zoneState.city.name}</span>
+    <span class="text-[12px] text-ink-3">{zoneState.presetKey ? t(`city.${zoneState.presetKey}`) : zoneState.city.name}</span>
   </div>
 
   <!-- Progress -->

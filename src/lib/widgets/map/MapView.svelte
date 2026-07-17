@@ -44,7 +44,15 @@
     addPreferenceRadiusLayers(map);
     addDrawLayers(map);
     updateZoneData(map, zoneState);
+    updateRadiusCircles(map, {
+      step: appState.step,
+      userLocations: peopleState.userLocations,
+      cityCenter: zoneState.city.center,
+      minDistance: distanceState.minDistance,
+      maxDistance: distanceState.maxDistance,
+    });
     updatePreferenceRadii(map, { step: appState.step, ...preferencesState });
+    if (zoneState.drawingMode) updateDrawVisuals(map, drawPoints);
     if (isDev) updateDebugHeatmap(map, computeDebugGrid({ ...zoneState, ...peopleState, ...distanceState, ...preferencesState, step: appState.step }, showDebugHeatmap));
   }
 
@@ -300,13 +308,6 @@
       map.setStyle(style);
       map.once('style.load', () => {
         initLayers();
-        updateRadiusCircles(map, {
-          step: appState.step,
-          userLocations: peopleState.userLocations,
-          cityCenter: zoneState.city.center,
-          minDistance: distanceState.minDistance,
-          maxDistance: distanceState.maxDistance,
-        });
         syncPreferenceMarkers();
       });
     }
