@@ -366,7 +366,7 @@
     width: 30px; height: 30px; border-radius: 50%;
     background: var(--color-ink); color: white;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 700; font-family: var(--font-sans);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     border: 2px solid white; cursor: grab; transition: transform 0.15s;
   }
@@ -392,7 +392,7 @@
   :global(.debug-popup .maplibregl-popup-content) {
     padding: 3px 8px; font-size: 11px; font-weight: 600;
     border-radius: 6px; min-width: auto; pointer-events: none;
-    font-family: 'Inter', sans-serif; background: rgba(0,0,0,0.8); color: white;
+    font-family: var(--font-sans); background: rgba(0,0,0,0.8); color: white;
   }
   :global(.debug-popup .maplibregl-popup-tip) { border-top-color: rgba(0,0,0,0.8); }
   @media (max-width: 1023px) {

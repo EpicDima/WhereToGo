@@ -47,8 +47,8 @@
             lat={pt.lat}
             lng={pt.lng}
             placeholder={t('pointPlaceholder')}
-            onrename={(v) => updateAttractionPointName(i, v)}
-            ondelete={() => removeAttractionPoint(i)}
+            onRename={(v) => updateAttractionPointName(i, v)}
+            onDelete={() => removeAttractionPoint(i)}
           />
         {/each}
       </div>
@@ -77,8 +77,8 @@
             lat={pt.lat}
             lng={pt.lng}
             placeholder={t('pointPlaceholder')}
-            onrename={(v) => updateRepulsionPointName(i, v)}
-            ondelete={() => removeRepulsionPoint(i)}
+            onRename={(v) => updateRepulsionPointName(i, v)}
+            onDelete={() => removeRepulsionPoint(i)}
           />
         {/each}
       </div>
@@ -136,22 +136,22 @@
     background: var(--color-panel-hover);
   }
   .mode-attract {
-    background: #22c55e;
+    background: var(--color-green);
     color: white;
     border-color: transparent;
-    box-shadow: 0 1px 3px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--color-green) 30%, transparent);
   }
   .mode-attract:hover {
-    background: #22c55e;
+    background: var(--color-green);
   }
   .mode-repulse {
-    background: #ef4444;
+    background: var(--color-red);
     color: white;
     border-color: transparent;
-    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--color-red) 30%, transparent);
   }
   .mode-repulse:hover {
-    background: #ef4444;
+    background: var(--color-red);
   }
 
   .generate-btn {

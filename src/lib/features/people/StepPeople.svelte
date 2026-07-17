@@ -7,7 +7,7 @@
   let { onNext } = $props();
 </script>
 
-<div class="space-y-3">
+<div class="space-y-4">
   <p class="text-[12px] text-ink-3">
     {t('peopleHint')}
   </p>
@@ -26,8 +26,8 @@
           lat={loc.lat}
           lng={loc.lng}
           placeholder={t('namePlaceholder')}
-          onrename={(v) => updateUserLocationName(i, v)}
-          ondelete={() => removeUserLocation(i)}
+          onRename={(v) => updateUserLocationName(i, v)}
+          onDelete={() => removeUserLocation(i)}
         />
       {/each}
     </div>
@@ -47,7 +47,7 @@
   </SecondaryButton>
 
   <button
-    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all"
+    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
     onclick={onNext}
   >
     {peopleState.userLocations.length === 0 ? t('skip') : t('next')}

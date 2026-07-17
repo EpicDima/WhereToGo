@@ -23,7 +23,7 @@
   }
 </script>
 
-<div class="space-y-3">
+<div class="space-y-4">
   <div>
     <Label>{t('city')}</Label>
     <div class="flex flex-wrap gap-1.5">
