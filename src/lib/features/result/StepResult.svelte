@@ -5,7 +5,7 @@
   import { haversineDistance } from '../../shared/utils/geo.js';
   import { t, tf, i18n } from '../../shared/i18n/index.svelte.js';
 
-  let { onRestart, onRegenerate } = $props();
+  let { onRestart, onRegenerate, errorMsg = '' } = $props();
 
   let address = $state('');
   let addressLoading = $state(false);
@@ -164,6 +164,26 @@
     <div class="text-center py-8">
       <div class="mx-auto w-8 text-accent"><Spinner size={32} /></div>
       <p class="text-[13px] text-ink-3 mt-3">{t('searchingPlace')}</p>
+    </div>
+  {:else}
+    <div class="text-center py-8 space-y-4">
+      {#if errorMsg}
+        <p class="text-[13px] text-red-500 font-medium">{errorMsg}</p>
+      {/if}
+      <div class="flex gap-2">
+        <button
+          class="flex-1 py-3 rounded-xl text-[14px] font-bold bg-accent text-white hover:bg-accent-hover active:scale-[0.97] transition-all shadow-md shadow-accent-glow"
+          onclick={onRegenerate}
+        >
+          {t('anotherPlace')}
+        </button>
+        <button
+          class="flex-1 py-3 rounded-xl text-[14px] font-bold text-ink-2 hover:bg-panel-hover border border-border active:scale-[0.97] transition-all"
+          onclick={onRestart}
+        >
+          {t('restart')}
+        </button>
+      </div>
     </div>
   {/if}
 </div>

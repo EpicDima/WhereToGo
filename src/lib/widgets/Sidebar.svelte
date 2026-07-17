@@ -159,7 +159,7 @@
     {:else if appState.step === 3}
       <StepPreferences onGenerate={handleGenerate} {errorMsg} />
     {:else}
-      <StepResult onRestart={restart} onRegenerate={handleGenerate} />
+      <StepResult onRestart={restart} onRegenerate={handleGenerate} {errorMsg} />
     {/if}
   </div>
 </div>
