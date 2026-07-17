@@ -54,7 +54,10 @@ src/
 │   │   ├── ui/                    # переиспользуемые UI-компоненты
 │   │   │   ├── Chip.svelte        # кнопка-чип (города, районы)
 │   │   │   ├── CloseButton.svelte # кнопка удаления ×
-│   │   │   └── PointCard.svelte   # карточка точки (люди, предпочтения)
+│   │   │   ├── Label.svelte       # цветная метка (green/red)
+│   │   │   ├── PointCard.svelte   # карточка точки (люди, предпочтения)
+│   │   │   ├── SecondaryButton.svelte # ghost-кнопка (GPS, сохранение)
+│   │   │   └── Spinner.svelte     # SVG-спиннер загрузки
 │   │   ├── stores/
 │   │   │   ├── persist.js         # localStorage registry + save/load
 │   │   │   ├── app.svelte.js      # step, theme, generatedPoint
@@ -76,7 +79,8 @@ src/
 │   │   ├── StepDistance.svelte    # шаг 2: расстояния
 │   │   ├── preferences.svelte.js  # стейт предпочтений
 │   │   ├── StepPreferences.svelte # шаг 3: притяжение/отталкивание
-│   │   └── StepResult.svelte     # шаг 4: результат + навигация + шаринг
+│   │   ├── StepResult.svelte     # шаг 4: результат + навигация + шаринг
+│   │   └── generate.js           # оркестрация генерации точки
 │   └── widgets/                   # композитные компоненты
 │       ├── map/
 │       │   ├── MapView.svelte     # карта, маркеры, эффекты
