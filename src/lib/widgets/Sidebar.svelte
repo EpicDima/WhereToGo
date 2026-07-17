@@ -15,7 +15,6 @@
 
   const stepKeys = ['stepZone', 'stepPeople', 'stepDistance', 'stepPreferences', 'stepResult'];
 
-  let isMobile = $state(false);
   let sheetHeight = $state(0);
   let isDragging = $state(false);
   let dragStartY = 0;
@@ -26,21 +25,17 @@
   let snapFull = 700;
 
   onMount(() => {
-    const mq = window.matchMedia('(max-width: 1023px)');
-    isMobile = mq.matches;
     updateSnaps();
-    if (isMobile) sheetHeight = snapHalf;
-    const handler = (e) => {
-      isMobile = e.matches;
-      if (isMobile) { updateSnaps(); sheetHeight = snapHalf; }
-    };
-    const onResize = () => { if (isMobile) updateSnaps(); };
-    mq.addEventListener('change', handler);
+    if (uiState.isMobile) sheetHeight = snapHalf;
+    const onResize = () => { if (uiState.isMobile) updateSnaps(); };
     window.addEventListener('resize', onResize);
     return () => {
-      mq.removeEventListener('change', handler);
       window.removeEventListener('resize', onResize);
     };
+  });
+
+  $effect(() => {
+    if (uiState.isMobile) { updateSnaps(); sheetHeight = snapHalf; }
   });
 
   function updateSnaps() {
@@ -49,8 +44,8 @@
   }
 
   $effect(() => {
-    uiState.mobileSheetHeight = isMobile ? sheetHeight : 0;
-    if (isMobile) {
+    uiState.mobileSheetHeight = uiState.isMobile ? sheetHeight : 0;
+    if (uiState.isMobile) {
       document.documentElement.style.setProperty('--sheet-height', `${sheetHeight}px`);
     } else {
       document.documentElement.style.removeProperty('--sheet-height');
@@ -58,13 +53,13 @@
   });
   $effect(() => {
     const step = appState.step;
-    if (!isMobile) return;
+    if (!uiState.isMobile) return;
     if (step === 1 || step === 3) return;
     if (sheetHeight < snapHalf) sheetHeight = snapHalf;
   });
 
   function onHandleDown(e) {
-    if (!isMobile || e.target.closest('button')) return;
+    if (!uiState.isMobile || e.target.closest('button')) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     isDragging = true;
     dragStartY = e.clientY;
@@ -105,8 +100,8 @@
   max-lg:top-auto max-lg:left-0 max-lg:right-0 max-lg:bottom-0
   max-lg:w-full max-lg:rounded-t-2xl max-lg:rounded-b-none
   max-lg:border-0 max-lg:border-t max-lg:overflow-hidden
-  {isMobile && !isDragging ? 'sheet-snap' : ''}"
-  style={isMobile ? `height: ${sheetHeight}px` : ''}
+  {uiState.isMobile && !isDragging ? 'sheet-snap' : ''}"
+  style={uiState.isMobile ? `height: ${sheetHeight}px` : ''}
 >
   <!-- Header -->
   <div class="px-5 pt-4 pb-2 max-lg:pt-2 shrink-0"
@@ -114,8 +109,8 @@
     onpointermove={onHandleMove}
     onpointerup={onHandleUp}
     onpointercancel={onHandleUp}
-    style:touch-action={isMobile ? 'none' : undefined}
-    style:cursor={isMobile ? (isDragging ? 'grabbing' : 'grab') : undefined}
+    style:touch-action={uiState.isMobile ? 'none' : undefined}
+    style:cursor={uiState.isMobile ? (isDragging ? 'grabbing' : 'grab') : undefined}
   >
     <div class="w-10 h-1 bg-ink-4/40 rounded-full mx-auto mb-2 lg:hidden"></div>
     <div class="flex items-center justify-between">

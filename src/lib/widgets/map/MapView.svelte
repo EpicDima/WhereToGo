@@ -29,7 +29,6 @@
   let initialLoad = true;
   const isDev = import.meta.env.DEV;
   let showDebugHeatmap = $state(false);
-  let isMobile = $state(false);
   let mapPadding = { top: 60, bottom: 60, left: 400, right: 60 };
   let currentStyleUrl = '';
 
@@ -57,12 +56,7 @@
   }
 
   onMount(() => {
-    const mq = window.matchMedia('(max-width: 1023px)');
-    isMobile = mq.matches;
-    const onMqChange = (e) => isMobile = e.matches;
-    mq.addEventListener('change', onMqChange);
-
-    mapPadding = isMobile
+    mapPadding = uiState.isMobile
       ? { top: 60, bottom: 200, left: 20, right: 20 }
       : { top: 60, bottom: 60, left: 400, right: 60 };
 
@@ -96,7 +90,7 @@
       }
     });
 
-    return () => { mq.removeEventListener('change', onMqChange); map?.remove(); };
+    return () => { map?.remove(); };
   });
 
   function handleDrawClick(lngLat) {
@@ -227,7 +221,7 @@
   }
 
   $effect(() => {
-    const mobile = isMobile;
+    const mobile = uiState.isMobile;
     const height = uiState.mobileSheetHeight;
     mapPadding = mobile
       ? { top: 60, bottom: Math.max(height + 20, 80), left: 20, right: 20 }
