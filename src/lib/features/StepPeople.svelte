@@ -1,5 +1,5 @@
 <script>
-  import { appState, addUserLocation, removeUserLocation, updateUserLocationName } from '../shared/stores/app.svelte.js';
+  import { peopleState, addUserLocation, removeUserLocation, updateUserLocationName } from './people.svelte.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import PointCard from '../shared/ui/PointCard.svelte';
 
@@ -11,14 +11,14 @@
     {t('peopleHint')}
   </p>
 
-  {#if appState.userLocations.length === 0}
+  {#if peopleState.userLocations.length === 0}
     <div class="empty-state">
       <p class="text-[13px] text-ink-3">{t('nobodyYet')}</p>
       <p class="text-[11px] text-ink-4 mt-1">{t('tapMapOrGps')}</p>
     </div>
   {:else}
     <div class="space-y-1.5">
-      {#each appState.userLocations as loc, i}
+      {#each peopleState.userLocations as loc, i}
         <PointCard
           badge={String(i + 1)}
           name={loc.name}
@@ -50,7 +50,7 @@
     class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all"
     onclick={onNext}
   >
-    {appState.userLocations.length === 0 ? t('skip') : t('next')}
+    {peopleState.userLocations.length === 0 ? t('skip') : t('next')}
   </button>
 </div>
 

@@ -1,6 +1,10 @@
 <script>
   import { onMount } from 'svelte';
-  import { appState, nextStep, prevStep, restart, regenerate, setPresetCity } from '../shared/stores/app.svelte.js';
+  import { appState, nextStep, prevStep, restart, regenerate } from '../shared/stores/app.svelte.js';
+  import { zoneState } from '../features/zone.svelte.js';
+  import { peopleState } from '../features/people.svelte.js';
+  import { distanceState } from '../features/distance.svelte.js';
+  import { prefsState } from '../features/preferences.svelte.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import { uiState } from '../shared/stores/ui.svelte.js';
   import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../shared/utils/geo.js';
@@ -95,16 +99,16 @@
     regenerate();
     errorMsg = '';
 
-    const useDistricts = appState.selectedDistricts.length > 0;
+    const useDistricts = zoneState.selectedDistricts.length > 0;
     let polygons = [];
     let zoneBounds = null;
 
     const zonePoly = createPolygonFeature(
-      appState.zoneCoordinates.map(c => [c[0], c[1]])
+      zoneState.zoneCoordinates.map(c => [c[0], c[1]])
     );
 
     if (useDistricts) {
-      polygons = appState.selectedDistricts
+      polygons = zoneState.selectedDistricts
         .map(name => MINSK_DISTRICTS[name])
         .filter(Boolean)
         .map(coords => createPolygonFeature(coords))
@@ -120,22 +124,22 @@
       return;
     }
 
-    const locations = appState.userLocations.length > 0
-      ? appState.userLocations
-      : [{ lng: appState.city.center[0], lat: appState.city.center[1] }];
+    const locations = peopleState.userLocations.length > 0
+      ? peopleState.userLocations
+      : [{ lng: zoneState.city.center[0], lat: zoneState.city.center[1] }];
 
     const preferences = {
-      attractionPoints: appState.attractionPoints,
-      repulsionPoints: appState.repulsionPoints,
-      attractionRadius: appState.attractionRadius,
-      repulsionRadius: appState.repulsionRadius,
+      attractionPoints: prefsState.attractionPoints,
+      repulsionPoints: prefsState.repulsionPoints,
+      attractionRadius: prefsState.attractionRadius,
+      repulsionRadius: prefsState.repulsionRadius,
     };
 
     await new Promise(r => setTimeout(r, 300));
 
     const point = polygons.length === 1 && !zoneBounds
-      ? generateConstrainedPoint(polygons[0], locations, appState.minDistance, appState.maxDistance, preferences)
-      : generateConstrainedPointMulti(polygons, locations, appState.minDistance, appState.maxDistance, preferences, 3000, zoneBounds);
+      ? generateConstrainedPoint(polygons[0], locations, distanceState.minDistance, distanceState.maxDistance, preferences)
+      : generateConstrainedPointMulti(polygons, locations, distanceState.minDistance, distanceState.maxDistance, preferences, 3000, zoneBounds);
 
     if (!point) {
       errorMsg = t('generationFailed');
@@ -173,7 +177,7 @@
     <div class="flex items-center justify-between">
       <h1 class="font-heading text-lg font-bold text-ink tracking-tight">{t('appTitle')}</h1>
     </div>
-    <span class="text-[12px] text-ink-3">{t(`city.${appState.presetKey}`) || appState.city.name}</span>
+    <span class="text-[12px] text-ink-3">{t(`city.${zoneState.presetKey}`) || zoneState.city.name}</span>
   </div>
 
   <!-- Progress -->

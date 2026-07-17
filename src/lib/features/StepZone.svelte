@@ -1,5 +1,5 @@
 <script>
-  import { appState, setPresetCity, setZonePreset, toggleDistrict, saveSettings, saveCustomZone, loadCustomZone, deleteCustomZone } from '../shared/stores/app.svelte.js';
+  import { zoneState, setPresetCity, setZonePreset, toggleDistrict, saveCustomZone, loadCustomZone, deleteCustomZone } from './zone.svelte.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import { CITY_PRESETS } from '../shared/utils/presets.js';
   import { MINSK_DISTRICTS } from '../shared/utils/districts.js';
@@ -8,13 +8,13 @@
 
   let { onNext } = $props();
 
-  let hasPreset = $derived(appState.presetKey && CITY_PRESETS[appState.presetKey]);
-  let isZoneSaved = $derived(appState.customZones.some(z => JSON.stringify(z.coordinates) === JSON.stringify(appState.zoneCoordinates)));
+  let hasPreset = $derived(zoneState.presetKey && CITY_PRESETS[zoneState.presetKey]);
+  let isZoneSaved = $derived(zoneState.customZones.some(z => JSON.stringify(z.coordinates) === JSON.stringify(zoneState.zoneCoordinates)));
   let showSaveInput = $state(false);
   let zoneName = $state('');
 
   function handleSave() {
-    const name = zoneName.trim() || `${t('zone')} ${appState.customZones.length + 1}`;
+    const name = zoneName.trim() || `${t('zone')} ${zoneState.customZones.length + 1}`;
     saveCustomZone(name);
     showSaveInput = false;
     zoneName = '';
@@ -26,7 +26,7 @@
     <span class="label">{t('city')}</span>
     <div class="flex flex-wrap gap-1.5">
       {#each Object.entries(CITY_PRESETS) as [key, city]}
-        <Chip active={appState.presetKey === key} onclick={() => setPresetCity(key)}>
+        <Chip active={zoneState.presetKey === key} onclick={() => setPresetCity(key)}>
           {t(`city.${key}`)}
         </Chip>
       {/each}
@@ -37,18 +37,18 @@
     <div>
       <span class="label">{t('zone')}</span>
       <div class="space-y-1.5">
-        {#each Object.entries(CITY_PRESETS[appState.presetKey].zones) as [key, zone]}
+        {#each Object.entries(CITY_PRESETS[zoneState.presetKey].zones) as [key, zone]}
           <button
             class="zone-item"
-            class:active={appState.zonePreset === key && !appState.drawingMode}
-            onclick={() => { appState.drawingMode = false; setZonePreset(key); }}
+            class:active={zoneState.zonePreset === key && !zoneState.drawingMode}
+            onclick={() => { zoneState.drawingMode = false; setZonePreset(key); }}
           >
             {t(`zone.${key}`)}
           </button>
         {/each}
 
-        {#each appState.customZones as zone, i}
-          {@const active = appState.zonePreset === 'custom' && !appState.drawingMode && JSON.stringify(appState.zoneCoordinates) === JSON.stringify(zone.coordinates)}
+        {#each zoneState.customZones as zone, i}
+          {@const active = zoneState.zonePreset === 'custom' && !zoneState.drawingMode && JSON.stringify(zoneState.zoneCoordinates) === JSON.stringify(zone.coordinates)}
           <div
             class="zone-item flex items-center gap-2 cursor-pointer"
             class:active
@@ -61,7 +61,7 @@
           </div>
         {/each}
 
-        {#if appState.zonePreset === 'custom' && appState.zoneCoordinates.length >= 3 && !appState.drawingMode && !isZoneSaved}
+        {#if zoneState.zonePreset === 'custom' && zoneState.zoneCoordinates.length >= 3 && !zoneState.drawingMode && !isZoneSaved}
           {#if showSaveInput}
             <div class="flex gap-1.5">
               <input
@@ -83,16 +83,16 @@
 
         <button
           class="zone-item"
-          class:active={appState.drawingMode}
-          class:highlighted={!appState.drawingMode && appState.zonePreset === 'custom' && !isZoneSaved}
+          class:active={zoneState.drawingMode}
+          class:highlighted={!zoneState.drawingMode && zoneState.zonePreset === 'custom' && !isZoneSaved}
           onclick={() => {
-            appState.drawingMode = !appState.drawingMode;
-            if (appState.drawingMode) {
-              appState.selectedDistricts = [];
+            zoneState.drawingMode = !zoneState.drawingMode;
+            if (zoneState.drawingMode) {
+              zoneState.selectedDistricts = [];
             }
           }}
         >
-          {appState.drawingMode ? t('drawingHint') : t('drawZone')}
+          {zoneState.drawingMode ? t('drawingHint') : t('drawZone')}
         </button>
       </div>
     </div>
@@ -103,7 +103,7 @@
       <span class="label">{t('districts')}</span>
       <div class="flex flex-wrap gap-1.5">
         {#each Object.keys(MINSK_DISTRICTS) as name}
-          <Chip active={appState.selectedDistricts.includes(name)} onclick={() => toggleDistrict(name)}>
+          <Chip active={zoneState.selectedDistricts.includes(name)} onclick={() => toggleDistrict(name)}>
             {t(`district.${name}`)}
           </Chip>
         {/each}
@@ -114,7 +114,7 @@
   <button
     class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
     onclick={onNext}
-    disabled={appState.zoneCoordinates.length < 3 && appState.selectedDistricts.length === 0}
+    disabled={zoneState.zoneCoordinates.length < 3 && zoneState.selectedDistricts.length === 0}
   >
     {t('next')}
   </button>

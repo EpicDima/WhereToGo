@@ -1,5 +1,6 @@
 <script>
   import { appState } from '../shared/stores/app.svelte.js';
+  import { peopleState } from './people.svelte.js';
   import { haversineDistance } from '../shared/utils/geo.js';
   import { t, tf, i18n } from '../shared/i18n/index.svelte.js';
 
@@ -16,8 +17,8 @@
   }
 
   let distancesToPoint = $derived(
-    appState.generatedPoint && appState.userLocations.length > 0
-      ? appState.userLocations.map(loc => haversineDistance(loc, appState.generatedPoint))
+    appState.generatedPoint && peopleState.userLocations.length > 0
+      ? peopleState.userLocations.map(loc => haversineDistance(loc, appState.generatedPoint))
       : []
   );
 
@@ -94,9 +95,9 @@
     </div>
 
     <!-- Per-person distances + navigation -->
-    {#if appState.userLocations.length > 0}
+    {#if peopleState.userLocations.length > 0}
       <div class="space-y-2">
-        {#each appState.userLocations as loc, i}
+        {#each peopleState.userLocations as loc, i}
           <div class="rounded-xl border border-border p-3 space-y-2">
             <div class="flex items-center gap-2">
               <span class="w-5 h-5 rounded-full bg-btn text-btn-text text-[10px] font-bold inline-flex items-center justify-center">{i + 1}</span>

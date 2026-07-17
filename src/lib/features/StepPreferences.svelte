@@ -1,22 +1,24 @@
 <script>
-  import { appState, removeAttractionPoint, removeRepulsionPoint, updateAttractionPointName, updateRepulsionPointName, saveSettings } from '../shared/stores/app.svelte.js';
+  import { appState } from '../shared/stores/app.svelte.js';
+  import { prefsState, removeAttractionPoint, removeRepulsionPoint, updateAttractionPointName, updateRepulsionPointName } from './preferences.svelte.js';
+  import { save } from '../shared/stores/persist.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import PointCard from '../shared/ui/PointCard.svelte';
 
   let { onGenerate, errorMsg = '' } = $props();
 
   function setMode(mode) {
-    appState.preferenceMode = mode;
+    prefsState.preferenceMode = mode;
   }
 
   function onAttractionRadiusChange(e) {
-    appState.attractionRadius = parseFloat(e.target.value);
-    saveSettings();
+    prefsState.attractionRadius = parseFloat(e.target.value);
+    save();
   }
 
   function onRepulsionRadiusChange(e) {
-    appState.repulsionRadius = parseFloat(e.target.value);
-    saveSettings();
+    prefsState.repulsionRadius = parseFloat(e.target.value);
+    save();
   }
 </script>
 
@@ -26,32 +28,32 @@
     <div class="flex gap-1.5">
       <button
         class="mode-btn"
-        class:mode-attract={appState.preferenceMode === 'attraction'}
+        class:mode-attract={prefsState.preferenceMode === 'attraction'}
         onclick={() => setMode('attraction')}
       >
         {t('attract')}
       </button>
       <button
         class="mode-btn"
-        class:mode-repulse={appState.preferenceMode === 'repulsion'}
+        class:mode-repulse={prefsState.preferenceMode === 'repulsion'}
         onclick={() => setMode('repulsion')}
       >
         {t('repulse')}
       </button>
     </div>
     <p class="hint mt-1.5">
-      {appState.preferenceMode === 'attraction' ? t('attractHint') : t('repulseHint')}
+      {prefsState.preferenceMode === 'attraction' ? t('attractHint') : t('repulseHint')}
     </p>
   </div>
 
-  {#if appState.attractionPoints.length > 0}
+  {#if prefsState.attractionPoints.length > 0}
     <div>
       <div class="flex justify-between items-baseline mb-2">
         <span class="label color-green">{t('attraction')}</span>
-        <span class="text-[11px] text-ink-4">{appState.attractionPoints.length}</span>
+        <span class="text-[11px] text-ink-4">{prefsState.attractionPoints.length}</span>
       </div>
       <div class="space-y-1.5">
-        {#each appState.attractionPoints as pt, i}
+        {#each prefsState.attractionPoints as pt, i}
           <PointCard
             variant="green"
             name={pt.name}
@@ -66,22 +68,22 @@
       <div class="mt-2.5">
         <div class="flex justify-between items-baseline mb-1">
           <span class="hint">{t('influence')}</span>
-          <span class="text-[11px] font-bold text-ink tabular-nums">{appState.attractionRadius.toFixed(1)} {t('km')}</span>
+          <span class="text-[11px] font-bold text-ink tabular-nums">{prefsState.attractionRadius.toFixed(1)} {t('km')}</span>
         </div>
-        <input type="range" min="0.1" max="5" step="0.1" value={appState.attractionRadius} oninput={onAttractionRadiusChange} class="w-full" />
+        <input type="range" min="0.1" max="5" step="0.1" value={prefsState.attractionRadius} oninput={onAttractionRadiusChange} class="w-full" />
         <p class="hint muted">{t('attractRadiusHint')}</p>
       </div>
     </div>
   {/if}
 
-  {#if appState.repulsionPoints.length > 0}
+  {#if prefsState.repulsionPoints.length > 0}
     <div>
       <div class="flex justify-between items-baseline mb-2">
         <span class="label color-red">{t('repulsion')}</span>
-        <span class="text-[11px] text-ink-4">{appState.repulsionPoints.length}</span>
+        <span class="text-[11px] text-ink-4">{prefsState.repulsionPoints.length}</span>
       </div>
       <div class="space-y-1.5">
-        {#each appState.repulsionPoints as pt, i}
+        {#each prefsState.repulsionPoints as pt, i}
           <PointCard
             variant="red"
             name={pt.name}
@@ -96,15 +98,15 @@
       <div class="mt-2.5">
         <div class="flex justify-between items-baseline mb-1">
           <span class="hint">{t('influence')}</span>
-          <span class="text-[11px] font-bold text-ink tabular-nums">{appState.repulsionRadius.toFixed(1)} {t('km')}</span>
+          <span class="text-[11px] font-bold text-ink tabular-nums">{prefsState.repulsionRadius.toFixed(1)} {t('km')}</span>
         </div>
-        <input type="range" min="0.1" max="5" step="0.1" value={appState.repulsionRadius} oninput={onRepulsionRadiusChange} class="w-full" />
+        <input type="range" min="0.1" max="5" step="0.1" value={prefsState.repulsionRadius} oninput={onRepulsionRadiusChange} class="w-full" />
         <p class="hint muted">{t('repulseRadiusHint')}</p>
       </div>
     </div>
   {/if}
 
-  {#if appState.attractionPoints.length === 0 && appState.repulsionPoints.length === 0}
+  {#if prefsState.attractionPoints.length === 0 && prefsState.repulsionPoints.length === 0}
     <div class="text-center py-6 text-ink-4">
       <p class="text-[12px]">{t('tapToAddPoint')}</p>
       <p class="hint mt-1">{t('stepOptional')}</p>

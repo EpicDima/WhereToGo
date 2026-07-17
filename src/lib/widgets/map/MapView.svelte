@@ -2,7 +2,11 @@
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
   import { circle } from '@turf/circle';
-  import { appState, addUserLocation, addPreferencePoint } from '../../shared/stores/app.svelte.js';
+  import { appState } from '../../shared/stores/app.svelte.js';
+  import { zoneState } from '../../features/zone.svelte.js';
+  import { peopleState, addUserLocation } from '../../features/people.svelte.js';
+  import { distanceState } from '../../features/distance.svelte.js';
+  import { prefsState, addPreferencePoint } from '../../features/preferences.svelte.js';
   import { t, i18n } from '../../shared/i18n/index.svelte.js';
   import { uiState } from '../../shared/stores/ui.svelte.js';
   import {
@@ -38,9 +42,9 @@
     addRadiusLayers(map);
     addPreferenceRadiusLayers(map);
     addDrawLayers(map);
-    updateZoneData(map, appState);
-    updatePreferenceRadii(map, appState);
-    if (isDev) updateDebugHeatmap(map, computeDebugGrid(appState, showDebugHeatmap));
+    updateZoneData(map, zoneState);
+    updatePreferenceRadii(map, { step: appState.step, ...prefsState });
+    if (isDev) updateDebugHeatmap(map, computeDebugGrid({ ...zoneState, ...peopleState, ...distanceState, ...prefsState, step: appState.step }, showDebugHeatmap));
   }
 
   onMount(() => {
@@ -52,7 +56,7 @@
       ? { top: 60, bottom: 200, left: 20, right: 20 }
       : { top: 60, bottom: 60, left: 400, right: 60 };
 
-    const city = appState.city;
+    const city = zoneState.city;
 
     currentStyleUrl = appState.darkMode ? DARK_STYLE : LIGHT_STYLE;
     map = new maplibregl.Map({
@@ -73,7 +77,7 @@
     map.on('load', initLayers);
 
     map.on('click', (e) => {
-      if (appState.drawingMode) {
+      if (zoneState.drawingMode) {
         handleDrawClick(e.lngLat);
       } else if (appState.step === 1) {
         addUserLocation(e.lngLat);
@@ -92,17 +96,17 @@
 
   export function finishDrawing() {
     if (drawPoints.length < 3) { cancelDrawing(); return; }
-    appState.zoneCoordinates = [...drawPoints];
-    appState.zonePreset = 'custom';
+    zoneState.zoneCoordinates = [...drawPoints];
+    zoneState.zonePreset = 'custom';
     drawPoints = [];
     clearDrawLayers(map);
-    appState.drawingMode = false;
+    zoneState.drawingMode = false;
   }
 
   export function cancelDrawing() {
     drawPoints = [];
     clearDrawLayers(map);
-    appState.drawingMode = false;
+    zoneState.drawingMode = false;
   }
 
   function syncUserMarkers() {
@@ -112,7 +116,7 @@
 
     const draggable = appState.step === 1;
 
-    appState.userLocations.forEach((loc, i) => {
+    peopleState.userLocations.forEach((loc, i) => {
       const marker = new maplibregl.Marker({ element: createUserMarkerEl(i, draggable), draggable })
         .setLngLat([loc.lng, loc.lat])
         .addTo(map);
@@ -120,7 +124,7 @@
       if (draggable) {
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
-          appState.userLocations = appState.userLocations.map((l, idx) =>
+          peopleState.userLocations = peopleState.userLocations.map((l, idx) =>
             idx === i ? { ...l, lng: lngLat.lng, lat: lngLat.lat } : l
           );
         });
@@ -137,21 +141,21 @@
 
     const draggable = appState.step === 3;
 
-    appState.attractionPoints.forEach((pt, i) => {
+    prefsState.attractionPoints.forEach((pt, i) => {
       const marker = new maplibregl.Marker({ element: createAttractionMarkerEl(), draggable })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
         marker.on('drag', () => {
           const pos = marker.getLngLat();
-          const circles = appState.attractionPoints.map((p, idx) =>
-            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], appState.attractionRadius, { units: 'kilometers', steps: 48 })
+          const circles = prefsState.attractionPoints.map((p, idx) =>
+            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], prefsState.attractionRadius, { units: 'kilometers', steps: 48 })
           );
           map.getSource('pref-attraction').setData({ type: 'FeatureCollection', features: circles });
         });
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
-          appState.attractionPoints = appState.attractionPoints.map((p, idx) =>
+          prefsState.attractionPoints = prefsState.attractionPoints.map((p, idx) =>
             idx === i ? { ...p, lng: lngLat.lng, lat: lngLat.lat } : p
           );
         });
@@ -159,21 +163,21 @@
       preferenceMarkers.push(marker);
     });
 
-    appState.repulsionPoints.forEach((pt, i) => {
+    prefsState.repulsionPoints.forEach((pt, i) => {
       const marker = new maplibregl.Marker({ element: createRepulsionMarkerEl(), draggable })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
         marker.on('drag', () => {
           const pos = marker.getLngLat();
-          const circles = appState.repulsionPoints.map((p, idx) =>
-            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], appState.repulsionRadius, { units: 'kilometers', steps: 48 })
+          const circles = prefsState.repulsionPoints.map((p, idx) =>
+            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], prefsState.repulsionRadius, { units: 'kilometers', steps: 48 })
           );
           map.getSource('pref-repulsion').setData({ type: 'FeatureCollection', features: circles });
         });
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
-          appState.repulsionPoints = appState.repulsionPoints.map((p, idx) =>
+          prefsState.repulsionPoints = prefsState.repulsionPoints.map((p, idx) =>
             idx === i ? { ...p, lng: lngLat.lng, lat: lngLat.lat } : p
           );
         });
@@ -192,7 +196,7 @@
 
     const gp = [appState.generatedPoint.lng, appState.generatedPoint.lat];
 
-    if (appState.userLocations.length === 0) {
+    if (peopleState.userLocations.length === 0) {
       map.flyTo({ center: gp, zoom: 14, padding: mapPadding, duration: 1200 });
       return;
     }
@@ -203,7 +207,7 @@
 
     const gpMerc = maplibregl.MercatorCoordinate.fromLngLat(gp);
     let maxDx = 0, maxDy = 0;
-    for (const loc of appState.userLocations) {
+    for (const loc of peopleState.userLocations) {
       const m = maplibregl.MercatorCoordinate.fromLngLat([loc.lng, loc.lat]);
       maxDx = Math.max(maxDx, Math.abs(m.x - gpMerc.x));
       maxDy = Math.max(maxDy, Math.abs(m.y - gpMerc.y));
@@ -226,46 +230,46 @@
   });
 
   $effect(() => {
-    appState.zoneCoordinates; appState.selectedDistricts; appState.drawingMode;
-    updateZoneData(map, appState);
+    zoneState.zoneCoordinates; zoneState.selectedDistricts; zoneState.drawingMode;
+    updateZoneData(map, zoneState);
   });
 
-  $effect(() => { appState.userLocations; appState.step; syncUserMarkers(); });
-  $effect(() => { appState.attractionPoints; appState.repulsionPoints; appState.step; syncPreferenceMarkers(); });
+  $effect(() => { peopleState.userLocations; appState.step; syncUserMarkers(); });
+  $effect(() => { prefsState.attractionPoints; prefsState.repulsionPoints; appState.step; syncPreferenceMarkers(); });
 
   $effect(() => {
-    appState.attractionPoints; appState.repulsionPoints;
-    appState.attractionRadius; appState.repulsionRadius; appState.step;
-    updatePreferenceRadii(map, appState);
+    prefsState.attractionPoints; prefsState.repulsionPoints;
+    prefsState.attractionRadius; prefsState.repulsionRadius; appState.step;
+    updatePreferenceRadii(map, { step: appState.step, ...prefsState });
   });
 
   $effect(() => { appState.generatedPoint; syncResultMarker(); });
 
   $effect(() => {
-    appState.userLocations; appState.minDistance; appState.maxDistance; appState.step;
+    peopleState.userLocations; distanceState.minDistance; distanceState.maxDistance; appState.step;
     updateRadiusCircles(map, {
       step: appState.step,
-      userLocations: appState.userLocations,
-      cityCenter: appState.city.center,
-      minDistance: appState.minDistance,
-      maxDistance: appState.maxDistance,
+      userLocations: peopleState.userLocations,
+      cityCenter: zoneState.city.center,
+      minDistance: distanceState.minDistance,
+      maxDistance: distanceState.maxDistance,
     });
   });
 
   if (isDev) {
     $effect(() => {
       showDebugHeatmap; appState.step;
-      appState.zoneCoordinates; appState.selectedDistricts;
-      appState.userLocations; appState.minDistance; appState.maxDistance;
-      appState.attractionPoints; appState.repulsionPoints;
-      appState.attractionRadius; appState.repulsionRadius;
-      updateDebugHeatmap(map, computeDebugGrid(appState, showDebugHeatmap));
+      zoneState.zoneCoordinates; zoneState.selectedDistricts;
+      peopleState.userLocations; distanceState.minDistance; distanceState.maxDistance;
+      prefsState.attractionPoints; prefsState.repulsionPoints;
+      prefsState.attractionRadius; prefsState.repulsionRadius;
+      updateDebugHeatmap(map, computeDebugGrid({ ...zoneState, ...peopleState, ...distanceState, ...prefsState, step: appState.step }, showDebugHeatmap));
     });
   }
 
   $effect(() => {
-    const center = appState.city.center;
-    const zoom = appState.city.zoom;
+    const center = zoneState.city.center;
+    const zoom = zoneState.city.zoom;
     if (!map) return;
     if (initialLoad) {
       initialLoad = false;
@@ -275,7 +279,7 @@
     map.flyTo({ center, zoom, padding: mapPadding, duration: 1000 });
   });
 
-  $effect(() => { if (map) map.getCanvas().style.cursor = (appState.drawingMode || appState.step === 3) ? 'crosshair' : ''; });
+  $effect(() => { if (map) map.getCanvas().style.cursor = (zoneState.drawingMode || appState.step === 3) ? 'crosshair' : ''; });
 
   $effect(() => {
     const lang = i18n.locale;
@@ -298,10 +302,10 @@
         initLayers();
         updateRadiusCircles(map, {
           step: appState.step,
-          userLocations: appState.userLocations,
-          cityCenter: appState.city.center,
-          minDistance: appState.minDistance,
-          maxDistance: appState.maxDistance,
+          userLocations: peopleState.userLocations,
+          cityCenter: zoneState.city.center,
+          minDistance: distanceState.minDistance,
+          maxDistance: distanceState.maxDistance,
         });
         syncPreferenceMarkers();
       });
@@ -342,7 +346,7 @@
   {/if}
 {/if}
 
-{#if appState.drawingMode}
+{#if zoneState.drawingMode}
   <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 glass rounded-xl shadow-lg px-5 py-3 flex items-center gap-3 border border-border
     max-lg:left-4 max-lg:right-4 max-lg:translate-x-0 max-lg:top-4">
     <span class="text-[13px] text-ink-2 font-medium">{t('drawClickHint')}</span>
