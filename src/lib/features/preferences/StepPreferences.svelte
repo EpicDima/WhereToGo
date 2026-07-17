@@ -172,7 +172,7 @@
     transform: scale(0.97);
   }
   .generate-btn.generating {
-    background: rgba(232, 88, 74, 0.8);
+    background: color-mix(in srgb, var(--color-accent) 80%, transparent);
     cursor: wait;
   }
 </style>
