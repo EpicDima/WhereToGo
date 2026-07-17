@@ -1,14 +1,10 @@
 <script>
   import { onMount } from 'svelte';
-  import { appState, nextStep, prevStep, restart, regenerate } from '../shared/stores/app.svelte.js';
+  import { appState, nextStep, prevStep, restart } from '../shared/stores/app.svelte.js';
   import { zoneState } from '../features/zone.svelte.js';
-  import { peopleState } from '../features/people.svelte.js';
-  import { distanceState } from '../features/distance.svelte.js';
-  import { prefsState } from '../features/preferences.svelte.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import { uiState } from '../shared/stores/ui.svelte.js';
-  import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature } from '../shared/utils/geo.js';
-  import { MINSK_DISTRICTS } from '../shared/utils/districts.js';
+  import { handleGenerate as generate } from '../features/generate.js';
   import StepZone from '../features/StepZone.svelte';
   import StepPeople from '../features/StepPeople.svelte';
   import StepPreferences from '../features/StepPreferences.svelte';
@@ -95,61 +91,9 @@
   }
 
   async function handleGenerate() {
-    appState.isGenerating = true;
-    regenerate();
     errorMsg = '';
-
-    const useDistricts = zoneState.selectedDistricts.length > 0;
-    let polygons = [];
-    let zoneBounds = null;
-
-    const zonePoly = createPolygonFeature(
-      zoneState.zoneCoordinates.map(c => [c[0], c[1]])
-    );
-
-    if (useDistricts) {
-      polygons = zoneState.selectedDistricts
-        .map(name => MINSK_DISTRICTS[name])
-        .filter(Boolean)
-        .map(coords => createPolygonFeature(coords))
-        .filter(Boolean);
-      zoneBounds = zonePoly;
-    } else {
-      if (zonePoly) polygons = [zonePoly];
-    }
-
-    if (polygons.length === 0) {
-      errorMsg = t('zoneNotSet');
-      appState.isGenerating = false;
-      return;
-    }
-
-    const locations = peopleState.userLocations.length > 0
-      ? peopleState.userLocations
-      : [{ lng: zoneState.city.center[0], lat: zoneState.city.center[1] }];
-
-    const preferences = {
-      attractionPoints: prefsState.attractionPoints,
-      repulsionPoints: prefsState.repulsionPoints,
-      attractionRadius: prefsState.attractionRadius,
-      repulsionRadius: prefsState.repulsionRadius,
-    };
-
-    await new Promise(r => setTimeout(r, 300));
-
-    const point = polygons.length === 1 && !zoneBounds
-      ? generateConstrainedPoint(polygons[0], locations, distanceState.minDistance, distanceState.maxDistance, preferences)
-      : generateConstrainedPointMulti(polygons, locations, distanceState.minDistance, distanceState.maxDistance, preferences, 3000, zoneBounds);
-
-    if (!point) {
-      errorMsg = t('generationFailed');
-      appState.isGenerating = false;
-      return;
-    }
-
-    appState.generatedPoint = point;
-    appState.step = 4;
-    appState.isGenerating = false;
+    const error = await generate();
+    if (error) errorMsg = error;
   }
 </script>
 

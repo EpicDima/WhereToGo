@@ -26,3 +26,10 @@ export function updateUserLocationName(index, name) {
   );
   save();
 }
+
+export function updateUserLocationPosition(index, lng, lat) {
+  peopleState.userLocations = peopleState.userLocations.map((loc, i) =>
+    i === index ? { ...loc, lng, lat } : loc
+  );
+  save();
+}

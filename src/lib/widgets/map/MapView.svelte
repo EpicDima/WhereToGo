@@ -4,9 +4,9 @@
   import { circle } from '@turf/circle';
   import { appState } from '../../shared/stores/app.svelte.js';
   import { zoneState } from '../../features/zone.svelte.js';
-  import { peopleState, addUserLocation } from '../../features/people.svelte.js';
+  import { peopleState, addUserLocation, updateUserLocationPosition } from '../../features/people.svelte.js';
   import { distanceState } from '../../features/distance.svelte.js';
-  import { prefsState, addPreferencePoint } from '../../features/preferences.svelte.js';
+  import { prefsState, addPreferencePoint, updateAttractionPointPosition, updateRepulsionPointPosition } from '../../features/preferences.svelte.js';
   import { t, i18n } from '../../shared/i18n/index.svelte.js';
   import { uiState } from '../../shared/stores/ui.svelte.js';
   import {
@@ -124,9 +124,7 @@
       if (draggable) {
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
-          peopleState.userLocations = peopleState.userLocations.map((l, idx) =>
-            idx === i ? { ...l, lng: lngLat.lng, lat: lngLat.lat } : l
-          );
+          updateUserLocationPosition(i, lngLat.lng, lngLat.lat);
         });
       }
 
@@ -155,9 +153,7 @@
         });
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
-          prefsState.attractionPoints = prefsState.attractionPoints.map((p, idx) =>
-            idx === i ? { ...p, lng: lngLat.lng, lat: lngLat.lat } : p
-          );
+          updateAttractionPointPosition(i, lngLat.lng, lngLat.lat);
         });
       }
       preferenceMarkers.push(marker);
@@ -177,9 +173,7 @@
         });
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
-          prefsState.repulsionPoints = prefsState.repulsionPoints.map((p, idx) =>
-            idx === i ? { ...p, lng: lngLat.lng, lat: lngLat.lat } : p
-          );
+          updateRepulsionPointPosition(i, lngLat.lng, lngLat.lat);
         });
       }
       preferenceMarkers.push(marker);
@@ -284,12 +278,7 @@
   $effect(() => {
     const lang = i18n.locale;
     if (!map?.isStyleLoaded()) return;
-    const langKey = lang === 'ru' ? 'name:ru' : 'name:en';
-    for (const layer of map.getStyle().layers) {
-      if (layer.type === 'symbol' && layer.layout?.['text-field']) {
-        map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', langKey], ['get', 'name']]);
-      }
-    }
+    applyStyleOverrides(map, lang);
   });
 
   $effect(() => {

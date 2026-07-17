@@ -53,3 +53,17 @@ export function updateRepulsionPointName(index, name) {
   );
   save();
 }
+
+export function updateAttractionPointPosition(index, lng, lat) {
+  prefsState.attractionPoints = prefsState.attractionPoints.map((p, i) =>
+    i === index ? { ...p, lng, lat } : p
+  );
+  save();
+}
+
+export function updateRepulsionPointPosition(index, lng, lat) {
+  prefsState.repulsionPoints = prefsState.repulsionPoints.map((p, i) =>
+    i === index ? { ...p, lng, lat } : p
+  );
+  save();
+}
