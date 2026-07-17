@@ -1,7 +1,7 @@
 <script>
-  import { distanceState, save } from './distance.svelte.js';
-  import { t } from '../shared/i18n/index.svelte.js';
-  import Label from '../shared/ui/Label.svelte';
+  import { distanceState, save } from './store.svelte.js';
+  import { t } from '../../shared/i18n/index.svelte.js';
+  import Label from '../../shared/ui/Label.svelte';
 
   let { onNext } = $props();
 

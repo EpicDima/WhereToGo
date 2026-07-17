@@ -1,15 +1,15 @@
 <script>
   import { onMount } from 'svelte';
   import { appState, nextStep, prevStep, restart } from '../shared/stores/app.svelte.js';
-  import { zoneState } from '../features/zone.svelte.js';
+  import { zoneState } from '../features/zone/store.svelte.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import { uiState } from '../shared/stores/ui.svelte.js';
-  import { handleGenerate as generate } from '../features/generate.js';
-  import StepZone from '../features/StepZone.svelte';
-  import StepPeople from '../features/StepPeople.svelte';
-  import StepPreferences from '../features/StepPreferences.svelte';
-  import StepDistance from '../features/StepDistance.svelte';
-  import StepResult from '../features/StepResult.svelte';
+  import { handleGenerate as generate } from '../features/result/generate.js';
+  import StepZone from '../features/zone/StepZone.svelte';
+  import StepPeople from '../features/people/StepPeople.svelte';
+  import StepPreferences from '../features/preferences/StepPreferences.svelte';
+  import StepDistance from '../features/distance/StepDistance.svelte';
+  import StepResult from '../features/result/StepResult.svelte';
 
   let errorMsg = $state('');
 

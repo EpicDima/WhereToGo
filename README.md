@@ -59,11 +59,16 @@ npm run preview   # предпросмотр сборки
 
 ```
 src/lib/
-├── shared/          # общие модули: UI-компоненты, сторы, утилиты, i18n
-├── features/        # домен: сторы и компоненты каждого шага wizard
-└── widgets/         # композитные компоненты: карта, сайдбар
+├── shared/              # общие модули: UI-компоненты, сторы, утилиты, i18n
+├── features/            # домен: каждая фича в своей папке (store + компонент)
+│   ├── zone/
+│   ├── people/
+│   ├── distance/
+│   ├── preferences/
+│   └── result/
+└── widgets/             # композитные компоненты: карта, сайдбар
 ```
 
 - **shared** — переиспользуемые UI-компоненты (Chip, PointCard, Label, Spinner), утилиты (haversine, полигоны), localStorage-персистенция, i18n
-- **features** — каждый шаг wizard имеет свой стор (`zone`, `people`, `distance`, `preferences`) и компонент (`StepZone`, `StepPeople`, ...). Генерация точки — отдельный модуль `generate.js`
+- **features** — каждый шаг wizard в своей директории: `store.svelte.js` (стейт) + `Step*.svelte` (UI). Генерация точки — `result/generate.js`
 - **widgets** — карта (`MapView` + слои/маркеры/дебаг) и `Sidebar` (shell wizard + bottom sheet)

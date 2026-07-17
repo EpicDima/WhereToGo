@@ -1,5 +1,5 @@
-import { saved, registerSlice, save } from '../shared/stores/persist.js';
-import { t } from '../shared/i18n/index.svelte.js';
+import { saved, registerSlice, save } from '../../shared/stores/persist.js';
+import { t } from '../../shared/i18n/index.svelte.js';
 
 export const peopleState = $state({
   userLocations: saved?.userLocations ?? [],

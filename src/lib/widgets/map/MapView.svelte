@@ -3,10 +3,10 @@
   import maplibregl from 'maplibre-gl';
   import { circle } from '@turf/circle';
   import { appState } from '../../shared/stores/app.svelte.js';
-  import { zoneState } from '../../features/zone.svelte.js';
-  import { peopleState, addUserLocation, updateUserLocationPosition } from '../../features/people.svelte.js';
-  import { distanceState } from '../../features/distance.svelte.js';
-  import { prefsState, addPreferencePoint, updateAttractionPointPosition, updateRepulsionPointPosition } from '../../features/preferences.svelte.js';
+  import { zoneState } from '../../features/zone/store.svelte.js';
+  import { peopleState, addUserLocation, updateUserLocationPosition } from '../../features/people/store.svelte.js';
+  import { distanceState } from '../../features/distance/store.svelte.js';
+  import { prefsState, addPreferencePoint, updateAttractionPointPosition, updateRepulsionPointPosition } from '../../features/preferences/store.svelte.js';
   import { t, i18n } from '../../shared/i18n/index.svelte.js';
   import { uiState } from '../../shared/stores/ui.svelte.js';
   import {

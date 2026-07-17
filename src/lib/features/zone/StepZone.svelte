@@ -1,12 +1,12 @@
 <script>
-  import { zoneState, setPresetCity, setZonePreset, toggleDistrict, saveCustomZone, loadCustomZone, deleteCustomZone } from './zone.svelte.js';
-  import { t } from '../shared/i18n/index.svelte.js';
-  import { CITY_PRESETS } from '../shared/utils/presets.js';
-  import { MINSK_DISTRICTS } from '../shared/utils/districts.js';
-  import Chip from '../shared/ui/Chip.svelte';
-  import CloseButton from '../shared/ui/CloseButton.svelte';
-  import Label from '../shared/ui/Label.svelte';
-  import SecondaryButton from '../shared/ui/SecondaryButton.svelte';
+  import { zoneState, setPresetCity, setZonePreset, toggleDistrict, saveCustomZone, loadCustomZone, deleteCustomZone } from './store.svelte.js';
+  import { t } from '../../shared/i18n/index.svelte.js';
+  import { CITY_PRESETS } from '../../shared/utils/presets.js';
+  import { MINSK_DISTRICTS } from '../../shared/utils/districts.js';
+  import Chip from '../../shared/ui/Chip.svelte';
+  import CloseButton from '../../shared/ui/CloseButton.svelte';
+  import Label from '../../shared/ui/Label.svelte';
+  import SecondaryButton from '../../shared/ui/SecondaryButton.svelte';
 
   let { onNext } = $props();
 

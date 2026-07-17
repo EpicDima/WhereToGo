@@ -1,6 +1,6 @@
-import { saved, registerSlice, save } from '../shared/stores/persist.js';
-import { t } from '../shared/i18n/index.svelte.js';
-import { clearResult } from '../shared/stores/app.svelte.js';
+import { saved, registerSlice, save } from '../../shared/stores/persist.js';
+import { t } from '../../shared/i18n/index.svelte.js';
+import { clearResult } from '../../shared/stores/app.svelte.js';
 
 export const prefsState = $state({
   attractionPoints: saved?.attractionPoints ?? [],

@@ -1,8 +1,8 @@
 <script>
-  import { peopleState, addUserLocation, removeUserLocation, updateUserLocationName } from './people.svelte.js';
-  import { t } from '../shared/i18n/index.svelte.js';
-  import PointCard from '../shared/ui/PointCard.svelte';
-  import SecondaryButton from '../shared/ui/SecondaryButton.svelte';
+  import { peopleState, addUserLocation, removeUserLocation, updateUserLocationName } from './store.svelte.js';
+  import { t } from '../../shared/i18n/index.svelte.js';
+  import PointCard from '../../shared/ui/PointCard.svelte';
+  import SecondaryButton from '../../shared/ui/SecondaryButton.svelte';
 
   let { onNext } = $props();
 </script>

@@ -1,10 +1,10 @@
-import { appState, regenerate } from '../shared/stores/app.svelte.js';
-import { zoneState } from './zone.svelte.js';
-import { peopleState } from './people.svelte.js';
-import { distanceState } from './distance.svelte.js';
-import { prefsState } from './preferences.svelte.js';
-import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature, buildDistrictPolygons } from '../shared/utils/geo.js';
-import { t } from '../shared/i18n/index.svelte.js';
+import { appState, regenerate } from '../../shared/stores/app.svelte.js';
+import { zoneState } from '../zone/store.svelte.js';
+import { peopleState } from '../people/store.svelte.js';
+import { distanceState } from '../distance/store.svelte.js';
+import { prefsState } from '../preferences/store.svelte.js';
+import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature, buildDistrictPolygons } from '../../shared/utils/geo.js';
+import { t } from '../../shared/i18n/index.svelte.js';
 
 /**
  * Generate a random constrained point based on current wizard state.

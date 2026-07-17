@@ -71,16 +71,21 @@ src/
 │   │       ├── ru.js              # русские строки
 │   │       └── en.js              # английские строки
 │   ├── features/                  # шаги wizard + domain stores
-│   │   ├── zone.svelte.js         # стейт зон, город, пресеты
-│   │   ├── StepZone.svelte        # шаг 0: выбор зоны
-│   │   ├── people.svelte.js       # стейт участников
-│   │   ├── StepPeople.svelte      # шаг 1: участники
-│   │   ├── distance.svelte.js     # стейт расстояний
-│   │   ├── StepDistance.svelte    # шаг 2: расстояния
-│   │   ├── preferences.svelte.js  # стейт предпочтений
-│   │   ├── StepPreferences.svelte # шаг 3: притяжение/отталкивание
-│   │   ├── StepResult.svelte     # шаг 4: результат + навигация + шаринг
-│   │   └── generate.js           # оркестрация генерации точки
+│   │   ├── zone/
+│   │   │   ├── store.svelte.js    # стейт зон, город, пресеты
+│   │   │   └── StepZone.svelte    # шаг 0: выбор зоны
+│   │   ├── people/
+│   │   │   ├── store.svelte.js    # стейт участников
+│   │   │   └── StepPeople.svelte  # шаг 1: участники
+│   │   ├── distance/
+│   │   │   ├── store.svelte.js    # стейт расстояний
+│   │   │   └── StepDistance.svelte # шаг 2: расстояния
+│   │   ├── preferences/
+│   │   │   ├── store.svelte.js    # стейт предпочтений
+│   │   │   └── StepPreferences.svelte # шаг 3: притяжение/отталкивание
+│   │   └── result/
+│   │       ├── generate.js        # оркестрация генерации точки
+│   │       └── StepResult.svelte  # шаг 4: результат + навигация + шаринг
 │   └── widgets/                   # композитные компоненты
 │       ├── map/
 │       │   ├── MapView.svelte     # карта, маркеры, эффекты

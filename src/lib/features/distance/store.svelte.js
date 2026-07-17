@@ -1,4 +1,4 @@
-import { saved, registerSlice, save } from '../shared/stores/persist.js';
+import { saved, registerSlice, save } from '../../shared/stores/persist.js';
 
 export const distanceState = $state({
   minDistance: saved?.minDistance ?? 0.5,

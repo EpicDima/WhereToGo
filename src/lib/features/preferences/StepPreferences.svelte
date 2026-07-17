@@ -1,11 +1,11 @@
 <script>
-  import { appState } from '../shared/stores/app.svelte.js';
-  import { prefsState, removeAttractionPoint, removeRepulsionPoint, updateAttractionPointName, updateRepulsionPointName } from './preferences.svelte.js';
-  import { save } from '../shared/stores/persist.js';
-  import { t } from '../shared/i18n/index.svelte.js';
-  import PointCard from '../shared/ui/PointCard.svelte';
-  import Label from '../shared/ui/Label.svelte';
-  import Spinner from '../shared/ui/Spinner.svelte';
+  import { appState } from '../../shared/stores/app.svelte.js';
+  import { prefsState, removeAttractionPoint, removeRepulsionPoint, updateAttractionPointName, updateRepulsionPointName } from './store.svelte.js';
+  import { save } from '../../shared/stores/persist.js';
+  import { t } from '../../shared/i18n/index.svelte.js';
+  import PointCard from '../../shared/ui/PointCard.svelte';
+  import Label from '../../shared/ui/Label.svelte';
+  import Spinner from '../../shared/ui/Spinner.svelte';
 
   let { onGenerate, errorMsg = '' } = $props();
 
