@@ -2,8 +2,9 @@
   import { onMount } from 'svelte';
   import maplibregl from 'maplibre-gl';
   import { circle } from '@turf/circle';
-  import { appState } from '../../shared/stores/app.svelte.js';
+  import { appState, clearResult } from '../../shared/stores/app.svelte.js';
   import { zoneState } from '../../features/zone/store.svelte.js';
+  import { save } from '../../shared/stores/persist.js';
   import { peopleState, addUserLocation, updateUserLocationPosition } from '../../features/people/store.svelte.js';
   import { distanceState } from '../../features/distance/store.svelte.js';
   import { preferencesState, addPreferencePoint, updateAttractionPointPosition, updateRepulsionPointPosition } from '../../features/preferences/store.svelte.js';
@@ -102,6 +103,8 @@
     drawPoints = [];
     clearDrawLayers(map);
     zoneState.drawingMode = false;
+    clearResult();
+    save();
   }
 
   export function cancelDrawing() {
@@ -227,6 +230,13 @@
   $effect(() => {
     zoneState.zoneCoordinates; zoneState.selectedDistricts; zoneState.drawingMode;
     updateZoneData(map, zoneState);
+  });
+
+  $effect(() => {
+    if (!zoneState.drawingMode && map) {
+      drawPoints = [];
+      clearDrawLayers(map);
+    }
   });
 
   $effect(() => { peopleState.userLocations; appState.step; syncUserMarkers(); });
