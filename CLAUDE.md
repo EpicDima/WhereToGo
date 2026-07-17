@@ -56,12 +56,13 @@ src/
 │   │   │   ├── CloseButton.svelte # кнопка удаления ×
 │   │   │   ├── Label.svelte       # цветная метка (green/red)
 │   │   │   ├── PointCard.svelte   # карточка точки (люди, предпочтения)
+│   │   │   ├── PrimaryButton.svelte # основная кнопка (Далее, Пропустить)
 │   │   │   ├── SecondaryButton.svelte # ghost-кнопка (GPS, сохранение)
 │   │   │   └── Spinner.svelte     # SVG-спиннер загрузки
 │   │   ├── stores/
 │   │   │   ├── persist.js         # localStorage registry + save/load
 │   │   │   ├── app.svelte.js      # step, theme, generatedPoint
-│   │   │   └── ui.svelte.js       # shared UI state (mobile sheet height)
+│   │   │   └── ui.svelte.js       # shared UI state (isMobile, sheet height)
 │   │   ├── utils/
 │   │   │   ├── geo.js             # haversine, point-in-polygon, random
 │   │   │   ├── districts.js       # полигоны районов Минска
