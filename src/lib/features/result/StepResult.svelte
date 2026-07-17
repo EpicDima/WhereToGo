@@ -168,7 +168,7 @@
   {:else}
     <div class="text-center py-8 space-y-4">
       {#if errorMsg}
-        <p class="text-[13px] text-red-500 font-medium">{errorMsg}</p>
+        <div class="text-danger text-[12px] rounded-xl bg-danger/10 p-3">{errorMsg}</div>
       {/if}
       <div class="flex gap-2">
         <button

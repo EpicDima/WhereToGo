@@ -22,8 +22,8 @@
     flex-shrink: 0;
   }
   .close-btn:hover {
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-red);
+    background: color-mix(in srgb, var(--color-red) 10%, transparent);
   }
   .close-btn.on-active {
     color: rgba(255, 255, 255, 0.7);

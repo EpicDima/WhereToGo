@@ -16,6 +16,6 @@
     color: var(--color-ink-3);
     margin-bottom: 0.5rem;
   }
-  .label.color-green { color: #22c55e; }
-  .label.color-red { color: #ef4444; }
+  .label.color-green { color: var(--color-green); }
+  .label.color-red { color: var(--color-red); }
 </style>

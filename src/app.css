@@ -23,7 +23,9 @@
   --color-btn: #111111;
   --color-btn-text: #FFFFFF;
 
-  --color-danger: #DC3545;
+  --color-green: #22c55e;
+  --color-red: #ef4444;
+  --color-danger: #ef4444;
 }
 
 html, body, #app {
