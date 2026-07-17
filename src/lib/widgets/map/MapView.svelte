@@ -247,6 +247,12 @@
     }
   });
 
+  $effect(() => {
+    if (appState.step !== 0 && zoneState.drawingMode) {
+      zoneState.drawingMode = false;
+    }
+  });
+
   $effect(() => { peopleState.userLocations; appState.step; syncUserMarkers(); });
   $effect(() => { preferencesState.attractionPoints; preferencesState.repulsionPoints; appState.step; syncPreferenceMarkers(); });
 
