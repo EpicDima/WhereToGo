@@ -7,6 +7,7 @@
   import CloseButton from '../../shared/ui/CloseButton.svelte';
   import Label from '../../shared/ui/Label.svelte';
   import SecondaryButton from '../../shared/ui/SecondaryButton.svelte';
+  import PrimaryButton from '../../shared/ui/PrimaryButton.svelte';
 
   let { onNext } = $props();
 
@@ -113,13 +114,13 @@
     </div>
   {/if}
 
-  <button
-    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
+  <PrimaryButton
+    class="mt-2"
     onclick={onNext}
     disabled={zoneState.zoneCoordinates.length < 3 && zoneState.selectedDistricts.length === 0}
   >
     {t('next')}
-  </button>
+  </PrimaryButton>
 </div>
 
 <style>
@@ -147,12 +148,12 @@
     background: var(--color-accent);
   }
   .zone-item.highlighted {
-    background: rgba(232, 88, 74, 0.1);
+    background: var(--color-accent-soft);
     color: var(--color-accent);
-    border-color: rgba(232, 88, 74, 0.2);
+    border-color: var(--color-accent-glow);
   }
   .zone-item.highlighted:hover {
-    background: rgba(232, 88, 74, 0.15);
+    background: var(--color-accent-soft);
   }
 
 </style>

@@ -2,6 +2,7 @@
   import { distanceState, setMinDistance, setMaxDistance } from './store.svelte.js';
   import { t } from '../../shared/i18n/index.svelte.js';
   import Label from '../../shared/ui/Label.svelte';
+  import PrimaryButton from '../../shared/ui/PrimaryButton.svelte';
 
   let { onNext } = $props();
 </script>
@@ -25,10 +26,7 @@
     <p class="text-[10px] text-ink-3 mt-1">{t('maxDistanceHint')}</p>
   </div>
 
-  <button
-    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
-    onclick={onNext}
-  >
+  <PrimaryButton class="mt-2" onclick={onNext}>
     {t('next')}
-  </button>
+  </PrimaryButton>
 </div>

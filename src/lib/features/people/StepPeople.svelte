@@ -3,6 +3,7 @@
   import { t } from '../../shared/i18n/index.svelte.js';
   import PointCard from '../../shared/ui/PointCard.svelte';
   import SecondaryButton from '../../shared/ui/SecondaryButton.svelte';
+  import PrimaryButton from '../../shared/ui/PrimaryButton.svelte';
 
   let { onNext } = $props();
 </script>
@@ -46,12 +47,9 @@
     GPS
   </SecondaryButton>
 
-  <button
-    class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all mt-2"
-    onclick={onNext}
-  >
+  <PrimaryButton class="mt-2" onclick={onNext}>
     {peopleState.userLocations.length === 0 ? t('skip') : t('next')}
-  </button>
+  </PrimaryButton>
 </div>
 
 <style>
