@@ -1,4 +1,4 @@
-import { appState, regenerate } from '../../shared/stores/app.svelte.js';
+import { appState, clearResult } from '../../shared/stores/app.svelte.js';
 import { zoneState } from '../zone/store.svelte.js';
 import { peopleState } from '../people/store.svelte.js';
 import { distanceState } from '../distance/store.svelte.js';
@@ -13,7 +13,7 @@ import { t } from '../../shared/i18n/index.svelte.js';
 export async function handleGenerate() {
   if (appState.isGenerating) return null;
   appState.isGenerating = true;
-  regenerate();
+  clearResult();
 
   try {
     const useDistricts = zoneState.selectedDistricts.length > 0;

@@ -30,10 +30,6 @@ export function restart() {
   save();
 }
 
-export function regenerate() {
-  appState.generatedPoint = null;
-}
-
 export function clearResult() {
   appState.generatedPoint = null;
 }
