@@ -4,6 +4,8 @@
   import { save } from '../shared/stores/persist.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import PointCard from '../shared/ui/PointCard.svelte';
+  import Label from '../shared/ui/Label.svelte';
+  import Spinner from '../shared/ui/Spinner.svelte';
 
   let { onGenerate, errorMsg = '' } = $props();
 
@@ -24,7 +26,7 @@
 
 <div class="space-y-4">
   <div>
-    <span class="label">{t('mode')}</span>
+    <Label>{t('mode')}</Label>
     <div class="flex gap-1.5">
       <button
         class="mode-btn"
@@ -49,7 +51,7 @@
   {#if prefsState.attractionPoints.length > 0}
     <div>
       <div class="flex justify-between items-baseline mb-2">
-        <span class="label color-green">{t('attraction')}</span>
+        <Label color="green">{t('attraction')}</Label>
         <span class="text-[11px] text-ink-4">{prefsState.attractionPoints.length}</span>
       </div>
       <div class="space-y-1.5">
@@ -79,7 +81,7 @@
   {#if prefsState.repulsionPoints.length > 0}
     <div>
       <div class="flex justify-between items-baseline mb-2">
-        <span class="label color-red">{t('repulsion')}</span>
+        <Label color="red">{t('repulsion')}</Label>
         <span class="text-[11px] text-ink-4">{prefsState.repulsionPoints.length}</span>
       </div>
       <div class="space-y-1.5">
@@ -125,9 +127,7 @@
   >
     {#if appState.isGenerating}
       <span class="inline-flex items-center gap-2">
-        <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 31.4" />
-        </svg>
+        <Spinner size={16} />
         {t('generating')}
       </span>
     {:else}
@@ -137,18 +137,6 @@
 </div>
 
 <style>
-  .label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-ink-3);
-    margin-bottom: 0.5rem;
-  }
-  .label.color-green { color: #22c55e; }
-  .label.color-red { color: #ef4444; }
-
   .hint {
     font-size: 10px;
     color: var(--color-ink-3);

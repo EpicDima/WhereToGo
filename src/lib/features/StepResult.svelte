@@ -1,6 +1,7 @@
 <script>
   import { appState } from '../shared/stores/app.svelte.js';
   import { peopleState } from './people.svelte.js';
+  import Spinner from '../shared/ui/Spinner.svelte';
   import { haversineDistance } from '../shared/utils/geo.js';
   import { t, tf, i18n } from '../shared/i18n/index.svelte.js';
 
@@ -159,9 +160,7 @@
     </div>
   {:else if appState.isGenerating}
     <div class="text-center py-8">
-      <svg class="animate-spin w-8 h-8 mx-auto text-accent" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 31.4" />
-      </svg>
+      <div class="mx-auto w-8 text-accent"><Spinner size={32} /></div>
       <p class="text-[13px] text-ink-3 mt-3">{t('searchingPlace')}</p>
     </div>
   {/if}

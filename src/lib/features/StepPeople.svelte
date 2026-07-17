@@ -2,6 +2,7 @@
   import { peopleState, addUserLocation, removeUserLocation, updateUserLocationName } from './people.svelte.js';
   import { t } from '../shared/i18n/index.svelte.js';
   import PointCard from '../shared/ui/PointCard.svelte';
+  import SecondaryButton from '../shared/ui/SecondaryButton.svelte';
 
   let { onNext } = $props();
 </script>
@@ -32,8 +33,7 @@
     </div>
   {/if}
 
-  <button
-    class="gps-btn"
+  <SecondaryButton
     onclick={() => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -44,7 +44,7 @@
     }}
   >
     GPS
-  </button>
+  </SecondaryButton>
 
   <button
     class="w-full py-3 rounded-xl text-[14px] font-bold btn-primary active:scale-[0.97] transition-all"
@@ -62,17 +62,4 @@
     text-align: center;
   }
 
-  .gps-btn {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 0.75rem;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-ink-2);
-    border: 1px solid var(--color-border);
-    transition: all 0.15s;
-  }
-  .gps-btn:hover {
-    background: var(--color-panel-hover);
-  }
 </style>

@@ -1,6 +1,7 @@
 <script>
   import { distanceState, save } from './distance.svelte.js';
   import { t } from '../shared/i18n/index.svelte.js';
+  import Label from '../shared/ui/Label.svelte';
 
   let { onNext } = $props();
 
@@ -18,7 +19,7 @@
 <div class="space-y-4">
   <div>
     <div class="flex justify-between items-baseline mb-2">
-      <span class="label">{t('notCloser')}</span>
+      <Label>{t('notCloser')}</Label>
       <span class="text-[13px] font-bold text-ink tabular-nums">{distanceState.minDistance.toFixed(1)} {t('km')}</span>
     </div>
     <input type="range" min="0" max={Math.max(distanceState.maxDistance - 0.1, 0.1)} step="0.1" value={distanceState.minDistance} oninput={onMinChange} class="w-full" />
@@ -27,7 +28,7 @@
 
   <div>
     <div class="flex justify-between items-baseline mb-2">
-      <span class="label">{t('notFarther')}</span>
+      <Label>{t('notFarther')}</Label>
       <span class="text-[13px] font-bold text-ink tabular-nums">{distanceState.maxDistance.toFixed(1)} {t('km')}</span>
     </div>
     <input type="range" min={Math.max(distanceState.minDistance + 0.1, 0.2)} max="30" step="0.5" value={distanceState.maxDistance} oninput={onMaxChange} class="w-full" />
@@ -43,14 +44,6 @@
 </div>
 
 <style>
-  .label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-ink-3);
-  }
-
   .hint {
     font-size: 10px;
     color: var(--color-ink-3);

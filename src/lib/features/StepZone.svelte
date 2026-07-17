@@ -5,6 +5,8 @@
   import { MINSK_DISTRICTS } from '../shared/utils/districts.js';
   import Chip from '../shared/ui/Chip.svelte';
   import CloseButton from '../shared/ui/CloseButton.svelte';
+  import Label from '../shared/ui/Label.svelte';
+  import SecondaryButton from '../shared/ui/SecondaryButton.svelte';
 
   let { onNext } = $props();
 
@@ -23,7 +25,7 @@
 
 <div class="space-y-3">
   <div>
-    <span class="label">{t('city')}</span>
+    <Label>{t('city')}</Label>
     <div class="flex flex-wrap gap-1.5">
       {#each Object.entries(CITY_PRESETS) as [key, city]}
         <Chip active={zoneState.presetKey === key} onclick={() => setPresetCity(key)}>
@@ -35,7 +37,7 @@
 
   {#if hasPreset}
     <div>
-      <span class="label">{t('zone')}</span>
+      <Label>{t('zone')}</Label>
       <div class="space-y-1.5">
         {#each Object.entries(CITY_PRESETS[zoneState.presetKey].zones) as [key, zone]}
           <button
@@ -75,9 +77,9 @@
               </button>
             </div>
           {:else}
-            <button class="save-btn" onclick={() => showSaveInput = true}>
+            <SecondaryButton onclick={() => showSaveInput = true}>
               {t('saveZone')}
-            </button>
+            </SecondaryButton>
           {/if}
         {/if}
 
@@ -100,7 +102,7 @@
 
   {#if hasPreset}
     <div>
-      <span class="label">{t('districts')}</span>
+      <Label>{t('districts')}</Label>
       <div class="flex flex-wrap gap-1.5">
         {#each Object.keys(MINSK_DISTRICTS) as name}
           <Chip active={zoneState.selectedDistricts.includes(name)} onclick={() => toggleDistrict(name)}>
@@ -121,16 +123,6 @@
 </div>
 
 <style>
-  .label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-ink-3);
-    margin-bottom: 0.5rem;
-  }
-
   .zone-item {
     width: 100%;
     text-align: left;
@@ -163,17 +155,4 @@
     background: rgba(232, 88, 74, 0.15);
   }
 
-  .save-btn {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 0.75rem;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-ink-2);
-    border: 1px solid var(--color-border);
-    transition: all 0.15s;
-  }
-  .save-btn:hover {
-    background: var(--color-panel-hover);
-  }
 </style>
