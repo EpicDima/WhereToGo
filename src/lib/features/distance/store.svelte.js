@@ -10,4 +10,12 @@ registerSlice(() => ({
   maxDistance: distanceState.maxDistance,
 }));
 
-export { save };
+export function setMinDistance(value) {
+  distanceState.minDistance = Math.min(value, distanceState.maxDistance - 0.1);
+  save();
+}
+
+export function setMaxDistance(value) {
+  distanceState.maxDistance = Math.max(value, distanceState.minDistance + 0.1);
+  save();
+}
