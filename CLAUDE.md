@@ -56,7 +56,8 @@ src/
 │   │   │   ├── CloseButton.svelte # кнопка удаления ×
 │   │   │   └── PointCard.svelte   # карточка точки (люди, предпочтения)
 │   │   ├── stores/
-│   │   │   ├── app.svelte.js      # $state, localStorage, actions
+│   │   │   ├── persist.js         # localStorage registry + save/load
+│   │   │   ├── app.svelte.js      # step, theme, generatedPoint
 │   │   │   └── ui.svelte.js       # shared UI state (mobile sheet height)
 │   │   ├── utils/
 │   │   │   ├── geo.js             # haversine, point-in-polygon, random
@@ -66,10 +67,14 @@ src/
 │   │       ├── index.svelte.js    # реактивный i18n ($state locale)
 │   │       ├── ru.js              # русские строки
 │   │       └── en.js              # английские строки
-│   ├── features/                  # шаги wizard
+│   ├── features/                  # шаги wizard + domain stores
+│   │   ├── zone.svelte.js         # стейт зон, город, пресеты
 │   │   ├── StepZone.svelte        # шаг 0: выбор зоны
+│   │   ├── people.svelte.js       # стейт участников
 │   │   ├── StepPeople.svelte      # шаг 1: участники
+│   │   ├── distance.svelte.js     # стейт расстояний
 │   │   ├── StepDistance.svelte    # шаг 2: расстояния
+│   │   ├── preferences.svelte.js  # стейт предпочтений
 │   │   ├── StepPreferences.svelte # шаг 3: притяжение/отталкивание
 │   │   └── StepResult.svelte     # шаг 4: результат + навигация + шаринг
 │   └── widgets/                   # композитные компоненты
