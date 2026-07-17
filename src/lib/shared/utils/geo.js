@@ -2,6 +2,9 @@ import { point, polygon } from '@turf/helpers';
 import { distance } from '@turf/distance';
 import { bbox } from '@turf/bbox';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
+import { MINSK_DISTRICTS } from './districts.js';
+
+export const EMPTY_FC = { type: 'FeatureCollection', features: [] };
 
 export function haversineDistance(coord1, coord2) {
   const from = point([coord1.lng, coord1.lat]);
@@ -108,4 +111,12 @@ export function createPolygonFeature(coordinates) {
     closed.push([...first]);
   }
   return polygon([closed]);
+}
+
+export function buildDistrictPolygons(districtNames) {
+  return districtNames
+    .map(name => MINSK_DISTRICTS[name])
+    .filter(Boolean)
+    .map(coords => createPolygonFeature(coords))
+    .filter(Boolean);
 }

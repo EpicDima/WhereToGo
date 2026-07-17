@@ -1,10 +1,7 @@
 import { circle } from '@turf/circle';
 import { intersect } from '@turf/intersect';
 import { featureCollection } from '@turf/helpers';
-import { MINSK_DISTRICTS } from '../../shared/utils/districts.js';
-import { createPolygonFeature } from '../../shared/utils/geo.js';
-
-const EMPTY_FC = { type: 'FeatureCollection', features: [] };
+import { createPolygonFeature, buildDistrictPolygons, EMPTY_FC } from '../../shared/utils/geo.js';
 
 export function applyStyleOverrides(map, locale) {
   for (const layer of map.getStyle().layers) {
@@ -32,11 +29,7 @@ export function updateZoneData(map, { drawingMode, zoneCoordinates, selectedDist
   const zonePoly = createPolygonFeature(zoneCoordinates.map(c => [c[0], c[1]]));
 
   if (selectedDistricts.length > 0 && zonePoly) {
-    const clipped = selectedDistricts
-      .map(name => MINSK_DISTRICTS[name])
-      .filter(Boolean)
-      .map(coords => createPolygonFeature(coords))
-      .filter(Boolean)
+    const clipped = buildDistrictPolygons(selectedDistricts)
       .map(dp => intersect(featureCollection([zonePoly, dp])))
       .filter(Boolean);
     map.getSource('zone').setData({ type: 'FeatureCollection', features: clipped });

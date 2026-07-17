@@ -2,10 +2,7 @@ import maplibregl from 'maplibre-gl';
 import { point } from '@turf/helpers';
 import { bbox } from '@turf/bbox';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
-import { MINSK_DISTRICTS } from '../../shared/utils/districts.js';
-import { createPolygonFeature } from '../../shared/utils/geo.js';
-
-const EMPTY_FC = { type: 'FeatureCollection', features: [] };
+import { createPolygonFeature, buildDistrictPolygons, EMPTY_FC } from '../../shared/utils/geo.js';
 const DEBUG_GRID = 100;
 const DEG2RAD = Math.PI / 180;
 
@@ -18,11 +15,7 @@ function fastDistKm(lat1, lng1, lat2, lng2) {
 
 function getZonePolygons(selectedDistricts, zoneCoordinates) {
   if (selectedDistricts.length > 0) {
-    return selectedDistricts
-      .map(name => MINSK_DISTRICTS[name])
-      .filter(Boolean)
-      .map(coords => createPolygonFeature(coords))
-      .filter(Boolean);
+    return buildDistrictPolygons(selectedDistricts);
   }
   const poly = createPolygonFeature(zoneCoordinates.map(c => [c[0], c[1]]));
   return poly ? [poly] : [];
