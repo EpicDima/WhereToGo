@@ -15,46 +15,47 @@ export async function handleGenerate() {
   appState.isGenerating = true;
   regenerate();
 
-  const useDistricts = zoneState.selectedDistricts.length > 0;
-  let polygons = [];
-  let zoneBounds = null;
+  try {
+    const useDistricts = zoneState.selectedDistricts.length > 0;
+    let polygons = [];
+    let zoneBounds = null;
 
-  const zonePoly = zoneToPolygon(zoneState.zoneCoordinates);
+    const zonePoly = zoneToPolygon(zoneState.zoneCoordinates);
 
-  if (useDistricts) {
-    polygons = buildDistrictPolygons(zoneState.selectedDistricts);
-    zoneBounds = zonePoly;
-  } else {
-    if (zonePoly) polygons = [zonePoly];
-  }
+    if (useDistricts) {
+      polygons = buildDistrictPolygons(zoneState.selectedDistricts);
+      zoneBounds = zonePoly;
+    } else {
+      if (zonePoly) polygons = [zonePoly];
+    }
 
-  if (polygons.length === 0) {
+    if (polygons.length === 0) {
+      return t('zoneNotSet');
+    }
+
+    const locations = getLocationsOrCenter(peopleState.userLocations, zoneState.city.center);
+
+    const preferences = {
+      attractionPoints: preferencesState.attractionPoints,
+      repulsionPoints: preferencesState.repulsionPoints,
+      attractionRadius: preferencesState.attractionRadius,
+      repulsionRadius: preferencesState.repulsionRadius,
+    };
+
+    await new Promise(r => setTimeout(r, 300));
+
+    const point = polygons.length === 1 && !zoneBounds
+      ? generateConstrainedPoint(polygons[0], locations, distanceState.minDistance, distanceState.maxDistance, preferences)
+      : generateConstrainedPointMulti(polygons, locations, distanceState.minDistance, distanceState.maxDistance, preferences, 3000, zoneBounds);
+
+    if (!point) {
+      return t('generationFailed');
+    }
+
+    appState.generatedPoint = point;
+    appState.step = 4;
+    return null;
+  } finally {
     appState.isGenerating = false;
-    return t('zoneNotSet');
   }
-
-  const locations = getLocationsOrCenter(peopleState.userLocations, zoneState.city.center);
-
-  const preferences = {
-    attractionPoints: preferencesState.attractionPoints,
-    repulsionPoints: preferencesState.repulsionPoints,
-    attractionRadius: preferencesState.attractionRadius,
-    repulsionRadius: preferencesState.repulsionRadius,
-  };
-
-  await new Promise(r => setTimeout(r, 300));
-
-  const point = polygons.length === 1 && !zoneBounds
-    ? generateConstrainedPoint(polygons[0], locations, distanceState.minDistance, distanceState.maxDistance, preferences)
-    : generateConstrainedPointMulti(polygons, locations, distanceState.minDistance, distanceState.maxDistance, preferences, 3000, zoneBounds);
-
-  if (!point) {
-    appState.isGenerating = false;
-    return t('generationFailed');
-  }
-
-  appState.generatedPoint = point;
-  appState.step = 4;
-  appState.isGenerating = false;
-  return null;
 }

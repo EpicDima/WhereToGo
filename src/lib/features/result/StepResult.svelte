@@ -83,7 +83,7 @@
         </div>
         <button
           class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all
-            {shared ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-border text-ink-3 hover:bg-panel-hover hover:text-ink'}"
+            {shared ? 'bg-green-500 border-green-500 text-white' : 'border-border text-ink-3 hover:bg-panel-hover hover:text-ink'}"
           onclick={handleShare}
           title={shared ? t('copied') : t('share')}
         >
