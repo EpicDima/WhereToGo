@@ -1,7 +1,7 @@
 import { circle } from '@turf/circle';
 import { intersect } from '@turf/intersect';
 import { featureCollection } from '@turf/helpers';
-import { createPolygonFeature, buildDistrictPolygons, EMPTY_FC } from '../../shared/utils/geo.js';
+import { zoneToPolygon, buildDistrictPolygons, getLocationsOrCenter, EMPTY_FC } from '../../shared/utils/geo.js';
 
 export function applyStyleOverrides(map, locale) {
   for (const layer of map.getStyle().layers) {
@@ -26,7 +26,7 @@ export function updateZoneData(map, { drawingMode, zoneCoordinates, selectedDist
   if (!map?.getSource('zone')) return;
   if (drawingMode) { map.getSource('zone').setData(EMPTY_FC); return; }
 
-  const zonePoly = createPolygonFeature(zoneCoordinates.map(c => [c[0], c[1]]));
+  const zonePoly = zoneToPolygon(zoneCoordinates);
 
   if (selectedDistricts.length > 0 && zonePoly) {
     const clipped = buildDistrictPolygons(selectedDistricts)
@@ -59,9 +59,7 @@ export function updateRadiusCircles(map, { step, userLocations, cityCenter, minD
     return;
   }
 
-  const locations = userLocations.length > 0
-    ? userLocations
-    : [{ lng: cityCenter[0], lat: cityCenter[1] }];
+  const locations = getLocationsOrCenter(userLocations, cityCenter);
 
   map.getSource('radius-min').setData({
     type: 'FeatureCollection',

@@ -2,7 +2,7 @@ import maplibregl from 'maplibre-gl';
 import { point } from '@turf/helpers';
 import { bbox } from '@turf/bbox';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
-import { createPolygonFeature, buildDistrictPolygons, EMPTY_FC } from '../../shared/utils/geo.js';
+import { zoneToPolygon, buildDistrictPolygons, getLocationsOrCenter, preferenceWeight, EMPTY_FC } from '../../shared/utils/geo.js';
 const DEBUG_GRID = 100;
 const DEG2RAD = Math.PI / 180;
 
@@ -17,7 +17,7 @@ function getZonePolygons(selectedDistricts, zoneCoordinates) {
   if (selectedDistricts.length > 0) {
     return buildDistrictPolygons(selectedDistricts);
   }
-  const poly = createPolygonFeature(zoneCoordinates.map(c => [c[0], c[1]]));
+  const poly = zoneToPolygon(zoneCoordinates);
   return poly ? [poly] : [];
 }
 
@@ -28,7 +28,7 @@ export function computeDebugGrid(state, showDebugHeatmap) {
   if (polygons.length === 0) return EMPTY_FC;
 
   const zoneBounds = state.selectedDistricts.length > 0
-    ? createPolygonFeature(state.zoneCoordinates.map(c => [c[0], c[1]]))
+    ? zoneToPolygon(state.zoneCoordinates)
     : null;
 
   const bboxes = polygons.map(p => bbox(p));
@@ -42,9 +42,7 @@ export function computeDebugGrid(state, showDebugHeatmap) {
   const lngStep = (bb[2] - bb[0]) / DEBUG_GRID;
   const latStep = (bb[3] - bb[1]) / DEBUG_GRID;
 
-  const locations = state.userLocations.length > 0
-    ? state.userLocations
-    : [{ lng: state.city.center[0], lat: state.city.center[1] }];
+  const locations = getLocationsOrCenter(state.userLocations, state.city.center);
 
   const results = [];
   const useDistance = state.step >= 2;
@@ -71,11 +69,11 @@ export function computeDebugGrid(state, showDebugHeatmap) {
       if (usePrefs) {
         for (const ap of state.attractionPoints) {
           const dist = fastDistKm(ap.lat, ap.lng, lat, lng);
-          score += Math.exp(-((dist / state.attractionRadius) ** 2));
+          score += preferenceWeight(dist, state.attractionRadius);
         }
         for (const rp of state.repulsionPoints) {
           const dist = fastDistKm(rp.lat, rp.lng, lat, lng);
-          score -= Math.exp(-((dist / state.repulsionRadius) ** 2));
+          score -= preferenceWeight(dist, state.repulsionRadius);
         }
       }
 

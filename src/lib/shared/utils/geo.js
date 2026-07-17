@@ -23,11 +23,11 @@ function scoreCandidate(candidate, preferences) {
   let score = 0;
   for (const ap of preferences.attractionPoints) {
     const dist = haversineDistance(ap, candidate);
-    score += Math.exp(-((dist / preferences.attractionRadius) ** 2));
+    score += preferenceWeight(dist, preferences.attractionRadius);
   }
   for (const rp of preferences.repulsionPoints) {
     const dist = haversineDistance(rp, candidate);
-    score -= Math.exp(-((dist / preferences.repulsionRadius) ** 2));
+    score -= preferenceWeight(dist, preferences.repulsionRadius);
   }
   return score;
 }
@@ -100,6 +100,20 @@ export function generateConstrainedPointMulti(polygons, userLocations, minKm, ma
     if (candidates.length >= CANDIDATE_BATCH) break;
   }
   return pickWeighted(candidates, preferences);
+}
+
+export function zoneToPolygon(zoneCoordinates) {
+  return createPolygonFeature(zoneCoordinates.map(c => [c[0], c[1]]));
+}
+
+export function getLocationsOrCenter(userLocations, cityCenter) {
+  return userLocations.length > 0
+    ? userLocations
+    : [{ lng: cityCenter[0], lat: cityCenter[1] }];
+}
+
+export function preferenceWeight(dist, radius) {
+  return Math.exp(-((dist / radius) ** 2));
 }
 
 export function createPolygonFeature(coordinates) {
