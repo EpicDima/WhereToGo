@@ -6,7 +6,7 @@
   import { zoneState } from '../../features/zone/store.svelte.js';
   import { peopleState, addUserLocation, updateUserLocationPosition } from '../../features/people/store.svelte.js';
   import { distanceState } from '../../features/distance/store.svelte.js';
-  import { prefsState, addPreferencePoint, updateAttractionPointPosition, updateRepulsionPointPosition } from '../../features/preferences/store.svelte.js';
+  import { preferencesState, addPreferencePoint, updateAttractionPointPosition, updateRepulsionPointPosition } from '../../features/preferences/store.svelte.js';
   import { t, i18n } from '../../shared/i18n/index.svelte.js';
   import { uiState } from '../../shared/stores/ui.svelte.js';
   import {
@@ -43,14 +43,15 @@
     addPreferenceRadiusLayers(map);
     addDrawLayers(map);
     updateZoneData(map, zoneState);
-    updatePreferenceRadii(map, { step: appState.step, ...prefsState });
-    if (isDev) updateDebugHeatmap(map, computeDebugGrid({ ...zoneState, ...peopleState, ...distanceState, ...prefsState, step: appState.step }, showDebugHeatmap));
+    updatePreferenceRadii(map, { step: appState.step, ...preferencesState });
+    if (isDev) updateDebugHeatmap(map, computeDebugGrid({ ...zoneState, ...peopleState, ...distanceState, ...preferencesState, step: appState.step }, showDebugHeatmap));
   }
 
   onMount(() => {
     const mq = window.matchMedia('(max-width: 1023px)');
     isMobile = mq.matches;
-    mq.addEventListener('change', (e) => isMobile = e.matches);
+    const onMqChange = (e) => isMobile = e.matches;
+    mq.addEventListener('change', onMqChange);
 
     mapPadding = isMobile
       ? { top: 60, bottom: 200, left: 20, right: 20 }
@@ -86,7 +87,7 @@
       }
     });
 
-    return () => { map?.remove(); };
+    return () => { mq.removeEventListener('change', onMqChange); map?.remove(); };
   });
 
   function handleDrawClick(lngLat) {
@@ -139,15 +140,15 @@
 
     const draggable = appState.step === 3;
 
-    prefsState.attractionPoints.forEach((pt, i) => {
+    preferencesState.attractionPoints.forEach((pt, i) => {
       const marker = new maplibregl.Marker({ element: createAttractionMarkerEl(), draggable })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
         marker.on('drag', () => {
           const pos = marker.getLngLat();
-          const circles = prefsState.attractionPoints.map((p, idx) =>
-            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], prefsState.attractionRadius, { units: 'kilometers', steps: 48 })
+          const circles = preferencesState.attractionPoints.map((p, idx) =>
+            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], preferencesState.attractionRadius, { units: 'kilometers', steps: 48 })
           );
           map.getSource('pref-attraction').setData({ type: 'FeatureCollection', features: circles });
         });
@@ -159,15 +160,15 @@
       preferenceMarkers.push(marker);
     });
 
-    prefsState.repulsionPoints.forEach((pt, i) => {
+    preferencesState.repulsionPoints.forEach((pt, i) => {
       const marker = new maplibregl.Marker({ element: createRepulsionMarkerEl(), draggable })
         .setLngLat([pt.lng, pt.lat])
         .addTo(map);
       if (draggable) {
         marker.on('drag', () => {
           const pos = marker.getLngLat();
-          const circles = prefsState.repulsionPoints.map((p, idx) =>
-            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], prefsState.repulsionRadius, { units: 'kilometers', steps: 48 })
+          const circles = preferencesState.repulsionPoints.map((p, idx) =>
+            circle([idx === i ? pos.lng : p.lng, idx === i ? pos.lat : p.lat], preferencesState.repulsionRadius, { units: 'kilometers', steps: 48 })
           );
           map.getSource('pref-repulsion').setData({ type: 'FeatureCollection', features: circles });
         });
@@ -229,12 +230,12 @@
   });
 
   $effect(() => { peopleState.userLocations; appState.step; syncUserMarkers(); });
-  $effect(() => { prefsState.attractionPoints; prefsState.repulsionPoints; appState.step; syncPreferenceMarkers(); });
+  $effect(() => { preferencesState.attractionPoints; preferencesState.repulsionPoints; appState.step; syncPreferenceMarkers(); });
 
   $effect(() => {
-    prefsState.attractionPoints; prefsState.repulsionPoints;
-    prefsState.attractionRadius; prefsState.repulsionRadius; appState.step;
-    updatePreferenceRadii(map, { step: appState.step, ...prefsState });
+    preferencesState.attractionPoints; preferencesState.repulsionPoints;
+    preferencesState.attractionRadius; preferencesState.repulsionRadius; appState.step;
+    updatePreferenceRadii(map, { step: appState.step, ...preferencesState });
   });
 
   $effect(() => { appState.generatedPoint; syncResultMarker(); });
@@ -255,9 +256,9 @@
       showDebugHeatmap; appState.step;
       zoneState.zoneCoordinates; zoneState.selectedDistricts;
       peopleState.userLocations; distanceState.minDistance; distanceState.maxDistance;
-      prefsState.attractionPoints; prefsState.repulsionPoints;
-      prefsState.attractionRadius; prefsState.repulsionRadius;
-      updateDebugHeatmap(map, computeDebugGrid({ ...zoneState, ...peopleState, ...distanceState, ...prefsState, step: appState.step }, showDebugHeatmap));
+      preferencesState.attractionPoints; preferencesState.repulsionPoints;
+      preferencesState.attractionRadius; preferencesState.repulsionRadius;
+      updateDebugHeatmap(map, computeDebugGrid({ ...zoneState, ...peopleState, ...distanceState, ...preferencesState, step: appState.step }, showDebugHeatmap));
     });
   }
 
@@ -352,7 +353,7 @@
 <style>
   :global(.user-marker-dot) {
     width: 30px; height: 30px; border-radius: 50%;
-    background: #111; color: white;
+    background: var(--color-ink); color: white;
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700; font-family: 'Inter', sans-serif;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);

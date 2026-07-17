@@ -4,7 +4,7 @@ import { clearResult } from '../../shared/stores/app.svelte.js';
 
 function getInitialCity() {
   if (saved?.customCity) return saved.customCity;
-  const key = saved?.selectedCity && CITY_PRESETS[saved.selectedCity] ? saved.selectedCity : DEFAULT_CITY;
+  const key = saved?.presetKey && CITY_PRESETS[saved.presetKey] ? saved.presetKey : DEFAULT_CITY;
   return { name: CITY_PRESETS[key].name, center: CITY_PRESETS[key].center, zoom: CITY_PRESETS[key].zoom };
 }
 

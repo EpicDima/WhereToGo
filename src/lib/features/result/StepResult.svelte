@@ -43,6 +43,7 @@
       })
       .catch((e) => { if (e.name !== 'AbortError') address = ''; })
       .finally(() => { if (!ac.signal.aborted) addressLoading = false; });
+    return () => { ac.abort(); };
   });
 
   async function handleShare() {
@@ -146,13 +147,14 @@
     <!-- Actions -->
     <div class="flex gap-2 pt-1">
       <button
-        class="flex-1 py-3 rounded-xl text-[14px] font-bold bg-accent text-white hover:bg-accent-hover active:scale-[0.97] transition-all shadow-md shadow-accent-glow"
+        class="flex-1 py-3 rounded-xl text-[14px] font-bold bg-accent text-white hover:bg-accent-hover active:scale-[0.97] transition-all shadow-md shadow-accent-glow disabled:opacity-50 disabled:pointer-events-none"
         onclick={onRegenerate}
+        disabled={appState.isGenerating}
       >
         {t('anotherPlace')}
       </button>
       <button
-        class="flex-1 py-3 rounded-xl text-[14px] font-bold text-ink-2 hover:bg-panel-hover border border-border transition-all"
+        class="flex-1 py-3 rounded-xl text-[14px] font-bold text-ink-2 hover:bg-panel-hover border border-border active:scale-[0.97] transition-all"
         onclick={onRestart}
       >
         {t('restart')}

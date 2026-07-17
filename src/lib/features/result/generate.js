@@ -2,8 +2,8 @@ import { appState, regenerate } from '../../shared/stores/app.svelte.js';
 import { zoneState } from '../zone/store.svelte.js';
 import { peopleState } from '../people/store.svelte.js';
 import { distanceState } from '../distance/store.svelte.js';
-import { prefsState } from '../preferences/store.svelte.js';
-import { generateConstrainedPoint, generateConstrainedPointMulti, createPolygonFeature, buildDistrictPolygons } from '../../shared/utils/geo.js';
+import { preferencesState } from '../preferences/store.svelte.js';
+import { generateConstrainedPoint, generateConstrainedPointMulti, zoneToPolygon, buildDistrictPolygons, getLocationsOrCenter } from '../../shared/utils/geo.js';
 import { t } from '../../shared/i18n/index.svelte.js';
 
 /**
@@ -11,6 +11,7 @@ import { t } from '../../shared/i18n/index.svelte.js';
  * @returns {string|null} error message string, or null on success
  */
 export async function handleGenerate() {
+  if (appState.isGenerating) return null;
   appState.isGenerating = true;
   regenerate();
 
@@ -18,9 +19,7 @@ export async function handleGenerate() {
   let polygons = [];
   let zoneBounds = null;
 
-  const zonePoly = createPolygonFeature(
-    zoneState.zoneCoordinates.map(c => [c[0], c[1]])
-  );
+  const zonePoly = zoneToPolygon(zoneState.zoneCoordinates);
 
   if (useDistricts) {
     polygons = buildDistrictPolygons(zoneState.selectedDistricts);
@@ -34,15 +33,13 @@ export async function handleGenerate() {
     return t('zoneNotSet');
   }
 
-  const locations = peopleState.userLocations.length > 0
-    ? peopleState.userLocations
-    : [{ lng: zoneState.city.center[0], lat: zoneState.city.center[1] }];
+  const locations = getLocationsOrCenter(peopleState.userLocations, zoneState.city.center);
 
   const preferences = {
-    attractionPoints: prefsState.attractionPoints,
-    repulsionPoints: prefsState.repulsionPoints,
-    attractionRadius: prefsState.attractionRadius,
-    repulsionRadius: prefsState.repulsionRadius,
+    attractionPoints: preferencesState.attractionPoints,
+    repulsionPoints: preferencesState.repulsionPoints,
+    attractionRadius: preferencesState.attractionRadius,
+    repulsionRadius: preferencesState.repulsionRadius,
   };
 
   await new Promise(r => setTimeout(r, 300));

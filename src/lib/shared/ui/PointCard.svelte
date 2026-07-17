@@ -5,7 +5,7 @@
 </script>
 
 <div class="card" class:green={variant === 'green'} class:red={variant === 'red'}>
-  <div class="badge" class:badge-green={variant === 'green'} class:badge-red={variant === 'red'}>{badge}</div>
+  {#if badge}<div class="badge" class:badge-green={variant === 'green'} class:badge-red={variant === 'red'}>{badge}</div>{/if}
   <div class="content">
     <input class="name-input" value={name} oninput={(e) => onrename(e.target.value)} {placeholder} />
     <span class="coord">{lat.toFixed(5)}, {lng.toFixed(5)}</span>
@@ -23,8 +23,8 @@
     border: 1px solid var(--color-border);
   }
   .card.green {
-    border-color: rgba(16, 185, 129, 0.25);
-    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(34, 197, 94, 0.25);
+    background: rgba(34, 197, 94, 0.05);
   }
   .card.red {
     border-color: rgba(239, 68, 68, 0.25);
